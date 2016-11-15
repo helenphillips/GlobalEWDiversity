@@ -43,3 +43,22 @@ with open('C:/Users/hp39wasi/sWorm/temp/authorandmoretemp.csv','rt') as fin: # `
 cur.executemany("INSERT INTO Authors (Title,Surname,FirstName,Email) VALUES (?, ?, ?, ?);", test_db)
 con.commit()
 
+
+#### What if the data already exists in the database
+title = "Prof."
+f_name = "Adam"
+s_name = "Smith"
+email = "test@nhm.ac.uk"
+
+s_name2 = "Smiths"
+
+cur.execute("SELECT AuthorID FROM Authors WHERE Surname = ? AND FirstName = ?", (s_name2, f_name))
+data=cur.fetchone()
+   
+if data is None:
+    print('There is no person named %s %s, inserting'%(f_name,s_name2))
+    cur.execute('''INSERT INTO Authors(Title,Surname,FirstName,Email) VALUES(?,?,?,?)''', (title, s_name2, f_name, email))
+    con.commit()
+else:
+    print('%s %s found with rowid %s'%(f_name,s_name2,data[0]))
+
