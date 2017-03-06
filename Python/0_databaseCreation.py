@@ -12,8 +12,3 @@ with con: ## 'with' arguments means all changes are commited
     cur.execute("CREATE TABLE IF NOT EXISTS Journals(journalID INTEGER PRIMARY KEY, name TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS Articles(articleID INTEGER PRIMARY KEY, title TEXT, doi TEXT, year DATE, firstauthor_surname TEXT, dataproviderID INTEGER, numberofstudies INTEGER, numberofsites INTEGER, numberofspecies INTEGER, Bibkey TEXT, journalID INTEGER, FOREIGN KEY(dataproviderID) REFERENCES Dataproviders(dataprovidersID), FOREIGN KEY(journalID) REFERENCES Journals(journalID))");
 
-
- ,
-    	, , )");
-
-
