@@ -48,7 +48,10 @@ colnames(bib) <- bib_names
 
 all_files <- x$sheet_title[grep("^\\d*\\_", x$sheet_title, perl = TRUE)]
 
+cat(paste("\nFound", length(all_files), "datasheets"))
+
 all_bib <- list()
+names(all_bib) <- bib_names
 all_sites <- list()
 all_species <- list()
 
@@ -64,21 +67,21 @@ for(file in all_files){
   ## Sorting out bib dataframe
   meta <- meta[meta[,1] %in% names(bib),] ## To remove unnessecary rows
   meta <- meta[match(names(bib), meta[,1]),] ## To put it in the same order
-  bib[file,] <- meta[,2]
-  
-  all_bib[count] <- bib
+  bib[1,] <- meta[,2]
+  all_bib[[count]] <- bib[1,]
   
   ## Adding article ID
   sites <- cbind(file, sites)
   species <- cbind(file, species)
   
-  ## Validation of site and species level data
-  if(!(all(sites$Study_Name %in% species$Study_ID))) stop("Validation failed: Not all studies have species information")
-  if(!(all(sites$Site_Name %in% species$Site_Name))) stop("Validation failed: Not all sites have species information")
   
   sites <- formatSites(sites)
   species <- formatSpecies(species)
   
+  ## Validation of site and species level data
+  if(!(all(levels(sites$Study_site) %in% levels(species$Study_site)))) stop("Validation failed: Not all sites have species information")
+  
+
   ## TODO: Check that dates make sense
   
   
@@ -109,12 +112,12 @@ for(file in all_files){
   if(length(check) > 0){
     if(any(sites$SpeciesRichness[check] != sites$NumberofSpecies[check])){cat(paste("\n", file, ":Some of the site level species richness values do not add up"))}
   }
-  
+  rm(check)
 
   ## Now to make a species level dataframe with all the variables in
   site_species <- merge(species, sites, by.x = "Study_site", by.y = "Study_site", all.x = TRUE)
   
-  all_sites[count] <- sites
-  all_species[count] <- site_species
+  all_sites[[count]] <- sites
+  all_species[[count]] <- site_species
   
 }
