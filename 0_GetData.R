@@ -76,30 +76,45 @@ for(file in all_files){
   if(!(all(sites$Study_Name %in% species$Study_ID))) stop("Validation failed: Not all studies have species information")
   if(!(all(sites$Site_Name %in% species$Site_Name))) stop("Validation failed: Not all sites have species information")
   
+  sites <- formatSites(sites)
+  species <- formatSpecies(species)
   
   ## TODO: Check that dates make sense
   
   
-  ## Add in "Biomass" column if not present
-  if(!("WetBiomass" %in% names(sites))){
-    sites['WetBiomass'] <- NA
-    sites['WetBiomassUnits'] <- NA}
-  if(!("WetBiomass" %in% names(species))){
-    species['WetBiomass'] <- NA
-    species['WetBiomassUnits'] <- NA}
- 
-  
   #### Calculate site level species richness & Check the values there
-  table(species$Site_Name[which(species$LifeStage != "Juvenile")])
+  juvs <- which(species$LifeStage == "Juvenile")
+  notSpecies <- which(is.na(species$SpeciesBinomial) && is.na(species$MorphospeciesID))
   
-  #### Calculate site level abundance & Check the values there
+  if(length(c(juvs, notSpecies)) > 0){
+    spR <- as.data.frame(table(species$Study_site[-c(juvs, notSpecies)]))
+  } else {spR <- as.data.frame(table(species$Study_site))}
+  rm(list=c(juvs, notSpecies))
+  names(spR)[2] <- "NumberofSpecies"
+  sites <- merge(sites, spR, by.x = "Study_site", by.y = "Var1")
+  rm(spR)
   
+  ## Calculate site level abundance
+  ta <- as.data.frame(tapply(species$Abundance, species$Study_site, sum))
+  names(ta) <- "Site_NumberofIndividuals"
+  ta$SS <- rownames(ta)
+  sites <- merge(sites, ta, by.x = "Study_site", by.y = "SS")
+  rm(ta)
   
-  #### Calculate site level biomass & Check the values there
+  ## Calculate site level biomass
+  ## TODO
   
+  ## Check if site level species richness values were given
+  check <- which(!(is.na(sites$SpeciesRichness)) && (sites$SpeciesRichnessUnit == "Number of species"))
+  if(length(check) > 0){
+    if(any(sites$SpeciesRichness[check] != sites$NumberofSpecies[check])){cat(paste("\n", file, ":Some of the site level species richness values do not add up"))}
+  }
   
+
+  ## Now to make a species level dataframe with all the variables in
+  site_species <- merge(species, sites, by.x = "Study_site", by.y = "Study_site", all.x = TRUE)
   
   all_sites[count] <- sites
-  all_species[count] <- species
+  all_species[count] <- site_species
   
 }
