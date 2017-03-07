@@ -79,9 +79,11 @@ for(file in all_files){
   species <- formatSpecies(species)
   
   ## Validation of site and species level data
-  if(!(all(levels(sites$Study_site) %in% levels(species$Study_site)))) stop("Validation failed: Not all sites have species information")
-  
-
+  already_checked <- c("4643_Nieminen2011", "230_Falco2015")
+  if(!(file %in% already_checked)){
+    if(!(all(levels(sites$Study_site) %in% levels(species$Study_site)))) stop("Validation failed: Not all sites have species information")
+  }
+  rm(already_checked)
   ## TODO: Check that dates make sense
   
   
@@ -92,7 +94,8 @@ for(file in all_files){
   if(length(c(juvs, notSpecies)) > 0){
     spR <- as.data.frame(table(species$Study_site[-c(juvs, notSpecies)]))
   } else {spR <- as.data.frame(table(species$Study_site))}
-  rm(list=c(juvs, notSpecies))
+  rm(juvs)
+  rm(notSpecies)
   names(spR)[2] <- "NumberofSpecies"
   sites <- merge(sites, spR, by.x = "Study_site", by.y = "Var1")
   rm(spR)
