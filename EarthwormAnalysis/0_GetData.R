@@ -21,7 +21,7 @@ data_out <- "0_Data"
 
 library(googlesheets)
 
-
+source("Functions/FormatData.R")
 ########################################################
 # 4. Access googledrive
 ########################################################
@@ -79,7 +79,7 @@ for(file in all_files){
   species <- formatSpecies(species)
   
   ## Validation of site and species level data
-  already_checked <- c("4643_Nieminen2011", "230_Falco2015")
+  already_checked <- c("4643_Nieminen2011", "230_Falco2015", "279_Pansu2015")
   if(!(file %in% already_checked)){
     if(!(all(levels(sites$Study_site) %in% levels(species$Study_site)))) stop("Validation failed: Not all sites have species information")
   }
@@ -124,3 +124,22 @@ for(file in all_files){
   all_species[[count]] <- site_species
   
 }
+
+
+
+## Dirty check to make sure all columns are the same
+n <- c()
+s <- c()
+for(i in 1:length(all_sites)){
+  n <- rbind(n, names(all_sites[[i]]))
+  s <- rbind(s, names(all_species[[i]]))
+}
+
+
+
+
+sites <- do.call("rbind", all_sites)
+species <- do.call("rbind", all_species)
+
+write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+write.csv(species, file = file.path(data_out, paste("species_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
