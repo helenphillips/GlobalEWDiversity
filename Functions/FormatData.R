@@ -67,6 +67,7 @@ formatSpecies <- function(species){
   names(species) <- gsub("\\(","_", names(species))
   names(species) <- gsub("\\)","", names(species))
   names(species)[which(names(species) == "Native/Non-native")] <- "Native.Nonnative"
+
   
   if(!("WetBiomass" %in% names(species))){
     species$WetBiomass <- NA
