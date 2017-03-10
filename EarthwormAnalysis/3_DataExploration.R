@@ -18,7 +18,19 @@ library(maps)
 #################################################
 
 data_in <-"2_Data"
-date <- "2017-03-08" ## TODO: Find a better way to do that
+
+files <- list.files(file.path(data_in))
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+
+file_dates <- as.Date(file_dates)
+date <- max(file_dates)
+loadin <- files[grep(date, files)]
+
+if(!dir.exists("3_Data")){
+  dir.create("3_Data")
+}
+data_out <- "3_Data"
 
 if(!dir.exists("Figures")){
   dir.create("Figures")
@@ -28,8 +40,7 @@ figures <- "Figures"
 # 3. Load in data
 #################################################
 
-sites <- read.csv(file.path(data_in, paste("sites_", date, ".csv", sep ="")))
-
+sites <- read.csv(file.path(data_in, loadin))
 
 #################################################
 # 4. Basic stats
@@ -97,3 +108,21 @@ table(sites$LandUse, sites$Study_Name)
 ## All land uses have comparisons
 
 table(sites$HabitatCover, sites$Study_Name)
+
+
+###########################################################
+## Looking at species richness
+#############################################################
+
+hist(sites$NumberofSpecies) ## Very poisson
+summary(sites$NumberofSpecies)
+
+
+
+###########################################################
+## CONTROVERSIAL!! - Altering ph values
+#############################################################
+sites$ph_new <- sites$PH
+sites$ph_new <- ifelse(sites$PH_Collection_Method == "CaCl2", sites$PH + 1, sites$PH)
+
+write.csv(sites, file = file.path(data_out, paste("Sites_", Sys.Date(), ".csv", sep = "")))

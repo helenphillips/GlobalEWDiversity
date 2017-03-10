@@ -21,13 +21,21 @@ data_out <- "2_Data"
 #################################################
 
 data_in <-"0_Data"
-date <- "2017-03-08" ## TODO: Find a better way to do that
+files <- list.files(file.path(data_in))
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+
+file_dates <- as.Date(file_dates)
+date <- max(file_dates)
+loadin <- files[grep(date, files)]
+loadin <- loadin[grep("sites_", loadin)]
+
 
 #################################################
 # 4. Load in data
 #################################################
 
-sites <- read.csv(file.path(data_in, paste("sites_", date, ".csv", sep ="")))
+sites <- read.csv(file.path(data_in, loadin))
 
 
 #################################################
@@ -40,8 +48,16 @@ remove <- c("CoffeeFarms_Monoliths", "Malaysia_oilpalm", "Wu_Pheretima")
 
 sites <- droplevels(sites[!(sites$Study_Name %in% remove),])
 
+
 #################################################
-# 6. Get rid of studies with selected species 
+# MAke some factor levels consistent
+#################################################
+
+levels(sites$HabitatCover)[levels(sites$HabitatCover) == "Unknown"] <- "Unknown/Other"
+
+
+#################################################
+# 6. Save file
 #################################################
 
 write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
