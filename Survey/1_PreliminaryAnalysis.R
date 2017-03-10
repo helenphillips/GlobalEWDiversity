@@ -33,7 +33,7 @@ Data_out <- "EdittedData"
 files <- list.files(file.path("Data"))
 file_dates <- sapply(strsplit(files, "_"), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 file_dates <- as.Date(file_dates)
-date <- max(file_dates)
+date <- max(file_dates, na.rm = TRUE)
 all <- read.csv(file.path(file.path("Data"), paste(date, "_Soil biodiversity survey short-report.csv", sep="")))
 
 ########################################################
@@ -46,6 +46,7 @@ taxa <- which(names(all) %in% c("Bacteria", "Fungi", "Archaea", "Protists", "Rot
 numSpp <- grep("How.many.species", names(all))                                                                                                                                                                
 contribution <- grep("Would.you.be.willing.to.contribute.your.data.to.a.global", names(all))
 geog <- grep("geographical.area", names(all))
+collection <- which(names(all) %in% c("a.museum.collection", "a.personal.dataset", "data.compiled.from.publications.or.books"))
 ########################################################
 # 5. Basic Stats
 ########################################################
@@ -54,6 +55,67 @@ table(all[,contribution])
 #No answer   Maybe    No   Yes 
 #15           39     8   114 
 
+########################################################
+## What sort of data
+########################################################
+
+collects <- all[,c(1, collection)]
+c <- melt(collects, id = "X.")
+c <- droplevels(c[which(c$value != ""),])
+table(c$value)
+# a museum collection                       a personal dataset 
+# 43                                      131 
+#data compiled from publications or books 
+# 62 
+
+########################################################
+## What databases do you know of
+########################################################
+
+dbs <- all$What.databases.are.you.aware.of.that.contain.information.on.soil.fauna.diversity.
+dbs <- dbs[dbs != ""]
+dbs <- as.vector(dbs)
+x <- strsplit(dbs, ",")
+x <- unlist(x)
+x <- strsplit(x, "\n")
+x <- unlist(x)
+x<- as.factor(x)
+
+levels(x)[agrep("gbif", levels(x), ignore.case = TRUE)] <- "GBIF"
+levels(x)[agrep("Edapobase", levels(x), ignore.case = TRUE)] <- "Edapobase"
+levels(x)[agrep("senckenberg", levels(x), ignore.case = TRUE)] <- "None"
+levels(x)[agrep("drilobase", levels(x), ignore.case = TRUE)] <- "Drilobase"
+levels(x)[agrep("Macrofauna", levels(x), ignore.case = TRUE)] <- "Macrofauna"
+levels(x)[agrep("LTER", levels(x), ignore.case = TRUE)] <- "LTER"
+levels(x)[agrep("BETSI", levels(x), ignore.case = TRUE)] <- "BETSI"
+levels(x)[agrep("www.annelida.net", levels(x), ignore.case = TRUE)] <- "annelida.net"
+levels(x)[agrep("earthmicrobiome", levels(x), ignore.case = TRUE)] <- "Earth Microbiome project"
+levels(x)[grep("Bold", levels(x), ignore.case = TRUE)] <- "Bold/NCBI/Genbank"
+levels(x)[grep("NCBI", levels(x), ignore.case = TRUE)] <- "Bold/NCBI/Genbank"
+levels(x)[agrep("GenBank", levels(x), ignore.case = TRUE)] <- "Bold/NCBI/Genbank"
+levels(x)[agrep("predicts", levels(x), ignore.case = TRUE)] <- "PREDICTS project"
+levels(x)[grep("fao", levels(x), ignore.case = TRUE)] <- "FAO"
+levels(x)[grep("Non", levels(x), ignore.case = TRUE)] <- "None"
+levels(x)[grep("not aware", levels(x), ignore.case = TRUE)] <- "None"
+levels(x)[grep("do not know", levels(x), ignore.case = TRUE)] <- "None"
+levels(x)[grep("don't know", levels(x), ignore.case = TRUE)] <- "None"
+
+levels(x)[grep("I have a", levels(x), ignore.case = TRUE)] <- "Personal dataset"
+
+x_sorted <- sort(table(x),decreasing=T)
+x_sorted <- x_sorted[x_sorted > 1]
+
+x_sorted <- x_sorted[names(x_sorted) %in% c("None","GBIF","Edapobase","Bold/NCBI/Genbank", "Drilobase",                                                
+"BETSI", "Macrofauna", "Earth Microbiome project", "PREDICTS project", "FAO", "annelida.net")]
+
+
+pdf(file = file.path(figures, "Databases.pdf")) ## This then was converted online to be used in teh presentation
+par(mar=c(10.5, 3, 2, 1))
+barplot(x_sorted, las = 2)
+dev.off()
+########################################################
+## Which taxa and where
+########################################################
 taxa_recorded <- all[,c(1, taxa, geog)]
 m <- (melt(taxa_recorded, id = c("X.", "What.geographical.area.is.your.data.from..e.g...country.or.region.within.a.country..")))
 levels(m$variable)
