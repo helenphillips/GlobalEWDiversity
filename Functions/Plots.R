@@ -1,12 +1,4 @@
-Effect1 <- "scalePH"
-Effect2 <- "HabitatCover"
-data <- sites_habitat
-model <- sp_habitat
-
-responseVar <- "NumberofSpecies"
-
-
-plotInteraction <- function(model, Effect1, Effect2, responseVar, seMultiplier = 1.96, data, cols = "Black", legend.position = "topleft", ylabel = "", xlabel = ""){
+plotInteraction <- function(model, Effect1, Effect2, responseVar, seMultiplier = 1.96, data, cols = "#000000", legend.position = "topleft", ylabel = "", xlabel = ""){
   # ci <- confint(model, method="Wald")
   
   ## Create values to predict over
@@ -25,8 +17,8 @@ plotInteraction <- function(model, Effect1, Effect2, responseVar, seMultiplier =
   if(is.numeric(data[,which(names(data) == Effect1)]) && !(is.numeric(data[,which(names(data) == Effect2)]))){
     for(l in levels(newdata[,which(names(newdata) == Effect2)])){
       tmp <- data[data[which(names(data) == Effect2)] == l,]
-      remove <- c(intersect(which(newdata[,1] < min(tmp$scalePH, na.rm = TRUE)), which(newdata[,2] == l)),
-                  intersect(which(newdata[,1] > max(tmp$scalePH, na.rm = TRUE)), which(newdata[,2] == l)))
+      remove <- c(intersect(which(newdata[,1] < min(tmp$scalePH, na.rm = TRUE)-0.1), which(newdata[,2] == l)),
+                  intersect(which(newdata[,1] > max(tmp$scalePH, na.rm = TRUE)+0.1), which(newdata[,2] == l)))
       newdata <- newdata[-remove,]
     }
   }
@@ -67,27 +59,27 @@ plotInteraction <- function(model, Effect1, Effect2, responseVar, seMultiplier =
   f <- which(c(class(newdata[,1]), class(newdata[,2])) == "factor")
   n <- which(c(class(newdata[,1]), class(newdata[,2])) == "numeric")
   r <- which(names(newdata) == responseVar)
+  
   if(length(cols) != length(fac)){
     print("The length of colours does not match the number of factor levels. Some may be removed or duplicated")
   }
   cols <- rep(cols, length.out = length(fac))
+  pt_cols <- paste("#", cols, sep="")
   
-
+  ci_cols <- adjustcolor(pt_cols, alpha.f = 0.3)
   
   
   plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
        xlim = c(min(newdata[,n],na.rm = TRUE), max(newdata[,n], na.rm = TRUE)),  ylab = ylabel, xlab = xlabel)
-  
-  
+
   X.Vec <- c(newdata[,n][newdata[,f] == fac[1]], max(newdata[,n][newdata[,f] == fac[1]]), 
              rev(newdata[,n][newdata[,f] == fac[1]]), min(newdata[,n][newdata[,f] == fac[1]]))
   Y.Vec <- c(newdata$lower[newdata[,f] == fac[1]], tail(newdata$upper[newdata[,f] == fac[1]], 1), rev(newdata$upper[newdata[,f] == fac[1]]), newdata$lower[newdata[,f] == fac[1]][1])
   
-  polygon(X.Vec, Y.Vec, col = "grey", border = NA)
-  
+  polygon(X.Vec, Y.Vec, col = ci_cols[1], border = NA)
   
   points(newdata[,n][newdata[,f] == fac[1]], newdata[,r][newdata[,f] == fac[1]], 
-              col = cols[1],  type = "l", lwd = 2)
+              col = pt_cols[1],  type = "l", lwd = 2)
   
   for(lev in 2:length(fac)){
     
@@ -95,11 +87,11 @@ plotInteraction <- function(model, Effect1, Effect2, responseVar, seMultiplier =
                rev(newdata[,n][newdata[,f] == fac[lev]]), min(newdata[,n][newdata[,f] == fac[lev]]))
     Y.Vec <- c(newdata$lower[newdata[,f] == fac[lev]], tail(newdata$upper[newdata[,f] == fac[lev]], 1), rev(newdata$upper[newdata[,f] == fac[lev]]), newdata$lower[newdata[,f] == fac[lev]][1])
     
-    polygon(X.Vec, Y.Vec, col = "grey", border = NA)
-    
+    polygon(X.Vec, Y.Vec, col = ci_cols[lev], border = NA)
     
     points(newdata[,n][newdata[,f] == fac[lev]], newdata[,r][newdata[,f] == fac[lev]], 
-           type = "l", lwd = 2, col = cols[lev])
+           type = "l", lwd = 2, col = pt_cols[lev])
+    
   }
-  legend(legend.position, legend = fac, col = cols, lwd = 2, bty = "n")
+  legend(legend.position, legend = fac, col = pt_cols, lwd = 2, bty = "n")
 }

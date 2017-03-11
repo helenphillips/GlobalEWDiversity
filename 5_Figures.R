@@ -11,9 +11,9 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 #################################################
 # 1. Loading libraries
 #################################################
-library(maptools)
-library(maps)
-library(lme4)
+source(file.path("Functions", "Plots.R"))
+source(file.path("Functions", "ColourPicker.R"))
+
 #################################################
 # 2. Loading in variables
 #################################################
@@ -31,10 +31,11 @@ loadin <- files[grep(date, files)]
 rm(files)
 rm(date)
 
-if(!dir.exists("Models")){
-  dir.create("Models")
+if(!dir.exists("Figures")){
+  dir.create("Figures")
 }
-models <- "Models"
+figures <- "Figures"
+
 #################################################
 # 3. Load in data
 #################################################
@@ -43,32 +44,31 @@ sites <- read.csv(file.path(data_in, loadin))
 rm(loadin)
 
 
-hist(sites$ph_new)
-hist(poly(sites$ph_new, 2))
-
 #################################################
-# 4. Species Richness
+# 4. Load in models
 #################################################
 
-sites$scalePH <-scale(sites$ph_new)
+models <- "Models"
 
-sites_habitat <- sites[sites$HabitatCover != "Unknown/Other",]
+load(file.path(models, "sp_habitat.rds"))
+load(file.path(models, "sp_landuse.rds"))
 
-## There are some habitat covers that are not suitable for modelling at this stage
-sites_habitat <- droplevels(sites_habitat[!(sites_habitat$HabitatCover %in% c("Cropland/Other vegetation mosaic", "Paddy field")),])
+#################################################
+# 5. Pick colors for figures
+#################################################
+habitCols <- ColourPicker(sites_habitat$HabitatCover)
+luCols <- ColourPicker(sites_lu$LandUse)
+#################################################
+# 6. Figures
+#################################################
 
-sp_habitat <- glmer(NumberofSpecies ~ scalePH * HabitatCover + (1|Study_Name), data = sites_habitat, family = poisson)
-summary(sp_habitat)
-sp_habitat2 <- update(sp_habitat, .~. -scalePH:HabitatCover)
-anova(sp_habitat, sp_habitat2) ## Significant at 0.01 level
-plot(sp_habitat)
-save(sp_habitat, file = file.path(models, "sp_habitat.rds"))
+plotInteraction(model = sp_habitat, Effect1 = "scalePH", Effect2 = "HabitatCover", 
+                responseVar = "NumberofSpecies", seMultiplier = 1.96, 
+                data = sites_habitat, cols = habitCols, legend.position = "topleft", 
+                ylabel = "", xlabel = "")
+  
+plotInteraction(model = sp_lu, Effect1 = "scalePH", Effect2 = "LandUse", 
+                responseVar = "NumberofSpecies", seMultiplier = 1.96, 
+                data = sites_lu, cols = luCols, legend.position = "bottomleft", 
+                ylabel = "", xlabel = "")
 
-
-
-sites_lu <- droplevels(sites[sites$LandUse != "Unknown",])
-sp_lu <- glmer(NumberofSpecies ~ scalePH * LandUse + (1|Study_Name), data = sites_lu, family = poisson)
-summary(sp_lu)
-sp_lu2 <- update(sp_lu, .~. -scalePH:LandUse)
-anova(sp_lu, sp_lu2) ## Highly significant
-save(sp_lu, file = file.path(models, "sp_landuse.rds"))
