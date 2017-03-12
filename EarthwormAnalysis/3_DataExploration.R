@@ -46,10 +46,10 @@ sites <- read.csv(file.path(data_in, loadin))
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 13 papers
-length(unique(sites$Study_Name)) ## 15 studies
+length(unique(sites$file)) ## 17 papers
+length(unique(sites$Study_Name)) ## 23 studies
 
-length(unique(sites$Country))## 11 Countries
+length(unique(sites$Country))## 13 Countries
 
 #################################################
 # 5. Create Map
@@ -93,18 +93,18 @@ dev.off()
 
 
 tapply(sites$PH, sites$Study_Name, summary)
-## 4 with none 
+## 5 with none 
 
 tapply(sites$Organic_Carbon__percent, sites$Study_Name, summary)
-## 11 with none
+## 18 with none
 
 tapply(sites$Soil_Organic_Matter__percent, sites$Study_Name, summary)
-## Only three with
+## Only 9 with
 
 tapply(sites$C.N_ratio, sites$Study_Name, summary)
-## Only three with
+## Only 4 with
 
-table(sites$LandUse, sites$Study_Name)
+table(sites$Study_Name, sites$LandUse)
 ## All land uses have comparisons
 
 table(sites$HabitatCover, sites$Study_Name)

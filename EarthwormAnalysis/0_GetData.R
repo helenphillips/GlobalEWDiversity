@@ -79,7 +79,7 @@ for(file in all_files){
   species <- formatSpecies(species)
   
   ## Validation of site and species level data
-  already_checked <- c("4643_Nieminen2011", "230_Falco2015", "279_Pansu2015")
+  already_checked <- c("4643_Nieminen2011", "230_Falco2015", "279_Pansu2015", "665_Raty2004", "000_Guernion2014")
   if(!(file %in% already_checked)){
     if(!(all(levels(sites$Study_site) %in% levels(species$Study_site)))) stop("Validation failed: Not all sites have species information")
   }
