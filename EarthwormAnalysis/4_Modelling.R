@@ -44,7 +44,6 @@ rm(loadin)
 
 
 hist(sites$ph_new)
-hist(poly(sites$ph_new, 2))
 
 #################################################
 # 4. Species Richness
@@ -52,10 +51,10 @@ hist(poly(sites$ph_new, 2))
 
 sites$scalePH <-scale(sites$ph_new)
 
-sites_habitat <- sites[sites$HabitatCover != "Unknown/Other",]
+sites_habitat <- droplevels(sites[sites$HabitatCover != "Unknown/Other",])
 
 ## There are some habitat covers that are not suitable for modelling at this stage
-sites_habitat <- droplevels(sites_habitat[!(sites_habitat$HabitatCover %in% c("Cropland/Other vegetation mosaic", "Paddy field")),])
+# sites_habitat <- droplevels(sites_habitat[!(sites_habitat$HabitatCover %in% c("Cropland/Other vegetation mosaic", "Paddy field", "Wetland")),])
 
 sp_habitat <- glmer(NumberofSpecies ~ scalePH * HabitatCover + (1|Study_Name), data = sites_habitat, family = poisson)
 summary(sp_habitat)
