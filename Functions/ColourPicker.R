@@ -7,8 +7,8 @@ ColourPicker <- function(variable){
                                  "Cropland/Other vegetation mosaic",
                                  "Herbaceous","Herbaceous with spare tree/shrub", "Needleleaf evergreen forest",
                                  "Paddy field", "Sparse vegetation", "Shrub", "Wetland", "Unknown/Other"),
-                     colour =c("4CAF50", "1B5E20","E65100", "FF9800","6D4C41","A1887F","A5D6A7","9C27B0",
-                                "F06292","26C6DA","0288D1","607D8B"))
+                     colour =c("4CAF50", "1B5E20","E65100", "FF9800","6D4C41","A1887F","A5D6A7","26C6DA",
+                                "F06292","9C27B0","0288D1","607D8B"))
     colos <- tp$colour[match(levels(variable), tp$habitat)]
     
     return(colos)
