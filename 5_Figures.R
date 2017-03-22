@@ -102,18 +102,18 @@ newdata <- droplevels(newdata[newdata$HabitatCover != "Paddy field",])
 newdata$cols <- ColourPicker(newdata$HabitatCover)
   newdata$cols2 <- paste("#", newdata$cols, sep="")
 
+pdf(file = file.path(figures, "HabitatCover.pdf"), width = 11)
 par(xpd=TRUE)
-par(mar = c(3, 3, 2, 15))
+par(mar = c(2, 4.5, 2, 16))
 plot(1:nrow(newdata) -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
-      ylab = "log-Number of species", xlab = "Habitat cover", xaxt='n')
+      ylab = "log-Number of species", xlab = "Habitat cover", xaxt='n', cex.lab = 1.5)
 #xlim = c(min(newdata[,n],na.rm = TRUE), max(newdata[,n], na.rm = TRUE)), 
 
 errbar(1:nrow(newdata), newdata$NumberofSpecies, newdata$upper, newdata$lower,
        add = TRUE, col = newdata$cols2, errbar.col = newdata$cols2, cex = 1.5)
-legend(8.5,2,legend = newdata$HabitatCover, col = newdata$cols2, pch = 19, bty = "n", cex = 1.1)
-
-# legend("bottomleft", legend = newdata$HabitatCover, col = newdata$cols2, lwd = 2, bty = "n")
-
+text(1:8, -1.3, paste("n =", table(sp_habitat@frame$HabitatCover)[c(1:6, 8, 9)]))
+legend(8.2,2,legend = newdata$HabitatCover, col = newdata$cols2, pch = 19, bty = "n", cex = 1.1)
+dev.off()
 
 
 
@@ -136,16 +136,17 @@ newdata$lower <- newdata$NumberofSpecies - seMultiplier * sqrt(pvar1)
 newdata$cols <- ColourPicker(newdata$LandUse)
 newdata$cols2 <- paste("#", newdata$cols, sep="")
 
+pdf(file = file.path(figures, "LandUse.pdf"), width = 11)
 par(xpd=TRUE)
-par(mar = c(3, 3, 2, 15))
+par(mar = c(2, 4.5, 2, 15))
 plot(1:nrow(newdata) -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
-     ylab = "log-Number of species", xlab = "Habitat cover", xaxt='n')
+     ylab = "log-Number of species", xlab = "Habitat cover", xaxt='n', cex.lab = 1.5)
 #xlim = c(min(newdata[,n],na.rm = TRUE), max(newdata[,n], na.rm = TRUE)), 
 
 errbar(1:nrow(newdata), newdata$NumberofSpecies, newdata$upper, newdata$lower,
        add = TRUE, col = newdata$cols2, errbar.col = newdata$cols2, cex = 1.5)
+text(1:6, 0.4, paste("n =", table(sp_lu@frame$LandUse)))
 legend(6.3,1.5,legend = newdata$LandUse, col = newdata$cols2, pch = 19, bty = "n", cex = 1.1)
-
-# legend("bottomleft", legend = newdata$HabitatCover, col = newdata$cols2, lwd = 2, bty = "n")
+dev.off()
 
 
