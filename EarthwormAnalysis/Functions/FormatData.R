@@ -9,6 +9,7 @@ formatSites <- function(sites){
   names(sites) <- gsub("\\?","", names(sites))
   names(sites) <- gsub("\\%","percent", names(sites))
   names(sites)[which(names(sites) == "C/N_ratio")] <- "C.N_ratio"
+  names(sites)[which(names(sites) == "WRB/FAO_SoilType")] <- "WRB_FAO_SoilType"
   
     ## Add in "Biomass" column if not present
   if(!("WetBiomass" %in% names(sites))){
@@ -34,30 +35,51 @@ formatSites <- function(sites){
   sites$Sample_Effort <- as.numeric(sites$Sample_Effort)
   sites$PH <- as.numeric(sites$PH)
   sites$PH_Collection_Method <- as.factor(sites$PH_Collection_Method)
+  sites$CEC <- as.numeric(sites$CEC)
+  sites$Base_Saturation_percent <- as.numeric(sites$Base_Saturation_percent)
   sites$Organic_Carbon__percent <- as.numeric(sites$Organic_Carbon__percent)
   sites$Soil_Organic_Matter__percent <- as.numeric(sites$Soil_Organic_Matter__percent)
   sites$C.N_ratio <- as.numeric(sites$C.N_ratio)                                 
   sites$Sand__percent <- as.numeric(sites$Sand__percent)                                  
   sites$Silt__percent <- as.numeric(sites$Silt__percent)
   sites$Clay__percent <- as.numeric(sites$Clay__percent)
+  sites$USDA_SoilTexture <- as.factor(sites$USDA_SoilTexture)
   sites$Soil_Moisture_percent <- as.numeric(sites$Soil_Moisture_percent)
-  sites$Water_Holding_Capacity_percent__versus_dry_weight <- as.numeric(sites$Water_Holding_Capacity_percent__versus_dry_weight)
-  sites$SoilType <- as.factor(sites$SoilType)                                 
+  sites$WRB_FAO_SoilType <- as.factor(sites$WRB_FAO_SoilType)                                 
   sites$LandUse <- as.factor(sites$LandUse)                              
   sites$HabitatCover <- as.factor(sites$HabitatCover)
+  sites$IPBES_Habitat_Units <- as.factor(sites$IPBES_Habitat_Units)
+  sites$Management_System <- as.factor(sites$Management_System)
+  sites$Tillage <- as.integer(sites$Tillage)
+  sites$Pesticide<- as.integer(sites$Pesticide)
+  sites$Fertilizer <- as.integer(sites$Fertilizer)
+  sites$Selectively_harvested <- as.integer(sites$Selectively_harvested)
+  sites$Clear_cut <- as.integer(sites$Clear_cut)
+  sites$Fire <- as.integer(sites$Fire)
+  sites$Stocking_rate <- as.integer(sites$Stocking_rate)
+  sites$Grazing_all_year <- as.integer(sites$Grazing_all_year)
+  sites$Rotation <- as.integer(sites$Rotation)
+  sites$Monoculture <- as.integer(sites$Monoculture)
+  sites$Planted <- as.integer(sites$Planted)
+  
   sites$SpeciesRichness <- as.numeric(sites$SpeciesRichness)                          
   sites$SpeciesRichnessUnit <- as.factor(sites$SpeciesRichnessUnit)
   sites$Habitat_as_described <- as.factor(sites$Habitat_as_described)              
   sites$file <- as.factor(sites$file)
   sites$WetBiomass <- as.numeric(sites$WetBiomass)
   sites$WetBiomassUnits <- as.factor(sites$WetBiomassUnits)
+  sites$Abundance <- as.numeric(sites$Abundance)
+  sites$Abundance_Units <- as.numeric(sites$Abundance_Units)
   
   sites$Study_site <- as.factor(paste(sites$Study_Name, sites$Site_Name))
   
   names(sites)[which(names(sites) == "WetBiomass")] <- "Site_WetBiomass"
   names(sites)[which(names(sites) == "WetBiomassUnits")] <- "Site_WetBiomassUnits"
   names(sites)[which(names(sites) == "WetBiomass_g")] <- "Site_WetBiomass_g"
-  
+
+  names(sites)[which(names(sites) == "Abundance")] <- "Site_Abundance"
+  names(sites)[which(names(sites) == "Abundance_Units")] <- "Site_AbundanceUnits"
+
   return(sites)
 }
 
