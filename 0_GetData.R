@@ -42,6 +42,15 @@ bib_names <- meta[,1]
 bib <- data.frame(matrix(ncol = length(bib_names), nrow = 0))
 colnames(bib) <- bib_names
 
+
+
+######################################################
+# 5.5. Create template of site info for checking
+#######################################################
+
+sitetemplate <- as.data.frame(gs_read(template_meta, ws = "Site-LevelData"))
+speciestemplate <- as.data.frame(gs_read(template_meta, ws = "Species-LevelData"))
+
 ########################################################
 # 6. Get files from googledrive
 ########################################################
@@ -55,6 +64,7 @@ cat(paste("\nFound", length(all_files), "datasheets"))
 all_sites <- list()
 all_species <- list()
 
+
 count <- 0
 
 for(file in all_files){
@@ -63,12 +73,17 @@ for(file in all_files){
   meta <- as.data.frame(gs_read(f, ws = "MetaData", col_names = FALSE))
   sites <- as.data.frame(gs_read(f, ws = "Site-LevelData"))
   species <- as.data.frame(gs_read(f, ws = "Species-LevelData"))
-
+  
+  ### Check that most recent version of template, else skip it
+  if(!(all(names(bib) %in% meta[,1]))) next
+  if(!(all(names(sitetemplate) %in% names(sites)))) next
+  if(!(all(names(speciestemplate) %in% names(species)))) next
+  
   ## Sorting out bib dataframe
   meta <- meta[meta[,1] %in% names(bib),] ## To remove unnessecary rows
   meta <- meta[match(names(bib), meta[,1]),] ## To put it in the same order
   bib[1,] <- meta[,2]
-  all_bib[[count]] <- bib[1,]
+  #all_bib[[count]] <- bib[1,]
   
   ## Adding article ID
   sites <- cbind(file, sites)
@@ -105,21 +120,37 @@ for(file in all_files){
   
   ## Calculate site level abundance
     ta <- as.data.frame(tapply(species$Abundance, species$Study_site, sum))
-    names(ta) <- "Site_NumberofIndividuals"
+    names(ta) <- "Individuals_fromspecies"
+    ta$Individuals_fromspeciesUnits <- species$Abundance_Unit[1]
     ta$SS <- rownames(ta)
     sites <- merge(sites, ta, by.x = "Study_site", by.y = "SS")
     rm(ta)
   
   ## Calculate site level biomass
-  ## TODO
-  
+    bm <- as.data.frame(tapply(species$WetBiomass, species$Study_site, sum))
+    names(bm) <- "Biomass_fromspecies"
+    bm$Biomass_fromspeciesUnits <- species$WetBiomassUnits[1]
+    bm$SS <- rownames(bm)
+    sites <- merge(sites, bm, by.x = "Study_site", by.y = "SS")
+    rm(bm)
+    
   ## Check if site level species richness values were given
     check <- which(!(is.na(sites$SpeciesRichness)) && (sites$SpeciesRichnessUnit == "Number of species"))
     if(length(check) > 0){
       if(any(sites$SpeciesRichness[check] != sites$NumberofSpecies[check])){cat(paste("\n", file, ":Some of the site level species richness values do not add up"))}
     }
     rm(check)
-  }
+    
+  ## Check if abundance and biomass values were given
+    
+    
+  }else{
+    sites$NumberofSpecies <- NA
+    sites$Individuals_fromspecies <- NA
+    sites$Individuals_fromspeciesUnits <- NA
+    sites$Biomass_fromspecies <- NA
+    sites$Biomass_fromspeciesUnits <- NA}
+  
   ## Now to make a species level dataframe with all the variables in
   if(nrow(species) > 0){site_species <- merge(species, sites, by.x = "Study_site", by.y = "Study_site", all.x = TRUE)
   all_species[[count]] <- site_species
@@ -130,17 +161,6 @@ for(file in all_files){
   
   
 }
-
-
-
-## Dirty check to make sure all columns are the same
-n <- c()
-s <- c()
-for(i in 1:length(all_sites)){
-  n <- rbind(n, names(all_sites[[i]]))
-  s <- rbind(s, names(all_species[[i]]))
-}
-
 
 
 
