@@ -75,9 +75,15 @@ for(file in all_files){
   species <- as.data.frame(gs_read(f, ws = "Species-LevelData"))
   
   ### Check that most recent version of template, else skip it
-  if(!(all(names(bib) %in% meta[,1]))) next
-  if(!(all(names(sitetemplate) %in% names(sites)))) next
-  if(!(all(names(speciestemplate) %in% names(species)))) next
+  if(!(all(names(bib) %in% meta[,1]))) {
+    print(paste(file, ": failed on meta sheet"))
+    next }
+  if(!(all(names(sitetemplate) %in% names(sites)))){
+    print(paste(file, ": failed on sites sheet"))
+    next }
+  if(!(all(names(speciestemplate) %in% names(species)))) {
+    print(paste(file, ": failed on species sheet"))
+    next }
   
   ## Sorting out bib dataframe
   meta <- meta[meta[,1] %in% names(bib),] ## To remove unnessecary rows
@@ -142,6 +148,17 @@ for(file in all_files){
     rm(check)
     
   ## Check if abundance and biomass values were given
+    check <- which(!(is.na(sites$Site_WetBiomass)) & !(is.na(sites$Biomass_fromspecies)))
+    if(length(check) > 0){
+      if(any(sites$Site_WetBiomass[check] != sites$Biomass_fromspecies[check])){cat(paste("\n", file, ":Some of the site level biomass values do not add up"))}
+    }
+    rm(check)
+    
+    check <- which(!(is.na(sites$Site_Abundance)) & !(is.na(sites$Individuals_fromspecies)))
+    if(length(check) > 0){
+      if(any(sites$Site_Abundance[check] != sites$Individuals_fromspecies[check])){cat(paste("\n", file, ":Some of the site level abundance values do not add up"))}
+    }
+    rm(check)
     
     
   }else{

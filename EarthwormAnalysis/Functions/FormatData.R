@@ -11,13 +11,7 @@ formatSites <- function(sites){
   names(sites)[which(names(sites) == "C/N_ratio")] <- "C.N_ratio"
   names(sites)[which(names(sites) == "WRB/FAO_SoilType")] <- "WRB_FAO_SoilType"
   
-    ## Add in "Biomass" column if not present
-  if(!("WetBiomass" %in% names(sites))){
-    sites$WetBiomass <- NA
-    sites$WetBiomassUnits <- NA}
-  
-  
-  
+
   sites$Study_Name <- as.factor(sites$Study_Name)
   sites$Site_Name <- as.factor(sites$Site_Name)
   sites$Observational <- as.factor(sites$Observational)
@@ -69,13 +63,12 @@ formatSites <- function(sites){
   sites$WetBiomass <- as.numeric(sites$WetBiomass)
   sites$WetBiomassUnits <- as.factor(sites$WetBiomassUnits)
   sites$Abundance <- as.numeric(sites$Abundance)
-  sites$Abundance_Units <- as.numeric(sites$Abundance_Units)
+  sites$Abundance_Units <- as.factor(sites$Abundance_Units)
   
   sites$Study_site <- as.factor(paste(sites$Study_Name, sites$Site_Name))
   
   names(sites)[which(names(sites) == "WetBiomass")] <- "Site_WetBiomass"
   names(sites)[which(names(sites) == "WetBiomassUnits")] <- "Site_WetBiomassUnits"
-  names(sites)[which(names(sites) == "WetBiomass_g")] <- "Site_WetBiomass_g"
 
   names(sites)[which(names(sites) == "Abundance")] <- "Site_Abundance"
   names(sites)[which(names(sites) == "Abundance_Units")] <- "Site_AbundanceUnits"
@@ -90,11 +83,6 @@ formatSpecies <- function(species){
   names(species) <- gsub("\\)","", names(species))
   names(species)[which(names(species) == "Native/Non-native")] <- "Native.Nonnative"
 
-  
-  if(!("WetBiomass" %in% names(species))){
-    species$WetBiomass <- NA
-    species$WetBiomassUnits <- NA}
-  
   species$Study_ID <- as.factor(species$Study_ID)
   species$Site_Name <- as.factor(species$Site_Name)
   species$SpeciesBinomial <- as.factor(species$SpeciesBinomial)
