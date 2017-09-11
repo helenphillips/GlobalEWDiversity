@@ -13,6 +13,7 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 #################################################
 library(maptools)
 library(maps)
+library(dplyr)
 #################################################
 # 2. Loading in variables
 #################################################
@@ -46,26 +47,18 @@ sites <- read.csv(file.path(data_in, loadin))
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 17 papers
-length(unique(sites$Study_Name)) ## 23 studies
+length(unique(sites$file)) ## 61 papers
+length(unique(sites$Study_Name)) ## 78 studies
 
-length(unique(sites$Country))## 13 Countries
+length(unique(sites$Country))## 31 Countries
 
 #################################################
 # 5. Create Map
 #################################################
 
 coord<-aggregate(cbind(sites$Longitude__Decimal_Degrees, sites$Latitude__decimal_degrees), list(sites$Study_Name), mean)
-## Three don't have coordinates yet
+## Five don't have coordinates yet
 coord <- coord[complete.cases(coord),]
-
-
-nocoords <- c("FalcoWorms", "Henneron", "Regulska_poland")
-unique(sites$Country[sites$Study_Name %in% nocoords])
-# Argentina France    Poland
-missing <- data.frame(country = c("Argentina", "France",  "Poland"), Long = c(-63.6167, 2.2137, 19.1451), 
-                      Lat = c(-38.4161, 46.2276, 51.9194))
-  
 
 
 coord$X<-coord$Group.1
@@ -75,14 +68,10 @@ names(coord)<-c("Long", "Lat", "X")
 dsSPDF<-SpatialPointsDataFrame(coord[,1:2], data.frame(coord[,1:3]))
 proj4string(dsSPDF)<-CRS("+proj=longlat")
 
-missingSPDF<-SpatialPointsDataFrame(missing[,2:3], data.frame(missing[,1:3]))
-proj4string(missingSPDF)<-CRS("+proj=longlat")
-
 
 pdf(file = file.path(figures, "Map.pdf"), height = 4)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
 points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
-points(missingSPDF, col="red", bg="red", cex= 1, pch=19)
 dev.off()
 
 
@@ -91,32 +80,42 @@ dev.off()
 ## 
 ######################################################
 
+Summary.df <- sites %>% # Start by defining the original dataframe, AND THEN...
+  group_by(Study_Name) %>% # Define the grouping variable, AND THEN...
+  summarise( # Now you define your summary variables with a name and a function...
+    N_sites = n(),  ## The function n() in dlpyr gives you the number of observations
+    N_ph = sum(!(is.na(PH))),
+    N_OC = sum(!(is.na(Organic_Carbon__percent))),
+    N_SOM = sum(!(is.na(Soil_Organic_Matter__percent))),
+    N_CN = sum(!(is.na(C.N_ratio))),
+    N_Moisture = sum(!(is.na(Soil_Moisture_percent)))
+  )
 
-tapply(sites$PH, sites$Study_Name, summary)
-## 5 with none 
+summary.df <- as.data.frame(Summary.df)
 
-tapply(sites$Organic_Carbon__percent, sites$Study_Name, summary)
-## 18 with none
-
-tapply(sites$Soil_Organic_Matter__percent, sites$Study_Name, summary)
-## Only 9 with
-
-tapply(sites$C.N_ratio, sites$Study_Name, summary)
-## Only 4 with
-
-table(sites$Study_Name, sites$LandUse)
-## All land uses have comparisons
-
+table(sites$LandUse)
+table(sites$HabitatCover)
 table(sites$HabitatCover, sites$Study_Name)
-
+table(sites$LU_Mgmt)
 
 ###########################################################
 ## Looking at species richness
 #############################################################
 
-hist(sites$NumberofSpecies) ## Very poisson
-summary(sites$NumberofSpecies)
+hist(sites$SpeciesRichness) ## Very poisson
+summary(sites$SpeciesRichness)
 
+###########################################################
+## Looking at abundance
+#############################################################
+hist(sites$Site_Abundance)
+summary(sites$Site_Abundance)
+
+###########################################################
+## Looking at species richness
+#############################################################
+hist(sites$Site_WetBiomass)
+summary(sites$Site_WetBiomass)
 
 
 ###########################################################
@@ -124,5 +123,28 @@ summary(sites$NumberofSpecies)
 #############################################################
 sites$ph_new <- sites$PH
 sites$ph_new <- ifelse(sites$PH_Collection_Method == "CaCl2", sites$PH + 1, sites$PH)
+summary(sites$ph_new) # Seems reasonably after previous mistake
+
+###########################################################
+## Distribution of the most populated soil variables
+#############################################################
+
+hist(sites$Soil_Moisture_percent)
+hist(sites$Soil_Organic_Matter__percent)
+hist(sites$Organic_Carbon__percent)
+hist(sites$C.N_ratio)
+
+
+tapply(sites$ph_new, sites$LandUse, summary)
+tapply(sites$Soil_Organic_Matter__percent, sites$LandUse, summary)
+tapply(sites$Organic_Carbon__percent, sites$LandUse, summary)
+
+tapply(sites$ph_new, sites$HabitatCover, summary)
+tapply(sites$Soil_Organic_Matter__percent, sites$HabitatCover, summary)
+tapply(sites$Organic_Carbon__percent, sites$HabitatCover, summary)
+
+tapply(sites$ph_new, sites$LU_Mgmt, summary)
+tapply(sites$Soil_Organic_Matter__percent, sites$LU_Mgmt, summary)
+tapply(sites$Organic_Carbon__percent, sites$LU_Mgmt, summary)
 
 write.csv(sites, file = file.path(data_out, paste("Sites_", Sys.Date(), ".csv", sep = "")))
