@@ -39,8 +39,8 @@ meta <- as.data.frame(gs_read(template_meta, ws = "MetaData", col_names = FALSE)
 
 bib_names <- meta[,1]
 
-bib <- data.frame(matrix(ncol = length(bib_names), nrow = 0))
-colnames(bib) <- bib_names
+bib <- data.frame(matrix(ncol = length(bib_names) + 1, nrow = 0)) ## plus one so I can add a file name
+colnames(bib) <- c(bib_names, "file")
 
 
 
@@ -50,6 +50,7 @@ colnames(bib) <- bib_names
 
 sitetemplate <- as.data.frame(gs_read(template_meta, ws = "Site-LevelData"))
 speciestemplate <- as.data.frame(gs_read(template_meta, ws = "Species-LevelData"))
+
 
 ########################################################
 # 6. Get files from googledrive
@@ -64,6 +65,10 @@ cat(paste("\nFound", length(all_files), "datasheets"))
 all_sites <- list()
 all_species <- list()
 
+########################################################
+# 7. Start processing data
+########################################################
+
 
 count <- 0
 
@@ -73,6 +78,10 @@ for(file in all_files){
   meta <- as.data.frame(gs_read(f, ws = "MetaData", col_names = FALSE))
   sites <- as.data.frame(gs_read(f, ws = "Site-LevelData"))
   species <- as.data.frame(gs_read(f, ws = "Species-LevelData"))
+  
+  ## Add file info to metadata
+  meta[nrow(meta) + 1,] <- c("file", file)
+  
   
   ### Check that most recent version of template, else skip it
   if(!(all(names(bib) %in% meta[,1]))) {
@@ -88,23 +97,16 @@ for(file in all_files){
   ## Sorting out bib dataframe
   meta <- meta[meta[,1] %in% names(bib),] ## To remove unnessecary rows
   meta <- meta[match(names(bib), meta[,1]),] ## To put it in the same order
-  bib[1,] <- meta[,2]
-  #all_bib[[count]] <- bib[1,]
+  bib[count,] <- meta[,2]
+
   
   ## Adding article ID
   sites <- cbind(file, sites)
   if(nrow(species) > 0){species <- cbind(file, species)}
   
-  
+  ## Formatting
   sites <- formatSites(sites)
   if(nrow(species) > 0){species <- formatSpecies(species)}
-  
-  ## Validation of site and species level data
-  # already_checked <- c("4643_Nieminen2011", "230_Falco2015", "279_Pansu2015", "665_Raty2004", "000_Guernion2014")
-  # if(!(file %in% already_checked)){
-  #  if(!(all(levels(sites$Study_site) %in% levels(species$Study_site)))) stop("Validation failed: Not all sites have species information")
-  # }
-  # rm(already_checked)
   
   
   ## TODO: Check that dates make sense
@@ -179,10 +181,45 @@ for(file in all_files){
   
 }
 
+########################################################
+# 8. Create two complete dataframes
+########################################################
 
 
 sites <- do.call("rbind", all_sites)
 species <- do.call("rbind", all_species)
 
+
+########################################################
+# 9. Amalgamte site level values of species richness, biomass and abundance
+########################################################
+
+sitelevel_spR <- which(is.na(sites$SpeciesRichness) & !(is.na(sites$NumberofSpecies)))
+sites$SpeciesRichness[sitelevel_spR] <-sites$NumberofSpecies[sitelevel_spR]
+sites$SpeciesRichnessUnit[sitelevel_spR] <- "Number of species"
+rm(sitelevel_spR)
+
+
+sitelevel_biom <- which(is.na(sites$Site_WetBiomass) & !(is.na(sites$Biomass_fromspecies)))
+sites$Site_WetBiomass[sitelevel_biom] <-sites$Biomass_fromspecies[sitelevel_biom]
+sites$Site_WetBiomassUnits[sitelevel_biom] <- sites$Biomass_fromspeciesUnits[sitelevel_biom]
+rm(sitelevel_biom)
+
+sitelevel_abund <- which(is.na(sites$Site_Abundance) & !(is.na(sites$Individuals_fromspecies)))
+sites$Site_Abundance[sitelevel_abund] <-sites$Individuals_fromspecies[sitelevel_abund]
+sites$Site_AbundanceUnits[sitelevel_abund] <- sites$Individuals_fromspeciesUnits[sitelevel_abund]
+rm(sitelevel_abund)
+
+
+colsToRemove <- c("NumberofSpecies", "Individuals_fromspecies", "Individuals_fromspeciesUnits", "Biomass_fromspecies", "Biomass_fromspeciesUnits")
+sites[,names(sites) %in% colsToRemove] <- NULL
+
+
+########################################################
+# 10. Save the data
+########################################################
+
+
 write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 write.csv(species, file = file.path(data_out, paste("species_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+write.csv(bib, file = file.path(data_out, paste("Metadata_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
