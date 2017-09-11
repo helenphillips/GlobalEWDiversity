@@ -1,4 +1,4 @@
-plotInteraction <- function(model, Effect1, Effect2, responseVar, seMultiplier = 1.96, data, cols = "#000000", legend.position = "topleft", ylabel = "", xlabel = ""){
+plotInteraction <- function(model, Effect1, Effect2, responseVar, seMultiplier = 1.96, data, cols = "000000", legend.position = "topleft", ylabel = "", xlabel = ""){
   # ci <- confint(model, method="Wald")
   
   ## Create values to predict over
@@ -17,9 +17,11 @@ plotInteraction <- function(model, Effect1, Effect2, responseVar, seMultiplier =
   if(is.numeric(data[,which(names(data) == Effect1)]) && !(is.numeric(data[,which(names(data) == Effect2)]))){
     for(l in levels(newdata[,which(names(newdata) == Effect2)])){
       tmp <- data[data[which(names(data) == Effect2)] == l,]
-      remove <- c(intersect(which(newdata[,1] < min(tmp$scalePH, na.rm = TRUE)-0.1), which(newdata[,2] == l)),
-                  intersect(which(newdata[,1] > max(tmp$scalePH, na.rm = TRUE)+0.1), which(newdata[,2] == l)))
-      newdata <- newdata[-remove,]
+      remove <- c(intersect(which(newdata[,1] < min(tmp[,which(names(data) == Effect1)], na.rm = TRUE)-0.1), which(newdata[,2] == l)),
+                  intersect(which(newdata[,1] > max(tmp[,which(names(data) == Effect1)], na.rm = TRUE)+0.1), which(newdata[,2] == l)))
+      if(length(remove) > 0){ ## Otherwise entire dataframes are removed if none of the points meet the criteria
+        newdata <- newdata[-remove,]
+      }
     }
   }
   
@@ -28,7 +30,9 @@ plotInteraction <- function(model, Effect1, Effect2, responseVar, seMultiplier =
       tmp <- data[data[which(names(data) == Effect1)] == l,]
       remove <- c(intersect(which(newdata[,1] < min(tmp$scalePH, na.rm = TRUE)), which(newdata[,2] == l)),
                   intersect(which(newdata[,1] > max(tmp$scalePH, na.rm = TRUE)), which(newdata[,2] == l)))
-      newdata <- newdata[-remove,]
+      if(length(remove) > 0){ ## Otherwise entire dataframes are removed if none of the points meet the criteria
+        newdata <- newdata[-remove,]
+      }
     }
   }
   

@@ -62,91 +62,52 @@ load(file.path(models, "sp_landuse.rds"))
 #################################################
 # 5. Pick colors for figures
 #################################################
-habitCols <- ColourPicker(sites_habitat$HabitatCover)
-luCols <- ColourPicker(sites_lu$LandUse)
+# habitCols <- ColourPicker(sites_habitat$HabitatCover)
+# luCols <- ColourPicker(sites_lu$LandUse)
+luMgmtCols <- ColourPicker(abundance$LU_Mgmt)
 #################################################
 # 6. Figures
 #################################################
 ### Interactions
-plotInteraction(model = sp_habitat, Effect1 = "scalePH", Effect2 = "HabitatCover", 
-                responseVar = "NumberofSpecies", seMultiplier = 1.96, 
-                data = sites_habitat, cols = habitCols, legend.position = "topleft", 
+plotInteraction(model = a1, Effect1 = "scalePH", Effect2 = "LU_Mgmt", 
+                responseVar = "logAbundance", seMultiplier = 1.96, 
+                data = abundance, cols = luMgmtCols, legend.position = "topleft", 
                 ylabel = "", xlabel = "")
   
-plotInteraction(model = sp_lu, Effect1 = "scalePH", Effect2 = "LandUse", 
-                responseVar = "NumberofSpecies", seMultiplier = 1.96, 
-                data = sites_lu, cols = luCols, legend.position = "bottomleft", 
-                ylabel = "", xlabel = "")
+#plotInteraction(model = sp_lu, Effect1 = "scalePH", Effect2 = "LandUse", 
+#                responseVar = "NumberofSpecies", seMultiplier = 1.96, 
+#                data = sites_lu, cols = luCols, legend.position = "bottomleft", 
+#                ylabel = "", xlabel = "")
 
 
 
 ### Main effects
-### Habitat cover
-newdata <- with(sp_habitat@frame, expand.grid(scalePH = mean(scalePH, na.rm = TRUE), HabitatCover=levels(HabitatCover)))
-newdata$NumberofSpecies <- predict(sp_habitat,newdata, re.form = NA)
+newdata <- with(a1@frame, expand.grid(scalePH = mean(scalePH, na.rm = TRUE), LU_Mgmt=levels(LU_Mgmt)))
+newdata$logAbundance <- predict(a1,newdata, re.form = NA)
 
-mm <- model.matrix(terms(sp_habitat), newdata)
+mm <- model.matrix(terms(a1), newdata)
 
-coef.names<-names(fixef(sp_habitat))
+coef.names<-names(fixef(a1))
 original.mm.names<-dimnames(mm)[[2]]
 if(length(coef.names)!=length(original.mm.names)){mm<-mm[,dimnames(mm)[[2]]%in%coef.names]} 
 
 
-pvar1 <- diag(mm %*% base::tcrossprod(as.matrix(vcov(sp_habitat)), mm))
+pvar1 <- diag(mm %*% base::tcrossprod(as.matrix(vcov(a1)), mm))
 seMultiplier <- 1.96
-newdata$upper <- newdata$NumberofSpecies + seMultiplier * sqrt(pvar1)
-newdata$lower <- newdata$NumberofSpecies - seMultiplier * sqrt(pvar1)
+newdata$upper <- newdata$logAbundance + seMultiplier * sqrt(pvar1)
+newdata$lower <- newdata$logAbundance - seMultiplier * sqrt(pvar1)
 
+#newdata$cols <- ColourPicker(newdata$HabitatCover)
+#newdata$cols2 <- paste("#", newdata$cols, sep="")
 
-newdata <- droplevels(newdata[newdata$HabitatCover != "Paddy field",])
-newdata$cols <- ColourPicker(newdata$HabitatCover)
-  newdata$cols2 <- paste("#", newdata$cols, sep="")
-
-pdf(file = file.path(figures, "HabitatCover.pdf"), width = 11)
-par(xpd=TRUE)
-par(mar = c(2, 4.5, 2, 16))
+# pdf(file = file.path(figures, "HabitatCover.pdf"), width = 11)
+#par(xpd=TRUE)
+#par(mar = c(2, 4.5, 2, 16))
 plot(1:nrow(newdata) -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
-      ylab = "log-Number of species", xlab = "Habitat cover", xaxt='n', cex.lab = 1.5)
+     ylab = "log-Abundance", xlab = "LU_Mgmt", xaxt='n', cex.lab = 1.5)
 #xlim = c(min(newdata[,n],na.rm = TRUE), max(newdata[,n], na.rm = TRUE)), 
 
-errbar(1:nrow(newdata), newdata$NumberofSpecies, newdata$upper, newdata$lower,
-       add = TRUE, col = newdata$cols2, errbar.col = newdata$cols2, cex = 1.5)
-text(1:8, -1.3, paste("n =", table(sp_habitat@frame$HabitatCover)[c(1:6, 8, 9)]))
-legend(8.2,2,legend = newdata$HabitatCover, col = newdata$cols2, pch = 19, bty = "n", cex = 1.1)
-dev.off()
-
-
-
-### Land use
-newdata <- with(sp_lu@frame, expand.grid(scalePH = mean(scalePH, na.rm = TRUE), LandUse=levels(LandUse)))
-newdata$NumberofSpecies <- predict(sp_lu,newdata, re.form = NA)
-
-mm <- model.matrix(terms(sp_lu), newdata)
-
-coef.names<-names(fixef(sp_lu))
-original.mm.names<-dimnames(mm)[[2]]
-if(length(coef.names)!=length(original.mm.names)){mm<-mm[,dimnames(mm)[[2]]%in%coef.names]} 
-
-
-pvar1 <- diag(mm %*% base::tcrossprod(as.matrix(vcov(sp_lu)), mm))
-seMultiplier <- 1.96
-newdata$upper <- newdata$NumberofSpecies + seMultiplier * sqrt(pvar1)
-newdata$lower <- newdata$NumberofSpecies - seMultiplier * sqrt(pvar1)
-
-newdata$cols <- ColourPicker(newdata$LandUse)
-newdata$cols2 <- paste("#", newdata$cols, sep="")
-
-pdf(file = file.path(figures, "LandUse.pdf"), width = 11)
-par(xpd=TRUE)
-par(mar = c(2, 4.5, 2, 15))
-plot(1:nrow(newdata) -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
-     ylab = "log-Number of species", xlab = "Habitat cover", xaxt='n', cex.lab = 1.5)
-#xlim = c(min(newdata[,n],na.rm = TRUE), max(newdata[,n], na.rm = TRUE)), 
-
-errbar(1:nrow(newdata), newdata$NumberofSpecies, newdata$upper, newdata$lower,
-       add = TRUE, col = newdata$cols2, errbar.col = newdata$cols2, cex = 1.5)
-text(1:6, 0.4, paste("n =", table(sp_lu@frame$LandUse)))
-legend(6.3,1.5,legend = newdata$LandUse, col = newdata$cols2, pch = 19, bty = "n", cex = 1.1)
-dev.off()
-
-
+errbar(1:nrow(newdata), newdata$logAbundance, newdata$upper, newdata$lower,
+       add = TRUE, col = luMgmtCols, errbar.col = luMgmtCols, cex = 1.5)
+text(1:8, 2.3, paste("n =", table(a1@frame$LU_Mgmt)))
+# dev.off()

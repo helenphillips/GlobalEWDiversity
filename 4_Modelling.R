@@ -51,23 +51,39 @@ hist(sites$ph_new)
 
 sites$scalePH <-scale(sites$ph_new)
 
-sites_habitat <- droplevels(sites[sites$HabitatCover != "Unknown/Other",])
 
-## There are some habitat covers that are not suitable for modelling at this stage
-# sites_habitat <- droplevels(sites_habitat[!(sites_habitat$HabitatCover %in% c("Cropland/Other vegetation mosaic", "Paddy field", "Wetland")),])
+#plot(sp_habitat)
+#save(sp_habitat, file = file.path(models, "sp_habitat.rds"))
 
-sp_habitat <- glmer(NumberofSpecies ~ scalePH * HabitatCover + (1|Study_Name), data = sites_habitat, family = poisson)
-summary(sp_habitat)
-sp_habitat2 <- update(sp_habitat, .~. -scalePH:HabitatCover)
-anova(sp_habitat, sp_habitat2) ## Significant at 0.01 level
-plot(sp_habitat)
-save(sp_habitat, file = file.path(models, "sp_habitat.rds"))
+#################################################
+# 5. Biomass
+#################################################
+biomass <- sites[complete.cases(sites$Site_WetBiomass),]
+biomass <- droplevels(biomass[biomass$LU_Mgmt != "Unknown",])
+b1 <- lmer(log(Site_WetBiomass +1) ~ LU_Mgmt + scalePH + 
+             scalePH:LU_Mgmt +
+             # HabitatCover + 
+            #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+            # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+            (1|file/Study_Name), data = biomass)
+
+#################################################
+# 6. Abundance
+#################################################
+hist(sites$Site_Abundance)
+hist(log(sites$Site_Abundance + 1))
+abundance <- sites[complete.cases(sites$Site_Abundance),]
+abundance <- droplevels(abundance[abundance$LU_Mgmt != "Unknown",])
+
+abundance$logAbundance <- log(abundance$Site_Abundance +1)
+
+a1 <- lmer(logAbundance ~ LU_Mgmt + scalePH + 
+             scalePH:LU_Mgmt + # HabitatCover + 
+              # Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+             (1|file/Study_Name), data = abundance)
+
+plot(a1)
+#save(sp_habitat, file = file.path(models, "sp_habitat.rds"))
 
 
-
-sites_lu <- droplevels(sites[sites$LandUse != "Unknown",])
-sp_lu <- glmer(NumberofSpecies ~ scalePH * LandUse + (1|Study_Name), data = sites_lu, family = poisson)
-summary(sp_lu)
-sp_lu2 <- update(sp_lu, .~. -scalePH:LandUse)
-anova(sp_lu, sp_lu2) ## Highly significant
-save(sp_lu, file = file.path(models, "sp_landuse.rds"))
