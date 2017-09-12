@@ -47,10 +47,10 @@ sites <- read.csv(file.path(data_in, loadin))
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 61 papers
-length(unique(sites$Study_Name)) ## 78 studies
+length(unique(sites$file)) ## 65 papers
+length(unique(sites$Study_Name)) ## 82 studies
 
-length(unique(sites$Country))## 31 Countries
+length(unique(sites$Country))## 32 Countries
 
 #################################################
 # 5. Create Map
@@ -104,19 +104,21 @@ table(sites$LU_Mgmt)
 
 hist(sites$SpeciesRichness) ## Very poisson
 summary(sites$SpeciesRichness)
-
+tapply(sites$SpeciesRichness, sites$LU_Mgmt, summary)
 ###########################################################
 ## Looking at abundance
 #############################################################
 hist(sites$Site_Abundance)
 summary(sites$Site_Abundance)
-
+tapply(sites$Site_Abundance, sites$LU_Mgmt, summary)
+sites$logAbundance <- log(sites$Site_Abundance + 1)
 ###########################################################
-## Looking at species richness
+## Looking at biomass
 #############################################################
 hist(sites$Site_WetBiomass)
 summary(sites$Site_WetBiomass)
-
+tapply(sites$Site_WetBiomass, sites$LU_Mgmt, summary)
+sites$logBiomass <- log(sites$Site_WetBiomass +1)
 
 ###########################################################
 ## CONTROVERSIAL!! - Altering ph values
@@ -124,7 +126,7 @@ summary(sites$Site_WetBiomass)
 sites$ph_new <- sites$PH
 sites$ph_new <- ifelse(sites$PH_Collection_Method == "CaCl2", sites$PH + 1, sites$PH)
 summary(sites$ph_new) # Seems reasonably after previous mistake
-
+sites$scalePH <-scale(sites$ph_new)
 ###########################################################
 ## Distribution of the most populated soil variables
 #############################################################
@@ -146,5 +148,27 @@ tapply(sites$Organic_Carbon__percent, sites$HabitatCover, summary)
 tapply(sites$ph_new, sites$LU_Mgmt, summary)
 tapply(sites$Soil_Organic_Matter__percent, sites$LU_Mgmt, summary)
 tapply(sites$Organic_Carbon__percent, sites$LU_Mgmt, summary)
+
+
+
+###########################################################
+## Create a intensity variable (categorical integer)
+#############################################################
+
+
+
+intensityvars <- c("Tillage", "Pesticide", "Fertilizer",                  
+                   "Selectively_harvested","Clear_cut",                   
+                   "Fire","Stocking_rate",               
+                   "Grazing_all_year","Rotation",                    
+                   "Monoculture","Planted")
+
+sites$intensity <- rowSums(sites[,which(names(sites) %in% intensityvars)], na.rm = TRUE)
+sites$intensity <- ifelse(sites$LU_Mgmt == "Unknown", NA, sites$intensity)
+sites$intensity <- as.factor(sites$intensity)
+table(sites$LU_Mgmt, sites$intensity)
+###########################################################
+## Save files
+#############################################################
 
 write.csv(sites, file = file.path(data_out, paste("Sites_", Sys.Date(), ".csv", sep = "")))
