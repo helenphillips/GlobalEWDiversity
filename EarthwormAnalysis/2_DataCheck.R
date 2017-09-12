@@ -28,7 +28,7 @@ file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by
 file_dates <- as.Date(file_dates)
 date <- max(file_dates)
 loadin <- files[grep(date, files)]
-loadin <- loadin[grep("sites_", loadin)]
+loadinsites <- loadin[grep("sites_", loadin)]
 loadinbib <- loadin[grep("Metadata_", loadin)]
 
 
@@ -36,14 +36,14 @@ loadinbib <- loadin[grep("Metadata_", loadin)]
 # 4. Load in data
 #################################################
 
-sites <- read.csv(file.path(data_in, loadin))
-bib <- read.csv(file.path(loadinbib, loadin))
+sites <- read.csv(file.path(data_in, loadinsites))
+bib <- read.csv(file.path(data_in, loadinbib))
 
 #################################################
 # 5. Get rid of studies with selected species 
 #################################################
-bib$EntireCommunity <- as.factor(bib$`Entire Community`)
-all_spp <- bib$file[bib$EntireCommunity == "yes - all species sampled"]
+bib$Entire.Community <- as.factor(bib$Entire.Community)
+all_spp <- bib$file[bib$Entire.Community == "yes - all species sampled"]
 
 sites <- sites[sites$file %in% all_spp,]
 

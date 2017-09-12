@@ -14,6 +14,7 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 library(maptools)
 library(maps)
 library(lme4)
+library(car)
 #################################################
 # 2. Loading in variables
 #################################################
@@ -42,14 +43,36 @@ models <- "Models"
 sites <- read.csv(file.path(data_in, loadin))
 rm(loadin)
 
+#################################################
+# 4. Set reference levels
+#################################################
+sites$Management_System <- factor(sites$Management_System, levels = c("None",  "Annual crop", "Perennial crops", "Integrated systems",                   
+                                                                      "Tree plantations", "Pastures (grazed lands)","Unknown"))
 
-hist(sites$ph_new)
+sites$LandUse <- factor(sites$LandUse, levels = c("Primary vegetation", "Secondary vegetation", "Pasture" ,
+                                                  "Production - Arable", "Production - Crop plantations", 
+                                                  "Production - Wood plantation",
+                                                  "Urban", "Unknown"))
 
+sites$HabitatCover <- factor(sites$HabitatCover, levels = c("Broadleaf deciduous forest", "Broadleaf evergreen forest",
+                                                            "Needleleaf deciduous forest","Needleleaf evergreen forest",
+                                                            "Mixed forest", "Tree open",
+                                                            "Cropland","Cropland/Other vegetation mosaic",
+                                                            "Herbaceous", "Herbaceous with spare tree/shrub",
+                                                            "Shrub", "Sparse vegetation",
+                                                            "Urban","Bare area (consolidated",
+                                                            "Paddy field","Wetland", "Water bodies", "Unknown"))
+
+sites$LU_Mgmt <- factor(sites$LU_Mgmt, levels = c( "Primary vegetation", "Secondary vegetation", "Annual crop", "Perennial crops",
+                                                   "Integrated systems", "Tree plantations", "Pastures (grazed lands)", 
+                                                   "Unknown", "Urban" ))
+
+sites$intensity <- as.factor(sites$intensity)
 #################################################
 # 4. Species Richness
 #################################################
 
-sites$scalePH <-scale(sites$ph_new)
+
 
 
 #plot(sp_habitat)
@@ -58,27 +81,43 @@ sites$scalePH <-scale(sites$ph_new)
 #################################################
 # 5. Biomass
 #################################################
-biomass <- sites[complete.cases(sites$Site_WetBiomass),]
+biomass <- sites[complete.cases(sites$logBiomass),]
 biomass <- droplevels(biomass[biomass$LU_Mgmt != "Unknown",])
-b1 <- lmer(log(Site_WetBiomass +1) ~ LU_Mgmt + scalePH + 
+b1 <- lmer(logBiomass ~ LU_Mgmt + scalePH + intensity +
              scalePH:LU_Mgmt +
+             LU_Mgmt:intensity +
              # HabitatCover + 
             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
             (1|file/Study_Name), data = biomass)
 
+b2a <- update(b1, .~. -LU_Mgmt:intensity)
+anova(b1, b2a) ## Not significant
+b2b <- update(b1, .~. -LU_Mgmt:scalePH)
+anova(b1, b2b) ##Significant
+
+summary(b2a)
+b3a <- update(b2a, .~. -LU_Mgmt:scalePH)
+anova(b2a, b3a) ## Significant
+
+b4a <- update(b2a, .~. -intensity)
+anova(b2a, b4a) ## Significant
+
+######
+## b2a
+######
+
+
 #################################################
 # 6. Abundance
 #################################################
 hist(sites$Site_Abundance)
-hist(log(sites$Site_Abundance + 1))
+hist(sites$logAbundance)
 abundance <- sites[complete.cases(sites$Site_Abundance),]
 abundance <- droplevels(abundance[abundance$LU_Mgmt != "Unknown",])
 
-abundance$logAbundance <- log(abundance$Site_Abundance +1)
-
-a1 <- lmer(logAbundance ~ LU_Mgmt + scalePH + 
-             scalePH:LU_Mgmt + # HabitatCover + 
+a1 <- lmer(logAbundance ~ LU_Mgmt + scalePH + intensity +
+             scalePH:LU_Mgmt + LU_Mgmt:intensity + # HabitatCover + 
               # Soil_Organic_Matter__percent + # Organic_Carbon__percent +
              # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
              (1|file/Study_Name), data = abundance)
@@ -87,3 +126,17 @@ plot(a1)
 #save(sp_habitat, file = file.path(models, "sp_habitat.rds"))
 
 
+a2a <- update(a1, .~. -LU_Mgmt:intensity)
+anova(a1, a2a) ## Not quite significant
+a2b <- update(a1, .~. -LU_Mgmt:scalePH)
+anova(a1, a2b) # Significant
+
+a3a <- update(a2a, .~. -LU_Mgmt:scalePH)
+anova(a2a, a3a) ## Significant
+
+a4a <- update(a2a, .~. -intensity)
+anova(a2a, a4a) ## Significant
+
+####
+## a2a
+####
