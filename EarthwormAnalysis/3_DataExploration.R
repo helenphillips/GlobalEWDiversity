@@ -47,10 +47,10 @@ sites <- read.csv(file.path(data_in, loadin))
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 65 papers
-length(unique(sites$Study_Name)) ## 82 studies
+length(unique(sites$file)) ## 90 papers
+length(unique(sites$Study_Name)) ## 110 studies
 
-length(unique(sites$Country))## 32 Countries
+length(unique(sites$Country))## 37 Countries
 
 #################################################
 # 5. Create Map
@@ -73,6 +73,7 @@ pdf(file = file.path(figures, "Map.pdf"), height = 4)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
 points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
 dev.off()
+
 
 
 
@@ -163,6 +164,12 @@ intensityvars <- c("Tillage", "Pesticide", "Fertilizer",
                    "Grazing_all_year","Rotation",                    
                    "Monoculture","Planted")
 
+
+## Rotation is a good thing
+sites$Rotation <- ifelse(sites$Rotation == 0, 2, sites$Rotation)
+sites$Rotation <- ifelse(sites$Rotation == 1, 0, sites$Rotation)
+sites$Rotation <- ifelse(sites$Rotation == 2, 1, sites$Rotation)
+
 sites$intensity <- rowSums(sites[,which(names(sites) %in% intensityvars)], na.rm = TRUE)
 sites$intensity <- ifelse(sites$LU_Mgmt == "Unknown", NA, sites$intensity)
 sites$intensity <- as.factor(sites$intensity)
@@ -172,3 +179,30 @@ table(sites$LU_Mgmt, sites$intensity)
 #############################################################
 
 write.csv(sites, file = file.path(data_out, paste("Sites_", Sys.Date(), ".csv", sep = "")))
+
+######################################################
+## Species level data
+######################################################
+###################################
+speciesdata <- "0_Data"
+
+files <- list.files(file.path(speciesdata))
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+
+file_dates <- as.Date(file_dates)
+date <- max(file_dates)
+loadin <- files[grep(date, files)]
+loadin <- loadin[grep("species_", loadin)]
+
+
+#################################################
+# 3. Load in data
+#################################################
+
+species <- read.csv(file.path(speciesdata, loadin))
+######################################################
+## How many species
+######################################################
+length(unique(species$SpeciesBinomial))
+head(unique(species$SpeciesBinomial), 50)

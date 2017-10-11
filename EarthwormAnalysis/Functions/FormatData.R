@@ -102,3 +102,31 @@ formatSpecies <- function(species){
   
   return(species)
 }
+
+SiteLevels <- function(sites){
+  
+  sites$Management_System <- factor(sites$Management_System, levels = c("None",  "Annual crop", "Perennial crops", "Integrated systems",                   
+                                                                        "Tree plantations", "Pastures (grazed lands)","Unknown"))
+  
+  sites$LandUse <- factor(sites$LandUse, levels = c("Primary vegetation", "Secondary vegetation", "Pasture" ,
+                                                    "Production - Arable", "Production - Crop plantations", 
+                                                    "Production - Wood plantation",
+                                                    "Urban", "Unknown"))
+  
+  sites$HabitatCover <- factor(sites$HabitatCover, levels = c("Broadleaf deciduous forest", "Broadleaf evergreen forest",
+                                                              "Needleleaf deciduous forest","Needleleaf evergreen forest",
+                                                              "Mixed forest", "Tree open",
+                                                              "Cropland","Cropland/Other vegetation mosaic",
+                                                              "Herbaceous", "Herbaceous with spare tree/shrub",
+                                                              "Shrub", "Sparse vegetation",
+                                                              "Urban","Bare area (consolidated",
+                                                              "Paddy field","Wetland", "Water bodies", "Unknown"))
+  
+  sites$LU_Mgmt <- factor(sites$LU_Mgmt, levels = c( "Primary vegetation", "Secondary vegetation", "Annual crop", "Perennial crops",
+                                                     "Integrated systems", "Tree plantations", "Pastures (grazed lands)", 
+                                                     "Urban", "Unknown" ))
+  
+  if("intensity" %in% names(sites)){sites$intensity <- as.factor(sites$intensity)}
+  
+  return(sites)
+}

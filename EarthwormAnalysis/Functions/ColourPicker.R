@@ -27,7 +27,9 @@ ColourPicker <- function(variable){
     tp <- data.frame(habitat = c("Primary vegetation","Secondary vegetation","Annual crop",            
                             "Perennial crops","Integrated systems","Tree plantations",       
                                 "Pastures (grazed lands)","Urban", "Unknown"),
-                     colour = c("FFEB3B", "1B5E20", "E65100", "FF9800", "795548", "4CAF50", "607D8B","FFEB3B", "1B5E20"))
+                     colour = c("006400", "008B00", "EEEE00",
+                                "8B8B00", "8B8970", "8B2323", 
+                                "CD8500","8B8378", "292421"))
     }
   
   colos <- tp$colour[match(levels(variable), tp$habitat)]

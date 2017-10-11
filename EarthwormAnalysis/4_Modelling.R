@@ -15,6 +15,9 @@ library(maptools)
 library(maps)
 library(lme4)
 library(car)
+
+source("Functions/FormatData.R")
+
 #################################################
 # 2. Loading in variables
 #################################################
@@ -46,28 +49,9 @@ rm(loadin)
 #################################################
 # 4. Set reference levels
 #################################################
-sites$Management_System <- factor(sites$Management_System, levels = c("None",  "Annual crop", "Perennial crops", "Integrated systems",                   
-                                                                      "Tree plantations", "Pastures (grazed lands)","Unknown"))
 
-sites$LandUse <- factor(sites$LandUse, levels = c("Primary vegetation", "Secondary vegetation", "Pasture" ,
-                                                  "Production - Arable", "Production - Crop plantations", 
-                                                  "Production - Wood plantation",
-                                                  "Urban", "Unknown"))
+sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 
-sites$HabitatCover <- factor(sites$HabitatCover, levels = c("Broadleaf deciduous forest", "Broadleaf evergreen forest",
-                                                            "Needleleaf deciduous forest","Needleleaf evergreen forest",
-                                                            "Mixed forest", "Tree open",
-                                                            "Cropland","Cropland/Other vegetation mosaic",
-                                                            "Herbaceous", "Herbaceous with spare tree/shrub",
-                                                            "Shrub", "Sparse vegetation",
-                                                            "Urban","Bare area (consolidated",
-                                                            "Paddy field","Wetland", "Water bodies", "Unknown"))
-
-sites$LU_Mgmt <- factor(sites$LU_Mgmt, levels = c( "Primary vegetation", "Secondary vegetation", "Annual crop", "Perennial crops",
-                                                   "Integrated systems", "Tree plantations", "Pastures (grazed lands)", 
-                                                   "Unknown", "Urban" ))
-
-sites$intensity <- as.factor(sites$intensity)
 #################################################
 # 4. Species Richness
 #################################################
@@ -83,6 +67,10 @@ sites$intensity <- as.factor(sites$intensity)
 #################################################
 biomass <- sites[complete.cases(sites$logBiomass),]
 biomass <- droplevels(biomass[biomass$LU_Mgmt != "Unknown",])
+biomass$scalePH <- as.vector(scale(biomass$ph_new))
+
+
+
 b1 <- lmer(logBiomass ~ LU_Mgmt + scalePH + intensity +
              scalePH:LU_Mgmt +
              LU_Mgmt:intensity +
@@ -106,6 +94,7 @@ anova(b2a, b4a) ## Significant
 ######
 ## b2a
 ######
+save(b2a, file = file.path(models, "biomass_lymgmtintensity.rds"))
 
 
 #################################################
@@ -115,6 +104,8 @@ hist(sites$Site_Abundance)
 hist(sites$logAbundance)
 abundance <- sites[complete.cases(sites$Site_Abundance),]
 abundance <- droplevels(abundance[abundance$LU_Mgmt != "Unknown",])
+abundance$scalePH <- scale(abundance$ph_new)
+
 
 a1 <- lmer(logAbundance ~ LU_Mgmt + scalePH + intensity +
              scalePH:LU_Mgmt + LU_Mgmt:intensity + # HabitatCover + 
@@ -127,16 +118,12 @@ plot(a1)
 
 
 a2a <- update(a1, .~. -LU_Mgmt:intensity)
-anova(a1, a2a) ## Not quite significant
+anova(a1, a2a) ## significant
 a2b <- update(a1, .~. -LU_Mgmt:scalePH)
 anova(a1, a2b) # Significant
 
-a3a <- update(a2a, .~. -LU_Mgmt:scalePH)
-anova(a2a, a3a) ## Significant
 
-a4a <- update(a2a, .~. -intensity)
-anova(a2a, a4a) ## Significant
 
 ####
-## a2a
+## a1
 ####
