@@ -201,13 +201,13 @@ rm(sitelevel_spR)
 
 
 sitelevel_biom <- which(is.na(sites$Site_WetBiomass) & !(is.na(sites$Biomass_fromspecies)))
-sites$Site_WetBiomass[sitelevel_biom] <-sites$Biomass_fromspecies[sitelevel_biom]
-sites$Site_WetBiomassUnits[sitelevel_biom] <- sites$Biomass_fromspeciesUnits[sitelevel_biom]
+if(length(sitelevel_biom ) > 0) {sites$Site_WetBiomass[sitelevel_biom] <-sites$Biomass_fromspecies[sitelevel_biom]
+  sites$Site_WetBiomassUnits[sitelevel_biom] <- sites$Biomass_fromspeciesUnits[sitelevel_biom]}
 rm(sitelevel_biom)
 
 sitelevel_abund <- which(is.na(sites$Site_Abundance) & !(is.na(sites$Individuals_fromspecies)))
-sites$Site_Abundance[sitelevel_abund] <-sites$Individuals_fromspecies[sitelevel_abund]
-sites$Site_AbundanceUnits[sitelevel_abund] <- sites$Individuals_fromspeciesUnits[sitelevel_abund]
+if(length(sitelevel_abund ) > 0) {sites$Site_Abundance[sitelevel_abund] <-sites$Individuals_fromspecies[sitelevel_abund]
+  sites$Site_AbundanceUnits[sitelevel_abund] <- sites$Individuals_fromspeciesUnits[sitelevel_abund]}
 rm(sitelevel_abund)
 
 
@@ -223,3 +223,4 @@ sites[,names(sites) %in% colsToRemove] <- NULL
 write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 write.csv(species, file = file.path(data_out, paste("species_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 write.csv(bib, file = file.path(data_out, paste("Metadata_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+

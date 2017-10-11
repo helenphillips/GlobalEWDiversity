@@ -1,4 +1,4 @@
-
+source("Functions/FormatData.R")
 ########################################################
 # 1. Set Working Directory
 ########################################################
@@ -67,35 +67,19 @@ sites$HabitatCover <- as.character(sites$HabitatCover)
 sites$HabitatCover[which(is.na(sites$HabitatCover))] <- "Unknown"
 sites$HabitatCover <- as.factor(sites$HabitatCover)
 
-#################################################
-# 8. Set reference levels
-#################################################
-sites$Management_System <- factor(sites$Management_System, levels = c("None",  "Annual crop", "Perennial crops", "Integrated systems",                   
-                                                                       "Tree plantations", "Pastures (grazed lands)","Unknown"))
 
-sites$LandUse <- factor(sites$LandUse, levels = c("Primary vegetation", "Secondary vegetation", "Pasture" ,
-                                                  "Production - Arable", "Production - Crop plantations", 
-                                                  "Production - Wood plantation",
-                                                  "Urban", "Unknown"))
-
-sites$HabitatCover <- factor(sites$HabitatCover, levels = c("Broadleaf deciduous forest", "Broadleaf evergreen forest",
-                                                            "Needleleaf deciduous forest","Needleleaf evergreen forest",
-                                                            "Mixed forest", "Tree open",
-                                                            "Cropland","Cropland/Other vegetation mosaic",
-                                                            "Herbaceous", "Herbaceous with spare tree/shrub",
-                                                            "Shrub", "Sparse vegetation",
-                                                            "Urban","Bare area (consolidated",
-                                                            "Paddy field","Wetland", "Water bodies", "Unknown"))
 
 #################################################
 # 8.0.1 Create a new variable
 #################################################
 keep <- c("Primary vegetation","Secondary vegetation","Urban","Unknown")
 sites$LU_Mgmt <- as.factor(ifelse(sites$LandUse %in% keep, as.character(sites$LandUse), as.character(sites$Management_System)))
-# levels(sites$LU_Mgmt)[which(levels(sites$LU_Mgmt) == "None")] <- "Annual crop" ## Just one site which has now been corrected, so remove this line
-sites$LU_Mgmt <- factor(sites$LU_Mgmt, levels = c( "Primary vegetation", "Secondary vegetation", "Annual crop", "Perennial crops",
-                                                   "Integrated systems", "Tree plantations", "Pastures (grazed lands)", 
-                                                   "Unknown", "Urban" ))
+
+#################################################
+# 8. Set reference levels
+#################################################
+
+sites <- SiteLevels(sites) 
 
 
 #################################################
