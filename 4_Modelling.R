@@ -88,7 +88,7 @@ summary(b2a)
 b3a <- update(b2a, .~. -LU_Mgmt:scalePH)
 anova(b2a, b3a) ## Significant
 
-b4a <- update(b2a, .~. -intensity)
+b4a <- update(b2a, .~. -intensity) ## Doesn't converge
 anova(b2a, b4a) ## Significant
 
 ######
@@ -127,3 +127,6 @@ anova(a1, a2b) # Significant
 ####
 ## a1
 ####
+save(a1, file = file.path(models, "abundance_lymgmtintensity.rds"))
+
+summary(a1)
