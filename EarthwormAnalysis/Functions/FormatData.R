@@ -122,8 +122,8 @@ SiteLevels <- function(sites){
                                                               "Urban","Bare area (consolidated",
                                                               "Paddy field","Wetland", "Water bodies", "Unknown"))
   
-  sites$LU_Mgmt <- factor(sites$LU_Mgmt, levels = c( "Primary vegetation", "Secondary vegetation", "Annual crop", "Perennial crops",
-                                                     "Integrated systems", "Tree plantations", "Pastures (grazed lands)", 
+  sites$LU_Mgmt <- factor(sites$LU_Mgmt, levels = c( "Primary vegetation", "Secondary vegetation", "Pastures (grazed lands)", "Annual crop", 
+                                                     "Perennial crops", "Integrated systems", "Tree plantations", 
                                                      "Urban", "Unknown" ))
   
   if("intensity" %in% names(sites)){sites$intensity <- as.factor(sites$intensity)}
