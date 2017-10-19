@@ -128,5 +128,6 @@ anova(a1, a2b) # Significant
 ## a1
 ####
 save(a1, file = file.path(models, "abundance_lymgmtintensity.rds"))
+save(a2a, file = file.path(models, "abundance_a2a.rds"))
 
 summary(a1)
