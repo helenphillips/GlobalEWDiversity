@@ -13,7 +13,9 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 #################################################
 library(maptools)
 library(maps)
+library(plyr)
 library(dplyr)
+
 #################################################
 # 2. Loading in variables
 #################################################
@@ -42,15 +44,16 @@ figures <- "Figures"
 #################################################
 
 sites <- read.csv(file.path(data_in, loadin))
+sites <- SiteLevels(sites) 
 
 #################################################
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 90 papers
-length(unique(sites$Study_Name)) ## 110 studies
+length(unique(sites$file)) ## 94 papers
+length(unique(sites$Study_Name)) ## 115 studies
 
-length(unique(sites$Country))## 37 Countries
+length(unique(sites$Country))## 40 Countries
 
 #################################################
 # 5. Create Map
@@ -69,14 +72,17 @@ dsSPDF<-SpatialPointsDataFrame(coord[,1:2], data.frame(coord[,1:3]))
 proj4string(dsSPDF)<-CRS("+proj=longlat")
 
 
-#pdf(file = file.path(figures, "Map_alldata.pdf"), height = 4)
-jpeg(filename = file.path(figures, "Map_alldata.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
+pdf(file = file.path(figures, "Map_alldata.pdf"), height = 4)
+#jpeg(filename = file.path(figures, "Map_alldata.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
 mar=c(0,0,0,0)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
 points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
 dev.off()
 
-
+######################################################
+## Remove Sites with no coordinates
+######################################################
+sites <- sites[complete.cases(sites$Latitude__decimal_degrees),]
 
 
 ######################################################
@@ -91,7 +97,12 @@ Summary.df <- sites %>% # Start by defining the original dataframe, AND THEN...
     N_OC = sum(!(is.na(Organic_Carbon__percent))),
     N_SOM = sum(!(is.na(Soil_Organic_Matter__percent))),
     N_CN = sum(!(is.na(C.N_ratio))),
-    N_Moisture = sum(!(is.na(Soil_Moisture_percent)))
+    N_Moisture = sum(!(is.na(Soil_Moisture_percent))),
+    N_CEC = sum(!(is.na(CEC))),
+    N_BaseS = sum(!(is.na(Base_Saturation_percent))),
+    N_SandSiltClay = sum(!(is.na(Sand__percent))),
+    N_STexture = sum(!(is.na(USDA_SoilTexture))),
+    N_SType = sum(!(is.na(WRB_FAO_SoilType)))
   )
 
 summary.df <- as.data.frame(Summary.df)
@@ -100,6 +111,43 @@ table(sites$LandUse)
 table(sites$HabitatCover)
 table(sites$HabitatCover, sites$Study_Name)
 table(sites$LU_Mgmt)
+
+###########################################################
+## Looking at species richness
+#############################################################
+
+
+sum(!(is.na(sites$PH)))
+sum(!(is.na(sites$Organic_Carbon__percent)))
+sum(!(is.na(sites$Soil_Organic_Matter__percent)))
+sum(!(is.na(sites$C.N_ratio)))
+sum(!(is.na(sites$Soil_Moisture_percent)))
+sum(!(is.na(sites$CEC)))
+sum(!(is.na(sites$Base_Saturation_percent)))
+sum(!(is.na(sites$Sand__percent)))
+sum(!(is.na(sites$USDA_SoilTexture)))
+sum(!(is.na(sites$WRB_FAO_SoilType)))
+
+sum(is.na(sites$LandUse))
+sum(sites$LandUse == "Unknown")
+
+sum(is.na(sites$HabitatCover))
+sum(sites$HabitatCover == "Unknown")
+
+sum(is.na(sites$LU_Mgmt))
+sum(sites$LU_Mgmt == "Unknown")
+
+df.1 <- ddply(sites, .(Study_Name, Country), summarise, Variation = var(Latitude__decimal_degrees))
+df.1$ Variation <- NULL
+summary.df <- (merge(summary.df, df.1, by="Study_Name"))
+
+write.csv(summary.df, file = "SoilPropertiesbyStudy.csv")
+
+
+data.frame(table(sites$LandUse))
+data.frame(table(sites$LU_Mgmt))
+data.frame(table(sites$HabitatCover))
+
 
 ###########################################################
 ## Looking at species richness

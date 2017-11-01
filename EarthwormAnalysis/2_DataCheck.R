@@ -1,4 +1,4 @@
-source("Functions/FormatData.R")
+
 ########################################################
 # 1. Set Working Directory
 ########################################################
@@ -7,6 +7,7 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+source("Functions/FormatData.R")
 ########################################################
 # 2. Create folder if it doesn't exist to save data into
 ########################################################
