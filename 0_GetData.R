@@ -69,7 +69,6 @@ all_species <- list()
 # 7. Start processing data
 ########################################################
 
-
 count <- 0
 
 for(file in all_files){
@@ -199,14 +198,21 @@ sites$SpeciesRichness[sitelevel_spR] <-sites$NumberofSpecies[sitelevel_spR]
 sites$SpeciesRichnessUnit[sitelevel_spR] <- "Number of species"
 rm(sitelevel_spR)
 
+sites$Site_WetBiomassUnits <- as.character(sites$Site_WetBiomassUnits)
 
 sitelevel_biom <- which(is.na(sites$Site_WetBiomass) & !(is.na(sites$Biomass_fromspecies)))
-if(length(sitelevel_biom ) > 0) {sites$Site_WetBiomass[sitelevel_biom] <-sites$Biomass_fromspecies[sitelevel_biom]
-  sites$Site_WetBiomassUnits[sitelevel_biom] <- sites$Biomass_fromspeciesUnits[sitelevel_biom]}
+if(length(sitelevel_biom ) > 0) {
+  sites$Site_WetBiomass[sitelevel_biom] <-sites$Biomass_fromspecies[sitelevel_biom]
+  sites$Site_WetBiomassUnits[sitelevel_biom] <- as.character(sites$Biomass_fromspeciesUnits[sitelevel_biom])
+  }
 rm(sitelevel_biom)
 
+sites$Site_AbundanceUnits <- as.character(sites$Individuals_fromspeciesUnits)
+
+
 sitelevel_abund <- which(is.na(sites$Site_Abundance) & !(is.na(sites$Individuals_fromspecies)))
-if(length(sitelevel_abund ) > 0) {sites$Site_Abundance[sitelevel_abund] <-sites$Individuals_fromspecies[sitelevel_abund]
+if(length(sitelevel_abund ) > 0) {
+  sites$Site_Abundance[sitelevel_abund] <-sites$Individuals_fromspecies[sitelevel_abund]
   sites$Site_AbundanceUnits[sitelevel_abund] <- sites$Individuals_fromspeciesUnits[sitelevel_abund]}
 rm(sitelevel_abund)
 
