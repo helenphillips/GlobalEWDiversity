@@ -24,7 +24,7 @@ formatSites <- function(sites){
   sites$Sample_EndDate_Month <- as.integer(sites$Sample_EndDate_Month)
   sites$Sample_EndDate_Year <- as.integer(sites$Sample_EndDate_Year)
   sites$ExtractionMethod <- as.factor(sites$ExtractionMethod)
-  sites$Sampled_Area <- as.integer(sites$Sampled_Area)
+  sites$Sampled_Area <- as.numeric(sites$Sampled_Area)
   sites$Sampled_Area_Unit <- as.factor(sites$Sampled_Area_Unit)
   sites$Sample_Effort <- as.numeric(sites$Sample_Effort)
   sites$PH <- as.numeric(sites$PH)
