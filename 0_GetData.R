@@ -207,13 +207,14 @@ if(length(sitelevel_biom ) > 0) {
   }
 rm(sitelevel_biom)
 
-sites$Site_AbundanceUnits <- as.character(sites$Individuals_fromspeciesUnits)
+sites$Site_AbundanceUnits <- as.character(sites$Site_AbundanceUnits)
 
 
 sitelevel_abund <- which(is.na(sites$Site_Abundance) & !(is.na(sites$Individuals_fromspecies)))
 if(length(sitelevel_abund ) > 0) {
   sites$Site_Abundance[sitelevel_abund] <-sites$Individuals_fromspecies[sitelevel_abund]
-  sites$Site_AbundanceUnits[sitelevel_abund] <- sites$Individuals_fromspeciesUnits[sitelevel_abund]}
+  sites$Site_AbundanceUnits[sitelevel_abund] <- as.character(sites$Individuals_fromspeciesUnits[sitelevel_abund])
+  }
 rm(sitelevel_abund)
 
 
@@ -224,9 +225,37 @@ sites[,names(sites) %in% colsToRemove] <- NULL
 ########################################################
 # 10. Save the data
 ########################################################
-
+sites$ID <- 1:nrow(sites)
+sites$ID <- paste(sites$file, sites$Study_Name, sites$ID, sep = "_")
 
 write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 write.csv(species, file = file.path(data_out, paste("species_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 write.csv(bib, file = file.path(data_out, paste("Metadata_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
+########################################################
+# 11. Save the data for Carlos
+########################################################
+
+carlos_sites <- sites[,c("ID", "Latitude__decimal_degrees", "Longitude__Decimal_Degrees")]
+names(carlos_sites) <- c("ID", "LAT", "LONG")
+write.csv(carlos_sites, file = file.path(data_out, paste("sitesIDLatLong_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
+
+########################################################
+# 11. Save the data for Erin and Olga
+########################################################
+
+eo_sites <- sites[1:200,]
+
+eo_species <- species[7500:8159,]
+
+toDel <- c("file.y", "Study_Name", "Site_Name.y", "SpeciesRichness", 
+           "SpeciesRichnessUnit","Site_WetBiomass","Site_WetBiomassUnits",   
+           "Site_Abundance","Site_AbundanceUnits","NumberofSpecies",
+           "Individuals_fromspecies","Individuals_fromspeciesUnits", 
+           "Biomass_fromspecies","Biomass_fromspeciesUnits")
+
+eo_species[,which(names(eo_species) %in% toDel)] <- NULL
+
+write.csv(eo_species, file = file.path(data_out, paste("speciesExample_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+write.csv(eo_sites, file = file.path(data_out, paste("sitesExample", Sys.Date(), ".csv", sep = "")), row.names = FALSE)

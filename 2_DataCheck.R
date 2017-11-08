@@ -27,7 +27,7 @@ file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, 
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
 file_dates <- as.Date(file_dates)
-date <- max(file_dates)
+date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 loadinsites <- loadin[grep("sites_", loadin)]
 loadinbib <- loadin[grep("Metadata_", loadin)]
@@ -44,8 +44,8 @@ bib <- read.csv(file.path(data_in, loadinbib))
 # 5. Get rid of studies with selected species 
 #################################################
 bib$Entire.Community <- as.factor(bib$Entire.Community)
-all_spp <- bib$file[bib$Entire.Community == "yes - all species sampled"]
-
+all_spp <- bib$file[which(bib$Entire.Community != "no - select species sampled")]
+all_spp <- c(as.vector(all_spp), as.vector(bib$file[which(is.na(bib$Entire.Community))]))
 sites <- sites[sites$file %in% all_spp,]
 
 #################################################
@@ -75,6 +75,44 @@ sites$HabitatCover <- as.factor(sites$HabitatCover)
 #################################################
 keep <- c("Primary vegetation","Secondary vegetation","Urban","Unknown")
 sites$LU_Mgmt <- as.factor(ifelse(sites$LandUse %in% keep, as.character(sites$LandUse), as.character(sites$Management_System)))
+
+
+#################################################
+# 8.0.2 Create a new ESA variable
+#################################################
+sites$ESA <- sites$HabitatCover
+
+sites$ESA <- as.character(sites$ESA)
+
+
+
+prod_herb <- which(sites$LandUse == "Production - Arable" | sites$Management_System == "Annual crop")
+sites$ESA[prod_herb] <- "Production - Herbaceous"
+
+prod_planta <- which(sites$LandUse == "Production - Crop plantations" | sites$LandUse == "Production - Wood plantation" | sites$Management_System == "Tree plantations")
+sites$ESA[prod_planta] <- "Production - Plantation"
+
+integratessys <- which(sites$Management_System == "Integrated systems")
+sites$ESA[integratessys] <- "Cropland/Other vegetation mosaic"
+
+pastures <- which(sites$Management_System == "Pastures (grazed lands)")
+sites$ESA[pastures] <- "Herbaceous"
+
+# unique(sites$ESA[sites$LandUse == "Pasture"])
+
+table(sites$ESA)
+
+
+
+#### There are some empty cells
+## And at the moment, can't do anything with them
+# nodata <- droplevels(sites[is.na(sites$ESA),])
+
+sites$ESA[is.na(sites$ESA)] <- "Unknown"
+
+
+
+
 
 #################################################
 # 8. Set reference levels
@@ -121,6 +159,12 @@ rm(known);rm(morethan1); rm(landusecomp); rm(fileswith)
 any(!(is.na(sites$Site_WetBiomass)) && is.na(sites$Site_WetBiomassUnits)) ## If true, there's no units for samples
 any(!(is.na(sites$Site_Abundance)) && is.na(sites$Site_AbundanceUnits))
 
+################################################
+## 10. Create ID and Lat/Long file for Carlos
+#################################################
+
+
+
 
 #################################################
 #  Save file
@@ -128,4 +172,6 @@ any(!(is.na(sites$Site_Abundance)) && is.na(sites$Site_AbundanceUnits))
 
 write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
+## Sites for Carlos
+write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
