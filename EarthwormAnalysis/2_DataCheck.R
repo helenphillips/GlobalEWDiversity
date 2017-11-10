@@ -21,7 +21,7 @@ data_out <- "2_Data"
 # 3. Loading in variables
 #################################################
 
-data_in <-"0_Data"
+data_in <-"1_Data"
 files <- list.files(file.path(data_in))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
@@ -30,6 +30,15 @@ file_dates <- as.Date(file_dates)
 date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 loadinsites <- loadin[grep("sites_", loadin)]
+
+bib_in <-"0_Data"
+files <- list.files(file.path(bib_in))
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+
+file_dates <- as.Date(file_dates)
+date <- max(file_dates, na.rm = TRUE)
+loadin <- files[grep(date, files)]
 loadinbib <- loadin[grep("Metadata_", loadin)]
 
 
@@ -38,7 +47,7 @@ loadinbib <- loadin[grep("Metadata_", loadin)]
 #################################################
 
 sites <- read.csv(file.path(data_in, loadinsites))
-bib <- read.csv(file.path(data_in, loadinbib))
+bib <- read.csv(file.path(bib_in, loadinbib))
 
 #################################################
 # 5. Get rid of studies with selected species 
@@ -158,12 +167,6 @@ rm(known);rm(morethan1); rm(landusecomp); rm(fileswith)
 
 any(!(is.na(sites$Site_WetBiomass)) && is.na(sites$Site_WetBiomassUnits)) ## If true, there's no units for samples
 any(!(is.na(sites$Site_Abundance)) && is.na(sites$Site_AbundanceUnits))
-
-################################################
-## 10. Create ID and Lat/Long file for Carlos
-#################################################
-
-
 
 
 #################################################

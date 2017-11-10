@@ -35,7 +35,7 @@ file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, 
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
 file_dates <- as.Date(file_dates)
-date <- max(file_dates)
+date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 loadin <- loadin[grep("species_", loadin)]
 

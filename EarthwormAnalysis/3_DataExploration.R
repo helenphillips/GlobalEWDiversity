@@ -27,7 +27,7 @@ file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, 
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
 file_dates <- as.Date(file_dates)
-date <- max(file_dates)
+date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 
 if(!dir.exists("3_Data")){
@@ -50,17 +50,17 @@ sites <- SiteLevels(sites)
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 94 papers
-length(unique(sites$Study_Name)) ## 115 studies
+length(unique(sites$file)) ## 116 papers
+length(unique(sites$Study_Name)) ## 143 studies
 
-length(unique(sites$Country))## 40 Countries
+length(unique(sites$Country))## 42 Countries
 
 #################################################
 # 5. Create Map
 #################################################
 
 coord<-aggregate(cbind(sites$Longitude__Decimal_Degrees, sites$Latitude__decimal_degrees), list(sites$Study_Name), mean)
-## Five don't have coordinates yet
+## six don't have coordinates yet
 coord <- coord[complete.cases(coord),]
 
 
@@ -156,6 +156,29 @@ data.frame(table(sites$HabitatCover))
 hist(sites$SpeciesRichness) ## Very poisson
 summary(sites$SpeciesRichness)
 tapply(sites$SpeciesRichness, sites$LU_Mgmt, summary)
+
+
+spR <- sites[!(is.na(sites$SpeciesRichness)),]
+coord<-aggregate(cbind(spR$Longitude__Decimal_Degrees, spR$Latitude__decimal_degrees), list(spR$Study_Name), mean)
+## six don't have coordinates yet
+coord <- coord[complete.cases(coord),]
+
+
+coord$X<-coord$Group.1
+coord<-coord[2:4]
+names(coord)<-c("Long", "Lat", "X")
+
+dsSPDF<-SpatialPointsDataFrame(coord[,1:2], data.frame(coord[,1:3]))
+proj4string(dsSPDF)<-CRS("+proj=longlat")
+
+
+# pdf(file = file.path(figures, "Map_speciesRichness.pdf"), height = 4)
+#jpeg(filename = file.path(figures, "Map_speciesRichness.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
+mar=c(0,0,0,0)
+map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
+points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
+# dev.off()
+
 ###########################################################
 ## Looking at abundance
 #############################################################
@@ -241,7 +264,7 @@ file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, 
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
 file_dates <- as.Date(file_dates)
-date <- max(file_dates)
+date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 loadin <- loadin[grep("species_", loadin)]
 

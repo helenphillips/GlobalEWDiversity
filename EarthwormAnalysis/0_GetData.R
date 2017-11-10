@@ -22,6 +22,8 @@ data_out <- "0_Data"
 library(googlesheets)
 
 source("Functions/FormatData.R")
+source("Functions/CalculateSitelevelMetrics.R")
+
 ########################################################
 # 4. Access googledrive
 ########################################################
@@ -114,7 +116,7 @@ for(file in all_files){
   #### Calculate site level species richness from species list & Check the values there
   if(nrow(species) > 0){
     juvs <- which(species$LifeStage == "Juvenile")
-    notSpecies <- which(is.na(species$SpeciesBinomial) && is.na(species$MorphospeciesID))
+    notSpecies <- which(is.na(species$SpeciesBinomial) & is.na(species$MorphospeciesID))
   
     if(length(c(juvs, notSpecies)) > 0){
       spR <- as.data.frame(table(species$Study_site[-c(juvs, notSpecies)]))
