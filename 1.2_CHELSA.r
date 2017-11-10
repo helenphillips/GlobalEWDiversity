@@ -21,20 +21,21 @@ library(raster)
 # 2. Loading in variables
 #################################################
 
-data_in <-"2_Data"
+data_in <-"0_Data"
 
 files <- list.files(file.path(data_in))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
 file_dates <- as.Date(file_dates)
-date <- max(file_dates)
+date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
+loadinsites <- loadin[grep("sites_", loadin)]
 
-if(!dir.exists("3_Data")){
-  dir.create("3_Data")
+if(!dir.exists("1_Data")){
+  dir.create("1_Data")
 }
-data_out <- "3_Data"
+data_out <- "1_Data"
 
 if(!dir.exists("Figures")){
   dir.create("Figures")
@@ -45,7 +46,7 @@ figures <- "Figures"
 # 3. Load in data
 #################################################
 
-sites <- read.csv(file.path(data_in, loadin))
+sites <- read.csv(file.path(data_in, loadinsites))
 # sites <- SiteLevels(sites) 
 
 #################################################
@@ -67,3 +68,8 @@ for(t in tifs){
 
 #### 
 ## Check that any without values are because they have no coordinate
+#################################################
+# 5. Save data
+#################################################
+
+write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
