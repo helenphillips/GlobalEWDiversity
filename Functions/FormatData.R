@@ -126,6 +126,19 @@ SiteLevels <- function(sites){
                                                      "Perennial crops", "Integrated systems", "Tree plantations", 
                                                      "Urban", "Unknown" ))
   
+  if("ESA" %in% names(sites))
+     {
+       sites$ESA <- as.factor(sites$ESA)
+       sites$ESA <- factor(sites$ESA, levels = c(
+         "Broadleaf deciduous forest", "Broadleaf evergreen forest", "Needleleaf deciduous forest",
+         "Needleleaf evergreen forest", "Mixed forest", "Tree open", "Herbaceous with spare tree/shrub",
+         "Shrub", "Herbaceous", "Sparse vegetation", "Production - Herbaceous", "Production - Plantation",
+         "Cropland/Other vegetation mosaic",  "Urban", "Bare area (consolidated",
+         "Bare area (unconsolidated", "Unknown", "Paddy field", "Wetland/Herbaceous", "Water bodies"))
+      }
+    
+  
+  
   if("intensity" %in% names(sites)){sites$intensity <- as.factor(sites$intensity)}
   
   return(sites)
