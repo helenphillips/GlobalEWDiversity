@@ -21,7 +21,7 @@ file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, 
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
 file_dates <- as.Date(file_dates)
-date <- max(file_dates)
+date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 loadinspecies <- loadin[grep("species_", loadin)]
 
@@ -35,7 +35,7 @@ files <- list.files(file.path(data_in))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
-file_dates <- as.Date(file_dates)
+file_dates <- as.Date(file_dates, na.rm = TRUE)
 date <- max(file_dates)
 loadin <- files[grep(date, files)]
 
@@ -94,52 +94,129 @@ fg_abundance$logAneAbundance <- log(fg_abundance$Ane_abundance + 1)
 fg_abundance <- fg_abundance[complete.cases(fg_abundance$scalePH),]
 
 
-table(fg_abundance$LU_Mgmt)
+table(fg_abundance$ESA)
 
-notEnough <- c("Integrated systems", "Tree plantations", "Unknown", "Urban")
-fg_abundance <- droplevels(fg_abundance[!(fg_abundance$LU_Mgmt %in% notEnough),])
+Enough <- c("Broadleaf deciduous forest", "Herbaceous", "Production - Herbaceous",
+            "Production - Plantation")
+fg_abundance <- droplevels(fg_abundance[which(fg_abundance$ESA %in% Enough),])
 
 
-abund1epi <- lmer(logEpiAbundance ~ scalePH * LU_Mgmt + 
+fg_abundance$bio10_5_scaled <- scale(fg_abundance$bio10_5)
+fg_abundance$bio10_13_scaled <- scale(fg_abundance$bio10_13)
+fg_abundance$bio10_14_scaled <- scale(fg_abundance$bio10_14)
+
+abund1epi <- lmer(logEpiAbundance ~ scalePH * ESA + 
+                    (bio10_5_scaled + bio10_13_scaled + bio10_14_scaled)^2 + 
                  (1|file/Study_Name), data = fg_abundance)
-abund2epi <- update(abund1epi, .~. -scalePH:LU_Mgmt)
-anova(abund1epi, abund2epi) # Significant
 
-abund1endo <- lmer(logEndoAbundance ~ scalePH * LU_Mgmt + 
+a2epia <- update(abund1epi, .~. -bio10_13_scaled:bio10_14_scaled)
+anova(abund1epi, a2epia) ## Not significant
+a2epib <- update(abund1epi, .~. -bio10_5_scaled:bio10_14_scaled )
+anova(abund1epi, a2epib) ## Not significant
+a2epic <- update(abund1epi, .~. -bio10_5_scaled:bio10_13_scaled)
+anova(abund1epi, a2epic) ## Not significant
+a2epid <- update(abund1epi, .~. -scalePH:ESA)
+anova(abund1epi, a2epid) ## significant
+
+a3epia <- update(a2epia, .~. -bio10_5_scaled:bio10_14_scaled)
+anova(a2epia, a3epia) #Not significant
+a3epib <- update(a2epia, .~. -bio10_5_scaled:bio10_13_scaled)
+anova(a2epia, a3epib) # significant
+a3epic <- update(a2epia, .~. -scalePH:ESA)
+anova(a2epia, a3epic) # significant
+
+
+a4epia <- update(a3epia, .~. -bio10_5_scaled:bio10_13_scaled)
+anova(a3epia, a4epia) ## Significant
+a4epib <- update(a3epia, .~. -scalePH:ESA)
+anova(a3epia, a4epib) ## Significant
+
+
+a5epia <- update(a3epia, .~. -bio10_14_scaled)
+anova(a3epia, a5epia) ## Not significant
+
+####### 
+
+abund1endo <- lmer(logEndoAbundance ~ scalePH * ESA + 
+                     (bio10_5_scaled + bio10_13_scaled + bio10_14_scaled)^2 +
                     (1|file/Study_Name), data = fg_abundance)
-abund2endo <- update(abund1endo, .~. -scalePH:LU_Mgmt)
-anova(abund1endo, abund2endo) ## Significant
 
-abund1ane <- lmer(logAneAbundance ~ scalePH * LU_Mgmt + 
+a2endoa <- update(abund1endo, .~. -bio10_13_scaled:bio10_14_scaled)
+anova(abund1endo, a2endoa) # Not sign
+a2endob <- update(abund1endo, .~. -bio10_5_scaled:bio10_14_scaled)
+anova(abund1endo, a2endob) # Sign
+a2endoc <- update(abund1endo, .~. -bio10_5_scaled:bio10_13_scaled)
+anova(abund1endo, a2endoc) # Not sign
+a2endod <- update(abund1endo, .~. -scalePH:ESA)
+anova(abund1endo, a2endod) # Sign
+
+
+a3endoa <- update(a2endoc, .~. -bio10_13_scaled:bio10_14_scaled)
+anova(a2endoc, a3endoa) ## Not sign
+a3endob <- update(a2endoc, .~. -bio10_5_scaled:bio10_14_scaled)
+anova(a2endoc, a3endob) # Sign
+a3endoc <- update(a2endoc, .~. -scalePH:ESA)
+anova(a2endoc, a3endoc) # Sign
+
+
+a4endoa <- update(a3endoa, .~. - bio10_5_scaled:bio10_14_scaled)
+anova(a3endoa, a4endoa) # Sign
+a4endob <- update(a3endoa, .~. - scalePH:ESA)
+anova(a3endoa, a4endob) # Sign
+
+a5endoa <- update(a3endoa, .~. - bio10_13_scaled)
+anova(a3endoa, a5endoa) # Sign
+
+###############
+
+abund1ane <- lmer(logAneAbundance ~ scalePH * ESA + 
+                    (bio10_5_scaled + bio10_13_scaled + bio10_14_scaled)^2 + 
                      (1|file/Study_Name), data = fg_abundance)
-abund2ane <- update(abund1ane, .~. -scalePH:LU_Mgmt)
-anova(abund1ane, abund2ane) ## Not Significant
-abund3ane <- update(abund2ane, .~. -scalePH)
-abund4ane <- update(abund2ane, .~. -LU_Mgmt)
-anova(abund2ane, abund3ane) # Significant
-anova(abund2ane, abund4ane) # Significant
+
+
+
+a2anea <- update(abund1ane, .~. -bio10_13_scaled:bio10_14_scaled)
+anova(abund1ane, a2anea) # Not sign.
+a2aneb <- update(abund1ane, .~. -bio10_5_scaled:bio10_14_scaled)
+anova(abund1ane, a2aneb) #Not sign.
+a2anec <- update(abund1ane, .~. -bio10_5_scaled:bio10_13_scaled)
+anova(abund1ane, a2anec) # Not sign.
+a2aned <- update(abund1ane, .~. -scalePH:ESA)
+anova(abund1ane, a2aned) #Sign
+
+
+a3anea <- update(a2aneb, .~. -bio10_13_scaled:bio10_14_scaled)
+anova(a2aneb, a3anea) # Not sign.
+a3aneb <- update(a2aneb, .~. -bio10_5_scaled:bio10_13_scaled)
+anova(a2aneb, a3aneb) # Not sign.
+a3anec <- update(a2aneb, .~. -scalePH:ESA)
+anova(a2aneb, a3anec) #Sign
+
+a4anea <- update(a3anea, .~. -bio10_5_scaled:bio10_13_scaled)
+anova(a3anea, a4anea) #  sign.
+a4aneb <- update(a3anea, .~. -scalePH:ESA)
+anova(a3anea, a4aneb) #Sign
+
+a5anea <- update(a3anea, .~. -bio10_14_scaled)
+anova(a3anea, a5anea) ## Sign
 
 ####################################################################
 ## A PLOT
 ####################################################################
-ref <- 0 ## Getting mean value of pH
+ref <- 0 ## Getting mean value of pH, and other variables?
 
 
-epi <- createNewdata(model= abund1epi, modelFixedEffects = c("LU_Mgmt", "scalePH"), data = fg_abundance)
-epi <- predictValues(model = abund1epi, newdata = epi, responseVar = "logEpiAbundance", re.form = NA, seMultiplier = 1)
-epi <- epi[which(abs(epi$scalePH-ref)==min(abs(epi$scalePH-ref))),]
-epi <- epi[c(4, 5, 2, 1, 3),]
-levels(epi$LU_Mgmt)[levels(epi$LU_Mgmt) == "Annual crop"] <- "Annual crops"
+epi <- createNewdata(model= a5epia, modelFixedEffects = c("scalePH", "ESA", "bio10_5_scaled", "bio10_13_scaled","bio10_14_scaled"),
+                     data = fg_abundance, mainEffect = "ESA")
+epi <- predictValues(model = a5epia, newdata = epi, responseVar = "logEpiAbundance", re.form = NA, seMultiplier = 1)
 
-endo <- createNewdata(model= abund1endo, modelFixedEffects = c("LU_Mgmt", "scalePH"), data = fg_abundance)
-endo <- predictValues(model = abund1endo, newdata = endo, responseVar = "logEndoAbundance", re.form = NA, seMultiplier = 1)
-endo <- endo[which(abs(endo$scalePH-ref)==min(abs(endo$scalePH-ref))),]
-endo <- endo[c(4, 5, 2, 1, 3),]
+endo <- createNewdata(model= a3endoa, modelFixedEffects = c("scalePH", "ESA", "bio10_5_scaled", "bio10_13_scaled","bio10_14_scaled"),
+                      data = fg_abundance, mainEffect = "ESA")
+endo <- predictValues(model = a3endoa, newdata = endo, responseVar = "logEndoAbundance", re.form = NA, seMultiplier = 1)
 
-ane <- createNewdata(model= abund2ane, modelFixedEffects = c("LU_Mgmt", "scalePH"), data = fg_abundance)
-ane <- predictValues(model = abund2ane, newdata = ane, responseVar = "logAneAbundance", re.form = NA, seMultiplier = 1)
-ane <- ane[which(abs(ane$scalePH-ref)==min(abs(ane$scalePH-ref))),]
-ane <- ane[c(4, 5, 2, 1, 3),]
+ane <- createNewdata(model= a3anea,  modelFixedEffects = c("scalePH", "ESA", "bio10_5_scaled", "bio10_13_scaled","bio10_14_scaled"),
+                     data = fg_abundance, mainEffect = "ESA")
+ane <- predictValues(model = a3anea, newdata = ane, responseVar = "logAneAbundance", re.form = NA, seMultiplier = 1)
 
 ymin <- min(c(epi$lower, endo$lower, ane$lower))
 ymax <- max(c(epi$upper, endo$upper, ane$upper))
@@ -150,9 +227,9 @@ fg_cols <- c("#FFCCCC", "#FF0000", "#990033")
 # pdf(file = file.path(figures, "Biomass_PastureIntensity.pdf"), height = 4)
 jpeg(file = file.path(figures, "Abundance_functionalgroups.jpg"), quality = 100, res = 200, height = 1000, width = 1500)
 
-par(mar=c(10, 4, 1, 2))
+par(mar=c(12, 4, 1, 2))
 plot(-1e+05, -1e+05, ylim = c(ymin, ymax),
-     xlim = c(0, (nrow(epi)-1)),  ylab = "log(Abundance)", xlab = " ",  xaxt='n', axes = FALSE)
+     xlim = c(0, (nrow(epi))),  ylab = "log(Abundance)", xlab = " ",  xaxt='n', axes = FALSE)
 Axis(side = 2 )
 errbar(0:(nrow(epi)-1), epi$logEpiAbundance, epi$upper, epi$lower,
        add = TRUE, col = "black", errbar.col = fg_cols[1], cex = 1.5)
@@ -172,7 +249,7 @@ legend(3.05, y = 4, legend = c("Epigeics", "Endogeics", "Anecics"), pch = 19, co
        
        
        
-axis(side=1, at = 0:(nrow(epi)-1), labels = epi$LU_Mgmt, las = 2)
+axis(side=1, at = 0:(nrow(epi)-1), labels = epi$ESA, las = 2)
 dev.off()
 
 
