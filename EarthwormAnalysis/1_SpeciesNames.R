@@ -50,9 +50,9 @@ dat <- read.csv(file.path(data_in, loadin))
 # 6. Quick investigation
 #################################################
 
-length(unique(dat$SpeciesBinomial)) ## 180
+length(unique(dat$SpeciesBinomial)) ## 198
 
-table(dat$Functional_Type) ## Only unknown for 310
+table(dat$Functional_Type) ## Only unknown for 316
 
 ## Check that all are binomials
 which(
@@ -64,18 +64,21 @@ which(
 
 result <- dat %>%
    group_by(SpeciesBinomial) %>%
-   summarise(strings = toString(unique(Functional_Type)))
+   summarise(fg = toString(unique(Functional_Type)), 
+             Country = toString(unique(Country)), 
+             file = toString(unique(file.x)))
 
 spp <- as.data.frame(result)
-spp$strings <- gsub("NA, ", "", spp$strings)
-spp$strings <- gsub(", NA", "", spp$strings)
-spp$strings <- gsub("Unknown, ", "", spp$strings)
-spp$strings <- gsub(", Unknown", "", spp$strings)
+## Remove line that isn't a species
+spp <- spp[-which(is.na(spp$SpeciesBinomial)),]
+spp$fg <- gsub("NA, ", "", spp$fg)
+spp$fg <- gsub(", NA", "", spp$fg)
+spp$fg <- gsub("Unknown, ", "", spp$fg)
+spp$fg <- gsub(", Unknown", "", spp$fg)
 
 names(spp)[2] <- "FunctionalGroup"
 
-## Remove line that isn't a species
-spp <- spp[-which(is.na(spp$SpeciesBinomial)),]
+
 
 ## Remove Microdriles and Megadriles
 spp <- spp[-grep("microdrile", spp$SpeciesBinomial, ignore.case = TRUE),]
@@ -98,11 +101,12 @@ s2 <- adist(spp$SpeciesBinomial, drilo$name)
 i2 <- apply(s2, 1, which.min) ## Gives the index
 spp$Drilobase <- drilo$name[i2]
 
-cols <-c("SpeciesBinomial", "FunctionalGroup", "Drilobase", "Author of species", "ecologicalCategory")
+cols <-c("SpeciesBinomial", "FunctionalGroup", "Country", "file", 
+         "Drilobase", "Author of species", "ecologicalCategory")
 spp <- (merge(spp, drilo, by.x = "Drilobase", by.y = "name", all.x = TRUE))
 spp <- spp [,names(spp) %in% cols]
-spp <- spp[,c(2, 3, 1, 4, 5)]
-names(spp) <- c("original", "original_fg", "drilobase", "Authority of species", "drilobase_fg")
+spp <- spp[,c(2, 3, 4, 5, 1, 6, 7)]
+names(spp) <- c("original", "original_fg", "Country", "PaperID", "drilobase", "Authority of species", "drilobase_fg")
 
 ###################################################
 # 111. Add blank columns for people to fill in
@@ -147,3 +151,23 @@ write.csv(spp, file.path(data_out, paste("UniqueSpecies_", Sys.Date(), ".csv", s
 # output %>% 
 #   gs_read(ws = 1)
 
+######################################
+## Match to any previous Google sheet
+######################################
+
+output <- "UniqueSpecies+FunctionalGroups"
+output <- gs_title(output)
+current <- as.data.frame(gs_read(output, ws = "sheet1"))
+
+spp <- merge(spp, current, by = "original")
+keep <- c("original","original_fg.x","Country","PaperID",
+          "drilobase.x", "Authority of species.x", "drilobase_fg.x", "Revised.y",
+          "Revised_fg.y","Revised_Authority.y","sWormMember.y", "X10") 
+spp <- spp[,which(names(spp) %in% keep)]
+
+spp$Revised.y[which(spp$sWormMember.y %in% c("Patrick Lavelle", "Patrick") & is.na(spp$Revised.y))] <- as.character(spp$original[which(spp$sWormMember.y %in% c("Patrick Lavelle", "Patrick") & is.na(spp$Revised.y))])
+
+names(spp) <- gsub("\\.y", "", names(spp))
+names(spp) <- gsub("\\.x", "", names(spp))
+
+write.csv(spp, file.path(data_out, paste("UniqueSpecies-Revised_", Sys.Date(), ".csv", sep ="")), row.names = FALSE)
