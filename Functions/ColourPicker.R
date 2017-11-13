@@ -3,14 +3,17 @@ ColourPicker <- function(variable){
   if(any(levels(variable) %in% c("Broadleaf deciduous forest", "Herbaceous"))){
     colos <- c(rep(NA, length(levels(variable))))
     
-    tp <- data.frame(habitat = c("Broadleaf deciduous forest","Broadleaf evergreen forest","Cropland", 
-                                 "Cropland/Other vegetation mosaic",
-                                 "Herbaceous","Herbaceous with spare tree/shrub", "Needleleaf evergreen forest",
-                                 "Paddy field", "Sparse vegetation", "Shrub", "Wetland", "Unknown/Other"),
-                     colour =c("4CAF50", "1B5E20","E65100", "FF9800","6D4C41","A1887F","A5D6A7","26C6DA",
-                                "F06292","9C27B0","0288D1","607D8B"))
+    tp <- data.frame(habitat = c("Production - Herbaceous", "Production - Plantation", "Cropland/Other vegetation mosaic", 
+                                "Urban", "Bare area (consolidated", "Bare area (unconsolidated", 
+                                "Water bodies", "Mixed forest", "Tree open", "Herbaceous with spare tree/shrub", 
+                                "Shrub", "Herbaceous", "Sparse vegetation", "Broadleaf evergreen forest", 
+                                "Broadleaf deciduous forest", "Needleleaf evergreen forest", "Needleleaf deciduous forest"),
+                    colour = c("ffff64", "ffff00", "c8c864", "c31400", "dcdcdc", 'fff5d7',
+                                "0046c8", "788200", "8ca000", "be9600", "966400", "ffb432", "ffebaf",
+                                "286400", "00a000", "003c00", "285000"))
 
     }
+  
   
   if(any(levels(variable) %in% c("Pasture", "Primary vegetation", "Production - Arable"))){
     colos <- c(rep(NA, length(levels(variable))))

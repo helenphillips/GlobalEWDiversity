@@ -1,10 +1,13 @@
-createNewdata <- function(model, modelFixedEffects, data){
+createNewdata <- function(model, modelFixedEffects, mainEffect, data){
   
   ## Create Values
   vars <- list()
   for(e in 1:length(modelFixedEffects)){
     if(is.numeric(data[,which(names(data) == modelFixedEffects[e])])){
-      vars[[e]] <- seq(min(data[,which(names(data) == modelFixedEffects[e])], na.rm = TRUE), max(data[,which(names(data) == modelFixedEffects[e])], na.rm = TRUE), length.out = 100)
+      ## If not the main effect being plotted, only need the median
+      if(modelFixedEffects[e] == mainEffect){
+        vars[[e]] <- seq(min(data[,which(names(data) == modelFixedEffects[e])], na.rm = TRUE), max(data[,which(names(data) == modelFixedEffects[e])], na.rm = TRUE), length.out = 100)
+      }else{vars[[e]] <- 0 } ## This only works because all continuous variables have been scaled
     } else { vars[[e]] <- levels(model@frame[,which(names(model@frame) == modelFixedEffects[e])])}
     
   }
@@ -43,7 +46,7 @@ predictValues <- function(model, newdata, responseVar, re.form = NA, seMultiplie
 plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier = 1.96, data, cols = "000000", legend.position, 
                        ylabel = "", xlabel = "", otherContEffectsFun = "median"){
   
-  newdata <- createNewdata(model = model, modelFixedEffects = modelFixedEffs, data = data)
+  newdata <- createNewdata(model = model, modelFixedEffects = modelFixedEffs, mainEffect = Effect1, data = data)
   
   ### Get rid of any unnesecary variable levels
   ## From model, which columns are additional variables?
@@ -52,11 +55,11 @@ plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier
   {
     a <- which(names(newdata) == names(othervars)[col])
     
-    if(names(othervars)[col] == "scalePH"){
-      ref <- 0
-      newdata <- newdata[which(abs(newdata[,a]-ref)==min(abs(newdata[,a]-ref))),]
+   # if(names(othervars)[col] %in% c("scalePH", "bio10_14_scaled", "bio10_13_scaled", "bio10_14_scaled")){
+  #    ref <- 0
+  #    newdata <- newdata[which(abs(newdata[,a]-ref)==min(abs(newdata[,a]-ref))),]
       
-    }
+    #} ### This is now down during the dataframe creation
     
     if(class(othervars[,col]) == "factor"){
       # Use the reference level
@@ -65,13 +68,13 @@ plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier
       newdata <- newdata[newdata[,a] == ref,]
       
     }
-    if(class(othervars[,col]) == "numeric"){
-      f <- get(otherContEffectsFun)
-      ref <- f(othervars[,col])
+    # if(class(othervars[,col]) == "numeric"){
+    #  f <- get(otherContEffectsFun)
+    #  ref <- f(othervars[,col])
      
-      newdata <- newdata[which(abs(newdata[,a]-ref)==min(abs(newdata[,a]-ref))),]
+    #  newdata <- newdata[which(abs(newdata[,a]-ref)==min(abs(newdata[,a]-ref))),]
      
-    }
+    # } ## Would have been done during data frame creation
     
   }
   
@@ -120,7 +123,7 @@ plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier
     pt_cols <- paste("#", cols, sep="")
     
     
-    par(mar=c(10, 3, 1, 1))
+    par(mar=c(11, 3, 1, 1))
     plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
          xlim = c(0, (nrow(newdata)-1)),  ylab = ylabel, xlab = xlabel,  xaxt='n', axes = FALSE)
     Axis(side = 2 )
