@@ -37,14 +37,15 @@ file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by
 file_dates <- as.Date(file_dates)
 date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
-loadin <- loadin[grep("species_", loadin)]
+loadinsites <- loadin[grep("species_", loadin)]
 
-
+loadinbib <- loadin[grep("Metadata_", loadin)]
 #################################################
 # 5. Load in data
 #################################################
 
-dat <- read.csv(file.path(data_in, loadin))
+dat <- read.csv(file.path(data_in, loadinsites))
+bib <- read.csv(file.path(data_in, loadinbib))
 
 #################################################
 # 6. Quick investigation
@@ -59,6 +60,14 @@ which(
   (sapply(gregexpr("\\W+", dat$SpeciesBinomial), length) + 1) 
   < 2) ## This counts the number of words in teh string
 #################################################
+# 6. Merge bib info
+#################################################
+
+bib <- bib[,which(names(bib) == "file" | names(bib) == "DataProvider_Surname")]
+
+dat <- merge(dat, bib, by.x = "file.x", by.y = "file")
+
+#################################################
 # 7. Create dataframe for new morphospecies
 #################################################
 
@@ -66,7 +75,8 @@ result <- dat %>%
    group_by(SpeciesBinomial) %>%
    summarise(fg = toString(unique(Functional_Type)), 
              Country = toString(unique(Country)), 
-             file = toString(unique(file.x)))
+             file = toString(unique(file.x)),
+             provider = toString(unique(DataProvider_Surname)))
 
 spp <- as.data.frame(result)
 ## Remove line that isn't a species
@@ -101,12 +111,12 @@ s2 <- adist(spp$SpeciesBinomial, drilo$name)
 i2 <- apply(s2, 1, which.min) ## Gives the index
 spp$Drilobase <- drilo$name[i2]
 
-cols <-c("SpeciesBinomial", "FunctionalGroup", "Country", "file", 
+cols <-c("SpeciesBinomial", "FunctionalGroup", "Country", "file", "provider", 
          "Drilobase", "Author of species", "ecologicalCategory")
 spp <- (merge(spp, drilo, by.x = "Drilobase", by.y = "name", all.x = TRUE))
 spp <- spp [,names(spp) %in% cols]
-spp <- spp[,c(2, 3, 4, 5, 1, 6, 7)]
-names(spp) <- c("original", "original_fg", "Country", "PaperID", "drilobase", "Authority of species", "drilobase_fg")
+spp <- spp[,c(2, 3, 4, 5, 6, 1, 7, 8)]
+names(spp) <- c("original", "original_fg", "Country", "PaperID", "dataProvider", "drilobase", "Authority of species", "drilobase_fg")
 
 ###################################################
 # 111. Add blank columns for people to fill in
@@ -159,10 +169,14 @@ output <- "UniqueSpecies+FunctionalGroups"
 output <- gs_title(output)
 current <- as.data.frame(gs_read(output, ws = "sheet1"))
 
+## names(current) <- gsub("\\.y", "", names(current))
+## names(current) <- gsub("\\.x", "", names(current))
+
+
 spp <- merge(spp, current, by = "original")
-keep <- c("original","original_fg.x","Country","PaperID",
+keep <- c("original","original_fg.x","Country","PaperID", "dataProvider.x", 
           "drilobase.x", "Authority of species.x", "drilobase_fg.x", "Revised.y",
-          "Revised_fg.y","Revised_Authority.y","sWormMember.y", "X10") 
+          "Revised_fg.y","Revised_Authority.y","sWormMember.y", "X12") 
 spp <- spp[,which(names(spp) %in% keep)]
 
 spp$Revised.y[which(spp$sWormMember.y %in% c("Patrick Lavelle", "Patrick") & is.na(spp$Revised.y))] <- as.character(spp$original[which(spp$sWormMember.y %in% c("Patrick Lavelle", "Patrick") & is.na(spp$Revised.y))])
