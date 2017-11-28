@@ -54,8 +54,11 @@ sites <- read.csv(file.path(data_in, loadinsites))
 #################################################
 ## This would need to loop through all the diffferent tifs
 
-tifs <- c("bio10_1", "bio10_5", "bio10_6", "bio10_12", "bio10_13", "bio10_14")
-divide <- tifs[1:3]
+tifs <- c("bio10_1","bio10_2","bio10_3","bio10_4", "bio10_5", 
+          "bio10_6", "bio10_7","bio10_8","bio10_9","bio10_10",
+          "bio10_11","bio10_12", "bio10_13", "bio10_14","bio10_15",
+          "bio10_16","bio10_17","bio10_18","bio10_19")
+divide <- tifs[c(1, 5:11)]
 for(t in tifs){
   tif <- raster(file.path("C:\\Users\\hp39wasi\\Dropbox\\sWorm\\CHELSAData\\BioClim", 
                   paste("CHELSA_", t, ".tif", sep="")))
