@@ -21,5 +21,5 @@ dl <- c(dl, filenames[grep("ORCDRC", filenames)])
 dl <- c(dl, filenames[grep("TAXNWRB_1", filenames)])
 
 for(i in dl){
-  try(download.file(file.path(sg.ftp, i), file.path(savedir, i)))
+  try(download.file(file.path(sg.ftp, i), file.path(savedir, i), mode="wb"))
 }
