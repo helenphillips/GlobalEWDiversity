@@ -75,4 +75,4 @@ for(t in tifs){
 # 5. Save data
 #################################################
 
-write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+write.csv(sites, file = file.path(data_out, paste("sitesWithChelsa_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
