@@ -1,6 +1,6 @@
 library(lme4)
 
-modelSimplification <- function(model = model, data, alpha = 0.05){
+modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5,  data, alpha = 0.05){
 
 
 #cars$type <- as.factor(rep(letters[1:4], length = 50))
@@ -17,6 +17,8 @@ modelSimplification <- function(model = model, data, alpha = 0.05){
   randEffect <- gsub("^.*\\(", "", randEffect) ## This also removes the first bracket
   randEffect <- paste0("+ (", randEffect)
   
+  fam <- as.character(model@call$family)
+  
   all.terms <- rownames(anova(model))
   interactions <- all.terms[grep(":", all.terms)]
   main <- all.terms[!(all.terms %in% interactions)]
@@ -24,7 +26,13 @@ modelSimplification <- function(model = model, data, alpha = 0.05){
   res <- data.frame(term = NA, pVal = NA)
   
   
-  refModel <- model ## How do I change this 
+  if(fam == "gaussian"){
+    refModel <- lmer(formula = model@call$formula, data = data, family = fam, 
+                   control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
+  }else{
+    refModel <- glmer(formula = model@call$formula, data = data, family = fam, 
+                    control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+  } ## How do I change this 
   
   if(length(interactions) > 0){
     while(length(interactions) > 0){
@@ -39,29 +47,41 @@ modelSimplification <- function(model = model, data, alpha = 0.05){
       res <- data.frame(term = NA, pVal = NA)
       
       for( inter in 1:length(interactions)){
-        
+          cat(paste("Testing interaction: ", interactions[inter], "\n", sep=""))
           used <- c(main, interactions[-inter])
           res[inter, 'term'] <- interactions[inter]
         
           fixedeffs <- paste(used,collapse="+")
         
-          call <- paste(response, "~", used, randEffect)
-        
-          model2 <- lmer(formula = call, data = data) ## What about any other model specifics
-        
+          call <- paste(response, "~", fixedeffs, randEffect)
+          
+          if(fam == "gaussian"){
+            model2 <- lmer(formula = call, data = data, family = fam, 
+                            control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
+          }else{
+            model2 <- glmer(formula = call, data = data, family = fam, 
+                          control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+          }
           res[inter, 'pVal'] <- anova(refModel, model2)[2,'Pr(>Chisq)']
+          print(res[inter, 'pVal'])
         }
       
         if( max(res$pVal, na.rm = TRUE) > alpha){ 
           toRemove <- res$term[which(res$pVal == max(res$pVal, na.rm = TRUE))]
-        
+          cat(paste("Removing", toRemove, "\n"))
           interactions <- interactions[-which(toRemove == interactions)]
         }
       # recreate a ref model
       used <- c(main, interactions)
       fixedeffs <- paste(used,collapse="+")
-      call <- paste(response, "~", used, randEffect)
-      refModel <- lmer(formula = call, data = data) ## What about any other model specifics
+      call <- paste(response, "~", fixedeffs, randEffect)
+      if(fam == "gaussian"){
+        refModel <- lmer(formula = call, data = data, family = fam, 
+                       control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
+      }else{
+        refModel <- glmer(formula = call, data = data, family = fam, 
+                        control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+        }
       }
     }
   
@@ -79,6 +99,9 @@ modelSimplification <- function(model = model, data, alpha = 0.05){
     keep <- unique(unlist(strsplit(matches, "[:]")))
   
     left <- main[!(main %in% keep)]
+    
+    cat(paste("Testing removal of main effects\n"))
+    
     inInteractions <- main[main %in% keep]
   
     res <- data.frame(term = NA, pVal = NA)
@@ -90,34 +113,47 @@ modelSimplification <- function(model = model, data, alpha = 0.05){
       {
         break
       }
-    
+      
+      res <- data.frame(term = NA, pVal = NA)
+
       for(effect in 1:length(left)){
       
-        used <- c(inInteraction, interactions, left[-effect])
-      
-        res[inter, 'term'] <- left[effect]
+        used <- c(inInteractions, interactions, left[-effect])
+        cat(paste("Testing main effect: ", left[effect], "\n", sep=""))
+        res[effect, 'term'] <- left[effect]
       
         fixedeffs <- paste(used,collapse="+")
       
-        call <- paste(response, "~", used, randEffect)
+        call <- paste(response, "~", fixedeffs, randEffect)
       
-        model2 <- lmer(formula = call, data = cars) ## What about any other model specifics
-      
-        res[inter, 'pVal'] <- anova(refModel, model2)[2,'Pr(>Chisq)']
-      
+        if(fam == "gaussian"){
+          model2 <- lmer(formula = call, data = data, family = fam, 
+                           control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
+        }else{
+          model2 <- glmer(formula = call, data = data, family = fam, 
+                            control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+        }
+        res[effect, 'pVal'] <- anova(refModel, model2)[2,'Pr(>Chisq)']
+        print(res[effect, 'pVal'])
       }
       if( max(res$pVal, na.rm = TRUE) > alpha){ 
         toRemove <- res$term[which(res$pVal == max(res$pVal, na.rm = TRUE))]
-      
-        left <- left[-which(toRemove == left)]
+        cat(paste("Removing", toRemove, "\n"))
+        left <- left[-which(left == toRemove)]
       }
     
-      used <- c(inInteraction, interactions, left)
+      used <- c(inInteractions, interactions, left)
       fixedeffs <- paste(used,collapse="+")
-      call <- paste(response, "~", used, randEffect)
-      refModel <- lmer(formula = call, data = cars)
+      call <- paste(response, "~", fixedeffs, randEffect)
+      if(fam == "gaussian"){
+        refModel <- lmer(formula = call, data = data, family = fam, 
+                         control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
+      }else{
+        refModel <- glmer(formula = call, data = data, family = fam, 
+                          control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+      }
     
     }
-  
+  cat(paste("Returning final model\n"))
   return(refModel)
 }
