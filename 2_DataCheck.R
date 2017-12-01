@@ -29,7 +29,7 @@ file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by
 file_dates <- as.Date(file_dates)
 date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
-loadinsites <- loadin[grep("sites_", loadin)]
+loadinsites <- loadin[grep("sitesWithChelsaAndSoil_", loadin)]
 
 bib_in <-"0_Data"
 files <- list.files(file.path(bib_in))
