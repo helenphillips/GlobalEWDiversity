@@ -18,6 +18,7 @@ library(car)
 library(randomForest)
 source("Functions/FormatData.R")
 source("Functions/lme4_ModellingFunctions.R")
+source("Functions/ModelSimplification.R")
 
 #################################################
 # 2. Loading in variables
@@ -44,8 +45,8 @@ models <- "Models"
 # 3. Load in data
 #################################################
 
-#sites <- read.csv(file.path(data_in, loadin))
-sites <- read.csv("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\3_Data\\Sites_2017-11-09.csv")
+ sites <- read.csv(file.path(data_in, loadin))
+# sites <- read.csv("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\3_Data\\Sites_2017-11-09.csv")
 rm(loadin)
 
 #################################################
@@ -60,14 +61,47 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 #################################################
 
 ## RandomForest classification to determine variable importance
+## Species Richness
 spR <- sites[!(is.na(sites$SpeciesRichness)),]
-spR1 <- randomForest(SpeciesRichness ~ bio10_1 + bio10_5 + bio10_6 + bio10_12 + bio10_13 + bio10_14, data = spR, importance=TRUE)
-# % Var explained: 55.35
+spR <- spR[!(is.na(spR$bio10_19)),]
+spR1 <- randomForest(SpeciesRichness ~ bio10_1 + bio10_2 +bio10_3 +bio10_4 +bio10_5 
+                     + bio10_6 +bio10_7 +bio10_8 +bio10_9 +bio10_10 +bio10_11
+                     + bio10_12 + bio10_13 + bio10_14 + bio10_15 +bio10_16 +bio10_17 
+                     +bio10_18 +bio10_19 , data = spR, importance=TRUE)
+# % Var explained: 54.16
 plot(spR1)
 varImpPlot(spR1, type = 2)
 importance(spR1)
 
-### Most important are bio10_14 nd then bio10_13
+
+## RandomForest classification to determine variable importance
+## Abundance
+Ab <- sites[!(is.na(sites$Site_Abundance)),]
+Ab <- Ab[!(is.na(Ab$bio10_19)),]
+Ab1 <- randomForest(Site_Abundance ~ bio10_1 + bio10_2 +bio10_3 +bio10_4 +bio10_5 
+                     + bio10_6 +bio10_7 +bio10_8 +bio10_9 +bio10_10 +bio10_11
+                     + bio10_12 + bio10_13 + bio10_14 + bio10_15 +bio10_16 +bio10_17 
+                     +bio10_18 +bio10_19 , data = Ab, importance=TRUE)
+# % Var explained: 54.16
+plot(Ab1)
+varImpPlot(Ab1, type = 2)
+importance(Ab1)
+
+
+## RandomForest classification to determine variable importance
+## Biomass
+Bio <- sites[!(is.na(sites$Site_WetBiomass)),]
+Bio <- Bio[!(is.na(Bio$bio10_19)),]
+Bio1 <- randomForest(Site_WetBiomass ~ bio10_1 + bio10_2 +bio10_3 +bio10_4 +bio10_5 
+                    + bio10_6 +bio10_7 +bio10_8 +bio10_9 +bio10_10 +bio10_11
+                    + bio10_12 + bio10_13 + bio10_14 + bio10_15 +bio10_16 +bio10_17 
+                    +bio10_18 +bio10_19 , data = Bio, importance=TRUE)
+# % Var explained: 54.16
+plot(Bio1)
+varImpPlot(Bio1, type = 2)
+importance(Bio1)
+
+
 
 ## Checking for collinearity
 plot(sites$bio10_14 ~ sites$bio10_13)
@@ -92,102 +126,65 @@ richness <- sites[complete.cases(sites$SpeciesRichness),]
 richness <- droplevels(richness[richness$ESA != "Unknown",])
 richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),])
 
-richness <- richness[complete.cases(richness$scalePH),]
+# richness <- richness[complete.cases(richness$scalePH),]
+
+richness <- droplevels(richness[!(is.na(richness$PHIHOX)),])
+richness <- droplevels(richness[!(is.na(richness$bio10_2)),]) ## 1781
 
 
 table(richness$ESA)
-richness_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Herbaceous with spare tree/shrub ", 
-                         "Sparse vegetation", "Cropland/Other vegetation mosaic", 
-                         "Bare area (consolidated", "Paddy field", "Wetland/Herbaceous")
+richness_notinclude <- c("Needleleaf deciduous forest", 
+                         "Sparse vegetation",  
+                         "Bare area (consolidated", "Paddy field")
 
-richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),])
-richness$scalePH <- as.vector(scale(richness$ph_new))
+richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##  1764
+summary(richness$PHIHOX)
+richness$scalePH <- as.vector(scale(richness$PHIHOX))
+richness$scaleCLYPPT <- scale(richness$CLYPPT)
+richness$scaleSLTPPT <- scale(richness$SLTPPT)
+richness$scaleCECSOL <- scale(richness$CECSOL)
+richness$scaleORCDRC <- scale(richness$ORCDRC)
+
+
+# Three most important climate variables
+richness$bio10_2_scaled <- scale(richness$bio10_2)
+richness$bio10_15_scaled <- scale(richness$bio10_15)
 richness$bio10_5_scaled <- scale(richness$bio10_5)
-richness$bio10_13_scaled <- scale(richness$bio10_13)
-richness$bio10_14_scaled <- scale(richness$bio10_14)
 
-r1 <- glmer(SpeciesRichness ~  scalePH  + ESA + 
-             scalePH:ESA + 
-             (bio10_14_scaled + bio10_13_scaled + bio10_5_scaled)^2 + 
-             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+r1 <- glmer(SpeciesRichness ~  ESA + (scalePH  + 
+             scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+             (bio10_2_scaled + bio10_15_scaled + bio10_5_scaled)^2 + 
+             #  SNDPPT # Not included, as the other two dictate the third
+              
+              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
              
              # HabitatCover + 
              #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
              # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
              (1|file/Study_Name), data = richness, family = poisson,
-            control = glmerControl(optCtrl = list(maxfun = 100000), optimizer ="Nelder_Mead"))
+            control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 
 summary(r1)
 
-r2a <- update(r1, .~. -bio10_13_scaled:bio10_5_scaled)
-anova(r1, r2a) # Not significnat
-r2b <- update(r1, .~. -bio10_14_scaled:bio10_5_scaled)
-anova(r1, r2b) # Not significant
-r2c <- update(r1, .~. -bio10_14_scaled:bio10_13_scaled)
-anova(r1, r2c) #Not significant
-
-r2d <- update(r1, .~. -scalePH:ESA)
-anova(r1, r2d) # Not significant
+test1 <- glmer(SpeciesRichness ~  ESA +  scalePH:scaleORCDRC + scaleCLYPPT:scaleCECSOL
+               + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC +
+                 bio10_2_scaled + bio10_15_scaled + bio10_5_scaled +
+              (1|file/Study_Name), data = richness, family = poisson,
+            control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 
-r3a <- update(r2d, .~. -bio10_13_scaled:bio10_5_scaled)
-anova(r2d, r3a) # Not significnat
-r3b <- update(r2d, .~. -bio10_14_scaled:bio10_5_scaled)
-anova(r2d, r3b) # Not significant
-r3c <- update(r2d, .~. -bio10_14_scaled:bio10_13_scaled)
-anova(r2d, r3c) #Not significant
+#tt <- getME(r1,"theta")
+#ll <- getME(r1,"lower")
+#min(tt[ll==0])
 
-r4a <- update(r3a, .~. -bio10_14_scaled:bio10_5_scaled)
-anova(r3a, r4a)#Not significant
-r4b <- update(r3a, .~. -bio10_14_scaled:bio10_13_scaled)
-anova(r3a, r4b)#Not significant
+# derivs1 <- r1@optinfo$derivs
+# sc_grad1 <- with(derivs1,solve(Hessian,gradient))
+# max(abs(sc_grad1))
+# max(pmin(abs(sc_grad1),abs(derivs1$gradient)))
 
+test_model <- modelSimplification(model = test1, data = richness, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
 
-r5a <- update(r4a, .~. -bio10_14_scaled:bio10_13_scaled)
-anova(r4a, r5a)#Not significant
-
-r6a <- update(r5a, .~. -bio10_5_scaled)
-anova(r5a, r6a) #Not significant
-r6b <- update(r5a, .~. -bio10_13_scaled)
-anova(r5a, r6b)  #Not significant
-r6c <- update(r5a, .~. -bio10_14_scaled)
-anova(r5a, r6c) #Not significant
-r6d <- update(r5a, .~. -ESA)
-anova(r5a, r6d) #Not significant
-r6e <- update(r5a, .~. -scalePH)
-anova(r5a, r6e) #Not significant
-
-
-r7a <- update(r6c, .~. -bio10_5_scaled)
-anova(r6c, r7a) #Not significant
-r7b <- update(r6c, .~. -bio10_13_scaled)
-anova(r6c, r7b) #Not significant
-r7c <- update(r6c, .~. -ESA)
-anova(r6c, r7c) #Not significant
-r7d <- update(r6c, .~. -scalePH)
-anova(r6c, r7d) #Not significant
-
-
-r8a <- update(r7b, .~. -bio10_5_scaled)
-anova(r7b, r8a) #Not significant
-r8b <- update(r7b, .~. -ESA)
-anova(r7b, r8b) #Not significant
-r8c <- update(r7b, .~. -scalePH)
-anova(r7b, r8b) #Not significant
-
-r9a <- update(r8a, .~. -ESA)
-anova(r8a, r9a) #Not significant
-r9b <- update(r8a, .~. -scalePH)
-anova(r8a, r9b) #Not significant
-
-r10 <- update(r9a, .~. -scalePH)
-anova(r9a, r10) ## Not significant
-
-anova(r1, r10) ## Not sigificnat
-## well that's a bit shit
-
-#plot(sp_habitat)
 #save(sp_habitat, file = file.path(models, "sp_habitat.rds"))
 
 #################################################
