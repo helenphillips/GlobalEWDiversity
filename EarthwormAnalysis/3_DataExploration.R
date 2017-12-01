@@ -50,8 +50,8 @@ sites <- SiteLevels(sites)
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 116 papers
-length(unique(sites$Study_Name)) ## 143 studies
+length(unique(sites$file)) ## 118 papers
+length(unique(sites$Study_Name)) ## 146 studies
 
 length(unique(sites$Country))## 42 Countries
 
