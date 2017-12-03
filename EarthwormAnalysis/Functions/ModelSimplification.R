@@ -18,6 +18,9 @@ modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5
   randEffect <- paste0("+ (", randEffect)
   
   fam <- as.character(model@call$family)
+  ## lmers don't have a family, so....
+  if(length(fam) == 0) {fam <- "notpoisson"}
+  
   
   all.terms <- rownames(anova(model))
   interactions <- all.terms[grep(":", all.terms)]
@@ -26,12 +29,14 @@ modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5
   res <- data.frame(term = NA, pVal = NA)
   
   
-  if(fam == "gaussian"){
-    refModel <- lmer(formula = model@call$formula, data = data, family = fam, 
-                   control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
-  }else{
+  if(fam == "poisson"){
+    
     refModel <- glmer(formula = model@call$formula, data = data, family = fam, 
-                    control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+                      control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+    
+  }else{
+    refModel <- lmer(formula = model@call$formula, data = data, 
+                     control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
   } ## How do I change this 
   
   if(length(interactions) > 0){
@@ -55,12 +60,13 @@ modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5
         
           call <- paste(response, "~", fixedeffs, randEffect)
           
-          if(fam == "gaussian"){
-            model2 <- lmer(formula = call, data = data, family = fam, 
-                            control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
-          }else{
+          if(fam == "poisson"){
             model2 <- glmer(formula = call, data = data, family = fam, 
-                          control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+                            control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
+          }else{
+            model2 <- lmer(formula = call, data = data,
+                           control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
+             
           }
           res[inter, 'pVal'] <- anova(refModel, model2)[2,'Pr(>Chisq)']
           print(res[inter, 'pVal'])
@@ -75,12 +81,12 @@ modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5
       used <- c(main, interactions)
       fixedeffs <- paste(used,collapse="+")
       call <- paste(response, "~", fixedeffs, randEffect)
-      if(fam == "gaussian"){
-        refModel <- lmer(formula = call, data = data, family = fam, 
-                       control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
-      }else{
+      if(fam == "poisson"){
         refModel <- glmer(formula = call, data = data, family = fam, 
-                        control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+                          control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+      }else{
+        refModel <- lmer(formula = call, data = data, 
+                         control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
         }
       }
     }
@@ -126,12 +132,13 @@ modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5
       
         call <- paste(response, "~", fixedeffs, randEffect)
       
-        if(fam == "gaussian"){
-          model2 <- lmer(formula = call, data = data, family = fam, 
-                           control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
-        }else{
+        if(fam == "poisson"){
           model2 <- glmer(formula = call, data = data, family = fam, 
-                            control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+                          control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+        }else{
+          model2 <- lmer(formula = call, data = data,
+                         control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
+          
         }
         res[effect, 'pVal'] <- anova(refModel, model2)[2,'Pr(>Chisq)']
         print(res[effect, 'pVal'])
@@ -145,12 +152,13 @@ modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5
       used <- c(inInteractions, interactions, left)
       fixedeffs <- paste(used,collapse="+")
       call <- paste(response, "~", fixedeffs, randEffect)
-      if(fam == "gaussian"){
-        refModel <- lmer(formula = call, data = data, family = fam, 
-                         control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
-      }else{
+      if(fam == "poisson"){
         refModel <- glmer(formula = call, data = data, family = fam, 
                           control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters))) 
+      }else{
+        refModel <- lmer(formula = call, data = data,
+                         control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
+        
       }
     
     }
