@@ -82,7 +82,7 @@ Ab1 <- randomForest(Site_Abundance ~ bio10_1 + bio10_2 +bio10_3 +bio10_4 +bio10_
                      + bio10_6 +bio10_7 +bio10_8 +bio10_9 +bio10_10 +bio10_11
                      + bio10_12 + bio10_13 + bio10_14 + bio10_15 +bio10_16 +bio10_17 
                      +bio10_18 +bio10_19 , data = Ab, importance=TRUE)
-# % Var explained: 54.16
+# % Var explained: 36.35
 plot(Ab1)
 varImpPlot(Ab1, type = 2)
 importance(Ab1)
@@ -96,7 +96,7 @@ Bio1 <- randomForest(Site_WetBiomass ~ bio10_1 + bio10_2 +bio10_3 +bio10_4 +bio1
                     + bio10_6 +bio10_7 +bio10_8 +bio10_9 +bio10_10 +bio10_11
                     + bio10_12 + bio10_13 + bio10_14 + bio10_15 +bio10_16 +bio10_17 
                     +bio10_18 +bio10_19 , data = Bio, importance=TRUE)
-# % Var explained: 54.16
+# % Var explained: -2.43
 plot(Bio1)
 varImpPlot(Bio1, type = 2)
 importance(Bio1)
@@ -167,11 +167,6 @@ r1 <- glmer(SpeciesRichness ~  ESA + (scalePH  +
 
 summary(r1)
 
-test1 <- glmer(SpeciesRichness ~  ESA +  scalePH:scaleORCDRC + scaleCLYPPT:scaleCECSOL
-               + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC +
-                 bio10_2_scaled + bio10_15_scaled + bio10_5_scaled +
-              (1|file/Study_Name), data = richness, family = poisson,
-            control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 
 #tt <- getME(r1,"theta")
@@ -183,20 +178,33 @@ test1 <- glmer(SpeciesRichness ~  ESA +  scalePH:scaleORCDRC + scaleCLYPPT:scale
 # max(abs(sc_grad1))
 # max(pmin(abs(sc_grad1),abs(derivs1$gradient)))
 
-test_model <- modelSimplification(model = test1, data = richness, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
+richness_model <- modelSimplification(model = r1, data = richness, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
+save(richness_model, file = file.path(models, "richnessmodel_full.rds"))
 
-#save(sp_habitat, file = file.path(models, "sp_habitat.rds"))
 
 #################################################
 # 5. Biomass
 #################################################
 biomass <- sites[complete.cases(sites$logBiomass),]
 biomass <- droplevels(biomass[biomass$ESA != "Unknown",])
-biomass$scalePH <- as.vector(scale(biomass$ph_new))
+
+biomass <- droplevels(biomass[!(is.na(biomass$PHIHOX)),])
+biomass <- droplevels(biomass[!(is.na(biomass$bio10_2)),]) ## 1011
 
 
 table(biomass$ESA)
-biomass_notinclude <- c("Tree open", "Sparse vegetation", "Cropland/Other vegetation mosaic", "Urban", "Paddy field", "Herbaceous with spare tree/shrub")
+biomass_notinclude <- c("Tree open", "Sparse vegetation", 
+                        "Urban", "Paddy field", "Herbaceous with spare tree/shrub")
+
+biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##  969
+summary(biomass$PHIHOX)
+biomass$scalePH <- as.vector(scale(biomass$PHIHOX))
+biomass$scaleCLYPPT <- scale(biomass$CLYPPT)
+biomass$scaleSLTPPT <- scale(biomass$SLTPPT)
+biomass$scaleCECSOL <- scale(biomass$CECSOL)
+biomass$scaleORCDRC <- scale(biomass$ORCDRC)
+
+
 
 biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),])
 
@@ -264,59 +272,42 @@ hist(sites$Site_Abundance)
 hist(sites$logAbundance)
 abundance <- sites[complete.cases(sites$Site_Abundance),]
 abundance <- droplevels(abundance[abundance$ESA != "Unknown",])
-abundance$scalePH <- scale(abundance$ph_new)
 
+abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
+abundance <- droplevels(abundance[!(is.na(abundance$bio10_2)),]) ## 2091
+
+
+table(abundance$ESA)
 abundance_notinclude <- c("Needleleaf deciduous forest", "Sparse vegetation",
-                          "Cropland/Other vegetation mosaic", "Bare area (consolidated", "Paddy field",
-                          "Wetland/Herbaceous", "Herbaceous with spare tree/shrub")
+                         "Bare area (consolidated", "Paddy field")
 
 abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),])
 tapply(abundance$scalePH, abundance$ESA, summary)
 
-abundance$bio10_5_scaled <- scale(abundance$bio10_5)
-abundance$bio10_13_scaled <- scale(abundance$bio10_13)
-abundance$bio10_14_scaled <- scale(abundance$bio10_14)
 
-a1 <- lmer(logAbundance ~  scalePH  + ESA + 
-             scalePH:ESA + 
-             (bio10_14_scaled * bio10_13_scaled * bio10_5_scaled) + 
+abundance$scalePH <- as.vector(scale(abundance$PHIHOX))
+abundance$scaleCLYPPT <- scale(abundance$CLYPPT)
+abundance$scaleSLTPPT <- scale(abundance$SLTPPT)
+abundance$scaleCECSOL <- scale(abundance$CECSOL)
+abundance$scaleORCDRC <- scale(abundance$ORCDRC)
+
+abundance$bio10_2_scaled <- scale(abundance$bio10_2)
+abundance$bio10_10_scaled <- scale(abundance$bio10_10)
+abundance$bio10_18_scaled <- scale(abundance$bio10_18)
+
+a1 <- lmer(logAbundance ~  ESA + (scalePH  + 
+                                    scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+             (bio10_2_scaled + bio10_10_scaled + bio10_18_scaled)^2 + 
+             #  SNDPPT # Not included, as the other two dictate the third
+             
              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
              
              # HabitatCover + 
              #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
              # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
-             (1|file/Study_Name), data = abundance)
+             (1|file/Study_Name), data = abundance, family = "gaussian"
+           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 plot(a1)
-
-
-a2a <- update(a1, .~. -bio10_14_scaled:bio10_13_scaled:bio10_5_scaled)
-anova(a1, a2a) # Not significant
-
-a3a <- update(a2a, .~. -bio10_13_scaled:bio10_5_scaled)
-anova(a2a, a3a) # Not significant
-a3b <- update(a2a, .~. -bio10_14_scaled:bio10_5_scaled )
-anova(a2a, a3b) # Not significant
-a3c <- update(a2a, .~. -bio10_14_scaled:bio10_13_scaled)
-anova(a2a, a3c) # Not significant
-
-a4a <- update(a3c, .~. -bio10_13_scaled:bio10_5_scaled)
-anova(a3c, a4a)# Not significant
-a4b <- update(a3c, .~. -bio10_14_scaled:bio10_5_scaled)
-anova(a3c, a4b)# Not significant
-
-a5a <- update(a4b, .~. -bio10_13_scaled:bio10_5_scaled)
-anova(a4b, a5a) # Significant
-
-a6a <- update(a4b, .~. -scalePH:ESA)
-anova(a4b, a6a) ## Significant
-
-a7a <- update(a4b, .~. -bio10_14_scaled)
-anova(a4b, a7a) ## Significant
-
-summary(a4b)
-####
-## a1
-####
-save(a4b, file = file.path(models, "abundance_ESApH+CHELSA.rds.rds"))
-
+abundance_model <- modelSimplification(model = a1, data = abundance, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
+save(abundance_model, file = file.path(models, "abundancemodel_full.rds"))
