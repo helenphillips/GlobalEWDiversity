@@ -37,6 +37,16 @@ loadin <- files[grep(date, files)]
 rm(files)
 rm(date)
 
+#################################################
+# 2.5 Create folders
+#################################################
+
+if(!dir.exists("4_Data")){
+  dir.create("4_Data")
+}
+
+data_out <- "4_Data"
+
 if(!dir.exists("Models")){
   dir.create("Models")
 }
@@ -151,6 +161,9 @@ richness$bio10_2_scaled <- scale(richness$bio10_2)
 richness$bio10_15_scaled <- scale(richness$bio10_15)
 richness$bio10_5_scaled <- scale(richness$bio10_5)
 
+## Save the data
+write.csv(richness, file = file.path(data_out, paste("sitesRichness_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
 r1 <- glmer(SpeciesRichness ~  ESA + (scalePH  + 
              scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
              (bio10_2_scaled + bio10_15_scaled + bio10_5_scaled)^2 + 
@@ -180,7 +193,7 @@ summary(r1)
 
 richness_model <- modelSimplification(model = r1, data = richness, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
 save(richness_model, file = file.path(models, "richnessmodel_full.rds"))
-
+# load(file.path(models, "richnessmodel_full.rds"))
 
 #################################################
 # 5. Biomass
@@ -193,10 +206,10 @@ biomass <- droplevels(biomass[!(is.na(biomass$bio10_2)),]) ## 1011
 
 
 table(biomass$ESA)
-biomass_notinclude <- c("Tree open", "Sparse vegetation", 
-                        "Urban", "Paddy field", "Herbaceous with spare tree/shrub")
+biomass_notinclude <- c("Tree open", "Shrub", "Sparse vegetation", 
+                        "Urban", "Paddy field")
 
-biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##  969
+biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##  985
 summary(biomass$PHIHOX)
 biomass$scalePH <- as.vector(scale(biomass$PHIHOX))
 biomass$scaleCLYPPT <- scale(biomass$CLYPPT)
@@ -204,65 +217,30 @@ biomass$scaleSLTPPT <- scale(biomass$SLTPPT)
 biomass$scaleCECSOL <- scale(biomass$CECSOL)
 biomass$scaleORCDRC <- scale(biomass$ORCDRC)
 
+biomass$bio10_8_scaled <- scale(biomass$bio10_8)
 
-
-biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),])
-
-biomass$bio10_5_scaled <- scale(biomass$bio10_5)
-biomass$bio10_13_scaled <- scale(biomass$bio10_13)
-biomass$bio10_14_scaled <- scale(biomass$bio10_14)
+## Save the data
+write.csv(biomass, file = file.path(data_out, paste("sitesBiomass_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
 
 
-b1 <- lmer(logBiomass ~  scalePH  + ESA + 
-              scalePH:ESA + 
-             (bio10_14_scaled * bio10_13_scaled * bio10_5_scaled) + 
-              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+b1 <- lmer(logBiomass ~  ESA + (scalePH  + 
+            scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+             bio10_8_scaled + 
+             #  SNDPPT # Not included, as the other two dictate the third
+             
+             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
              
              # HabitatCover + 
-            #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
-            # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
-            (1|file/Study_Name), data = biomass)
+             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+             (1|file/Study_Name), data = biomass,
+           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+plot(b1)
 
-b2a <- update(b1, .~. -bio10_14_scaled:bio10_13_scaled:bio10_5_scaled)
-anova(b1, b2a) ## Not significant
-
-b3a <- update(b2a, .~. -bio10_13_scaled:bio10_5_scaled)
-anova(b2a, b3a) ## Not Significant
-
-b3b <- update(b2a, .~. -bio10_14_scaled:bio10_5_scaled)
-anova(b2a, b3b) ## Not Significant
-
-b3c <- update(b2a, .~. -bio10_14_scaled:bio10_13_scaled)
-anova(b2a, b3c) ## Significant
-
-
-b4a <- update(b3b, .~. -bio10_13_scaled:bio10_5_scaled)
-anova(b3b, b4a) ## Not Significant
-
-b4b <- update(b3b, .~. -bio10_14_scaled:bio10_13_scaled)
-anova(b3b, b4b) ## Significant
-
-
-b5a <- update(b4a, .~. -bio10_14_scaled:bio10_13_scaled)
-anova(b4a, b5a) ##  Significant
-
-summary(b4a)
-
-
-b6a <- update(b4a, .~. -scalePH:ESA)
-anova(b5a, b6a) ## Significant
-
-
-b7a <- update(b4a, .~. - bio10_5_scaled)
-anova(b4a, b7a) ## Significant
-
-summary(b4a)
-
-######
-## b2a
-######
-save(b4a, file = file.path(models, "biomass_ESApH+CHELSA.rds"))
+biomass_model <- modelSimplification(model = b1, data = biomass, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
+save(biomass_model, file = file.path(models, "biomassmodel_full.rds"))
+# load(file.path(models, "richnessmodel_full.rds"))
 
 
 #################################################
@@ -295,6 +273,10 @@ abundance$bio10_2_scaled <- scale(abundance$bio10_2)
 abundance$bio10_10_scaled <- scale(abundance$bio10_10)
 abundance$bio10_18_scaled <- scale(abundance$bio10_18)
 
+## Save the data
+write.csv(abundance, file = file.path(data_out, paste("sitesAbundance_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
+
 a1 <- lmer(logAbundance ~  ESA + (scalePH  + 
                                     scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
              (bio10_2_scaled + bio10_10_scaled + bio10_18_scaled)^2 + 
@@ -305,7 +287,7 @@ a1 <- lmer(logAbundance ~  ESA + (scalePH  +
              # HabitatCover + 
              #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
              # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
-             (1|file/Study_Name), data = abundance, family = "gaussian"
+             (1|file/Study_Name), data = abundance,
            control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 plot(a1)
