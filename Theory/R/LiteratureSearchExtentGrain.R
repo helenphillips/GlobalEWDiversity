@@ -27,7 +27,7 @@ dat$Theory [which(dat$Theory == "PROD")] <- "SER"
 # "SER", "IBT", "MT", "SAR", "Niche/Neutral", "Meta"
 
 
-
+dat <- droplevels(dat[!(dat$Theory %in% c("MT", "SAR")),])
 
 ## TODO
 ## There are four rows without extent, which I have now lost with the next line of code
@@ -151,28 +151,60 @@ dat$SizeColours[dat$SizeGroup == "Microfauna"] <- colors[2]
 dat$SizeColours[dat$SizeGroup == "Mesofauna"] <- colors[3]
 dat$SizeColours[dat$SizeGroup == "Macrofauna"] <- colors[4]
 
-pdf(file = file.path(figs, "GrainExtent_alldata.pdf"), width = 11)
+pdf(file = file.path(figs, "GrainExtent_sizeClasses.pdf"), width = 11)
 par(mar=c(4.5, 4, 1, 1))
 layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
-plot(jitter(grainN) ~ jitter(ExtentN), cex = 1,  pch = 20, col = SizeColours, data = dat,
+plot(jitter(grainN) ~ jitter(ExtentN), cex = 1.5,  pch = 20, col = SizeColours, data = dat,
      xaxt='n',  yaxt='n', xlab = "Extent", ylab = "Grain", bty = "l")
 axis(2, at = 1:length(levels(dat$grain)), labels = levels(dat$grain), las = 2)
 axis(1, at = 1:length(levels(dat$Extent)), labels = levels(dat$Extent), las = 2)
 # Legend
 par(mar=c(0,0,0,0))
 plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(0, 5), ylim = c(0, 1))
-points(1:4, rep(0.5, 4) , cex = 1, col = colors, pch=19)
+points(1:4, rep(0.5, 4) , cex = 1.5, col = colors, pch=19)
 text(1:4, rep(0.5,4), labels = levels(dat$SizeGroup), pos =4)
 dev.off()
 
 
-plot(jitter(grainN) ~ jitter(ExtentN), pch = 19, col = SizeColours, data = dat)
+# plot(jitter(grainN) ~ jitter(ExtentN), pch = 19, col = SizeColours, data = dat)
 
+cols <-  brewer.pal(4, "Set1")
+dat$TheoryColor <-  cols[1]
+dat$TheoryColor[dat$Theory == "Meta"] <- cols[2]
+dat$TheoryColor[dat$Theory == "Niche/Neutral"] <- cols[3]
+dat$TheoryColor[dat$Theory == "SER"] <- cols[4]
 
+dat$Theory <- as.factor(dat$Theory)
 
+pdf(file = file.path(figs, "GrainExtent_theory.pdf"), width = 11)
+par(mar=c(4.5, 4, 1, 1))
+layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
+plot(jitter(grainN) ~ jitter(ExtentN), cex = 1.5,  pch = 20, col = TheoryColor, data = dat,
+     xaxt='n',  yaxt='n', xlab = "Extent", ylab = "Grain", bty = "l")
+axis(2, at = 1:length(levels(dat$grain)), labels = levels(dat$grain), las = 2)
+axis(1, at = 1:length(levels(dat$Extent)), labels = levels(dat$Extent), las = 2)
+# Legend
+par(mar=c(0,0,0,0))
+plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(0, 5), ylim = c(0, 1))
+points(1:4, rep(0.5, 4) , cex = 1.5, col = cols, pch=19)
+text(1:4, rep(0.5,4), labels = levels(dat$Theory), pos =4)
+dev.off()
 
 ########################
+## When papers were published
 
+all <- read.csv("AllSoilSearchResults.csv")
+
+byyear <- as.data.frame(table(all$PY, all$Theory))
+names(byyear) <- c("year", "theory", "freq")
+
+library(ggplot2)
+pdf(file = file.path(figs, "PublicationYear_theory.pdf"), width = 11)
+ggplot(data = byyear, aes(x = factor(year), y = freq, color = theory)) +       
+  geom_line(aes(group = theory)) + geom_point() +
+  labs(x = "Year", y = "Frequency", colour = "")
+dev.off()
+#################
 dat$Species <- factor(dat$Species, levels = c("prokaryotes","Fungi", "Soil microbes","nematodes",         
                                               "Protozoa", "mites","springtails", "soil invertebrates",
                                                "Earthworms"))
