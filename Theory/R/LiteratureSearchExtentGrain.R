@@ -20,7 +20,7 @@ table(dat$Extent)
 ### Fixing theory part
 dat$Theory <- as.character(dat$Theory)
 dat$Theory [which(dat$Theory == "IBT_SAR")] <- "IBT"
-dat$Theory [which(dat$Theory == "MC")] <- "Meta"
+dat$Theory [which(dat$Theory == "MC")] <- "MCT"
 dat$Theory [which(dat$Theory == "Neutral theory")] <- "Niche/Neutral"
 dat$Theory [which(dat$Theory == "PROD")] <- "SER"
 
@@ -28,9 +28,10 @@ dat$Theory [which(dat$Theory == "PROD")] <- "SER"
 
 
 dat <- droplevels(dat[!(dat$Theory %in% c("MT", "SAR")),])
+dat$Theory <- as.factor(dat$Theory)
+dat$Theory <- factor(dat$Theory, levels = c("SER", "IBT", "MCT", "Niche/Neutral"))
 
-## TODO
-## There are four rows without extent, which I have now lost with the next line of code
+
 
 dat$Extent <- as.character(dat$Extent)
 dat$Extent[is.na(dat$Extent)] <- "unknown"
@@ -168,13 +169,13 @@ m <- matrix(c(1, 2, 3, 4, 5, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7), byrow = TRUE, ncol =
 layout(m)
 
 par(mar=c(0.1, 0.1, 0.1, 0.1))
+pie(sp$Freq[sp$Var2 == "SER"], labels = "", clockwise = TRUE, col=colors)
+mtext("n = 15", 1)
 pie(sp$Freq[sp$Var2 == "IBT"], labels = "", clockwise = TRUE, col=colors)
 mtext("n = 15", 1)
-pie(sp$Freq[sp$Var2 == "Meta"], labels = "", clockwise = TRUE, col=colors)
-mtext("n = 15", 1)
-pie(sp$Freq[sp$Var2 == "Niche/Neutral"], labels = "", clockwise = TRUE, col=colors)
+pie(sp$Freq[sp$Var2 == "MCT"], labels = "", clockwise = TRUE, col=colors)
 mtext("n = 18", 1)
-pie(sp$Freq[sp$Var2 == "SER"], labels = "", clockwise = TRUE, col=colors)
+pie(sp$Freq[sp$Var2 == "Niche/Neutral"], labels = "", clockwise = TRUE, col=colors)
 mtext("n = 8", 1)
 plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(1, 4.5), ylim = c(0,4))
 points(rep(1, length = 4), 4:1, col = colors, pch = 19, cex = 2)
@@ -185,24 +186,24 @@ symb <- 1
 
 par(mar=c(3, 4.5, 1, 4))
 plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(1, 4.5), ylim = c(0, 6))
-points(rep(1, length = nrow(x[x$Var2 == "IBT",])), x$Var1[x$Var2 == "IBT"], cex = log(x$Freq[x$Var2 == "IBT"] + 1), pch = symb)
-points(rep(2, length = nrow(x[x$Var2 == "Meta",])), x$Var1[x$Var2 == "Meta"], cex = log(x$Freq[x$Var2 == "Meta"] + 1), pch = symb)
-points(rep(3, length = nrow(x[x$Var2 == "Niche/Neutral",])), x$Var1[x$Var2 == "Niche/Neutral"], cex = log(x$Freq[x$Var2 == "Niche/Neutral"] + 1), pch = symb)
-points(rep(4, length = nrow(x[x$Var2 == "SER",])), x$Var1[x$Var2 == "SER"], cex = log(x$Freq[x$Var2 == "SER"] + 1), pch = symb)
+points(rep(1, length = nrow(x[x$Var2 == "SER",])), x$Var1[x$Var2 == "SER"], cex = log(x$Freq[x$Var2 == "SER"] + 1), pch = symb)
+points(rep(2, length = nrow(x[x$Var2 == "IBT",])), x$Var1[x$Var2 == "IBT"], cex = log(x$Freq[x$Var2 == "IBT"] + 1), pch = symb)
+points(rep(3, length = nrow(x[x$Var2 == "MCT",])), x$Var1[x$Var2 == "MCT"], cex = log(x$Freq[x$Var2 == "MCT"] + 1), pch = symb)
+points(rep(4, length = nrow(x[x$Var2 == "Niche/Neutral",])), x$Var1[x$Var2 == "Niche/Neutral"], cex = log(x$Freq[x$Var2 == "Niche/Neutral"] + 1), pch = symb)
 
-points(rep(1.4, length = nrow(y[y$Var2 == "IBT",])), y$Var1[y$Var2 == "IBT"], cex = log(y$Freq[y$Var2 == "IBT"] + 1), pch = symb, col = "gray")
-points(rep(2.4, length = nrow(y[y$Var2 == "Meta",])), y$Var1[y$Var2 == "Meta"], cex = log(y$Freq[y$Var2 == "Meta"] + 1), pch = symb, col = "gray")
-points(rep(3.4, length = nrow(y[y$Var2 == "Niche/Neutral",])), y$Var1[y$Var2 == "Niche/Neutral"], cex = log(y$Freq[y$Var2 == "Niche/Neutral"] + 1), pch = symb, col = "gray")
-points(rep(4.4, length = nrow(y[y$Var2 == "SER",])), y$Var1[y$Var2 == "SER"], cex = log(y$Freq[y$Var2 == "SER"] + 1), pch = symb, col = "gray")
+points(rep(1.4, length = nrow(y[y$Var2 == "SER",])), y$Var1[y$Var2 == "SER"], cex = log(y$Freq[y$Var2 == "SER"] + 1), pch = 19, col = "gray")
+points(rep(2.4, length = nrow(y[y$Var2 == "IBT",])), y$Var1[y$Var2 == "IBT"], cex = log(y$Freq[y$Var2 == "IBT"] + 1), pch = 19, col = "gray")
+points(rep(3.4, length = nrow(y[y$Var2 == "MCT",])), y$Var1[y$Var2 == "MCT"], cex = log(y$Freq[y$Var2 == "MCT"] + 1), pch = 19, col = "gray")
+points(rep(4.4, length = nrow(y[y$Var2 == "Niche/Neutral",])), y$Var1[y$Var2 == "Niche/Neutral"], cex = log(y$Freq[y$Var2 == "Niche/Neutral"] + 1), pch = 19, col = "gray")
 
 abline(v=c(1.7, 2.7, 3.7), lty = 2)
 
-axis(1, at = c(1.2, 2.2, 3.2, 4.2), labels = c("IBT", "Meta", "Niche/Neutral", "SER"))
+axis(1, at = c(1.2, 2.2, 3.2, 4.2), labels = c("SER", "IBT", "MCT", "Niche/Neutral"))
 axis(2, at = 1:5, labels = levels(dat$grain), las = 2)
 axis(4, at = 1:6, labels = levels(dat$Extent), las = 2)
 
 mtext("Grain (Black circles)", side = 2, line = 3)
-mtext("Extent (Gray dircles)", side = 4, line = 3.5, col = "gray")
+mtext("Extent (Gray dots)", side = 4, line = 3.5, col = "gray")
 
 par(mar=c(0.1, 0.1, 0.1,0.1))
 plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(1, 4.5), ylim = c(0,4))
@@ -246,20 +247,20 @@ mtext("Number of unknown grain size = 20", 1)
 par(mar=c(2, 4.5, 1, 1))
 plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(1, 4), ylim = c(0,5))
 
-points(jitter(rep(1, length = nrow(gr[gr$Var3 == "IBT",]))), (gr$Var1[gr$Var3 == "IBT"]), pch = 19, col = as.character(gr$Var2[gr$Var3 == "IBT"]), cex = log(gr$Freq[gr$Var3 == "IBT"] + 1))
-points(jitter(rep(2, length = nrow(gr[gr$Var3 == "Meta",]))), (gr$Var1[gr$Var3 == "Meta"]), pch = 19, col = as.character(gr$Var2[gr$Var3 == "Meta"]), cex = log(gr$Freq[gr$Var3 == "Meta"] + 1))
-points(jitter(rep(3, length = nrow(gr[gr$Var3 == "Niche/Neutral",]))), (gr$Var1[gr$Var3 == "Niche/Neutral"]), pch = 19, col = as.character(gr$Var2[gr$Var3 == "Niche/Neutral"]), cex = log(gr$Freq[gr$Var3 == "Niche/Neutral"] + 1))
-points(jitter(rep(4, length = nrow(gr[gr$Var3 == "SER",]))), (gr$Var1[gr$Var3 == "SER"]), pch = 19, col = as.character(gr$Var2[gr$Var3 == "SER"]), cex = log(gr$Freq[gr$Var3 == "SER"] + 1))
-axis(1, at = c(1, 2, 3, 4), labels = c("IBT", "Meta", "Niche/Neutral", "SER"))
+points(jitter(rep(1, length = nrow(gr[gr$Var3 == "SER",]))), (gr$Var1[gr$Var3 == "SER"]), pch = 19, col = as.character(gr$Var2[gr$Var3 == "SER"]), cex = log(gr$Freq[gr$Var3 == "SER"] + 1))
+points(jitter(rep(2, length = nrow(gr[gr$Var3 == "IBT",]))), (gr$Var1[gr$Var3 == "IBT"]), pch = 19, col = as.character(gr$Var2[gr$Var3 == "IBT"]), cex = log(gr$Freq[gr$Var3 == "IBT"] + 1))
+points(jitter(rep(3, length = nrow(gr[gr$Var3 == "MCT",]))), (gr$Var1[gr$Var3 == "MCT"]), pch = 19, col = as.character(gr$Var2[gr$Var3 == "MCT"]), cex = log(gr$Freq[gr$Var3 == "MCT"] + 1))
+points(jitter(rep(4, length = nrow(gr[gr$Var3 == "Niche/Neutral",]))), (gr$Var1[gr$Var3 == "Niche/Neutral"]), pch = 19, col = as.character(gr$Var2[gr$Var3 == "Niche/Neutral"]), cex = log(gr$Freq[gr$Var3 == "Niche/Neutral"] + 1))
+axis(1, at = c(1, 2, 3, 4), labels = c("SER", "IBT", "MCT", "Niche/Neutral"))
 axis(2, at = 1:5, labels = levels(dat$grain)[1:5], las = 2)
 mtext("Grain", side = 2, line = 3.2)
 
 plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(1, 4), ylim = c(0,8))
-points(jitter(rep(1, length = nrow(ex[ex$Var3 == "IBT",]))), (ex$Var1[ex$Var3 == "IBT"]), pch = 19, col = as.character(ex$Var2[ex$Var3 == "IBT"]), cex = log(ex$Freq[ex$Var3 == "IBT"] + 1))
-points(jitter(rep(2, length = nrow(ex[ex$Var3 == "Meta",]))), (ex$Var1[ex$Var3 == "Meta"]), pch = 19, col = as.character(ex$Var2[ex$Var3 == "Meta"]), cex = log(ex$Freq[ex$Var3 == "Meta"] + 1))
-points(jitter(rep(3, length = nrow(ex[ex$Var3 == "Niche/Neutral",]))), (ex$Var1[ex$Var3 == "Niche/Neutral"]), pch = 19, col = as.character(ex$Var2[ex$Var3 == "Niche/Neutral"]), cex = log(ex$Freq[ex$Var3 == "Niche/Neutral"] + 1))
-points(jitter(rep(4, length = nrow(ex[ex$Var3 == "SER",]))), (ex$Var1[ex$Var3 == "SER"]), pch = 19, col = as.character(ex$Var2[ex$Var3 == "SER"]), cex = log(ex$Freq[ex$Var3 == "SER"] + 1))
-axis(1, at = c(1, 2, 3, 4), labels = c("IBT", "Meta", "Niche/Neutral", "SER"))
+points(jitter(rep(1, length = nrow(ex[ex$Var3 == "SER",]))), (ex$Var1[ex$Var3 == "SER"]), pch = 19, col = as.character(ex$Var2[ex$Var3 == "SER"]), cex = log(ex$Freq[ex$Var3 == "SER"] + 1))
+points(jitter(rep(2, length = nrow(ex[ex$Var3 == "IBT",]))), (ex$Var1[ex$Var3 == "IBT"]), pch = 19, col = as.character(ex$Var2[ex$Var3 == "IBT"]), cex = log(ex$Freq[ex$Var3 == "IBT"] + 1))
+points(jitter(rep(3, length = nrow(ex[ex$Var3 == "MCT",]))), (ex$Var1[ex$Var3 == "MCT"]), pch = 19, col = as.character(ex$Var2[ex$Var3 == "MCT"]), cex = log(ex$Freq[ex$Var3 == "MCT"] + 1))
+points(jitter(rep(4, length = nrow(ex[ex$Var3 == "Niche/Neutral",]))), (ex$Var1[ex$Var3 == "Niche/Neutral"]), pch = 19, col = as.character(ex$Var2[ex$Var3 == "Niche/Neutral"]), cex = log(ex$Freq[ex$Var3 == "Niche/Neutral"] + 1))
+axis(1, at = c(1, 2, 3, 4), labels = c("SER", "IBT", "MCT", "Niche/Neutral"))
 axis(2, at = 1:8, labels = levels(all$Extent)[1:8], las = 2)
 mtext("Extent", side = 2, line = 3.2)
 
