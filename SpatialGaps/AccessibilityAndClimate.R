@@ -31,7 +31,7 @@ f_precip <- crop(f_precip, acc, filename= file.path(output_dir, "CHELSA_pr_1985-
 
 ## If temperature change is above 20 (becuse I haven't divided by 10)
 print("doing subset based on precipitation layer")
-acc[f_precip > -20 & f_precip < 20] <- NA
+acc[f_precip > -50 & f_precip < 50] <- NA
 
 print("removing precipitation layer")
 rm(f_precip)
@@ -48,7 +48,7 @@ f_temp <- crop(f_temp, acc, filename= file.path(output_dir, "CHELSA_tas_1985-205
 
 
 print("doing subset based on temperature")
-acc[f_temp < 20] <- NA
+acc[f_temp < 25] <- NA
 
 # Removing temperature raster
 rm(f_temp)
@@ -57,7 +57,7 @@ rm(f_temp)
 ## and if accessibility is very low
 #  accessibility is in minutes. This is 24 hours
 print("doing subset based on acccesibility")
-acc[acc > 1440] <- NA
+acc[acc > 720] <- NA
 
 
 ## make it into a mask
