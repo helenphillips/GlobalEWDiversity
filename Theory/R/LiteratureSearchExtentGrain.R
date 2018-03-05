@@ -19,21 +19,24 @@ table(dat$Extent)
 
 ### Fixing theory part
 dat$Theory <- as.character(dat$Theory)
-dat$Theory [which(dat$Theory == "IBT_SAR")] <- "IBT"
+dat$Theory [which(dat$Theory == "IBT_SAR")] <- "TIB"
+dat$Theory [which(dat$Theory == "IBT")] <- "TIB"
 dat$Theory [which(dat$Theory == "MC")] <- "MCT"
 dat$Theory [which(dat$Theory == "Neutral theory")] <- "Niche/Neutral"
 dat$Theory [which(dat$Theory == "PROD")] <- "SER"
 
+dat <- droplevels(dat)
 # "SER", "IBT", "MT", "SAR", "Niche/Neutral", "Meta"
 
 
 dat <- droplevels(dat[!(dat$Theory %in% c("MT", "SAR")),])
 dat$Theory <- as.factor(dat$Theory)
-dat$Theory <- factor(dat$Theory, levels = c("SER", "IBT", "MCT", "Niche/Neutral"))
+dat$Theory <- factor(dat$Theory, levels = c("SER", "TIB", "MCT", "Niche/Neutral"))
 
 
 
 dat$Extent <- as.character(dat$Extent)
+dat$Extent[dat$Extent == ""] <- "unknown"
 dat$Extent[is.na(dat$Extent)] <- "unknown"
 dat$Extent <- as.factor(dat$Extent)
 # dat$Extent <- droplevels(dat$Extent)
@@ -86,7 +89,7 @@ levels(dat$grain)[levels(dat$grain) == "15625 cm3"] <- "10cm"
 
 dat$grain <- droplevels(dat$grain)
 
-dat$grain <- factor(dat$grain, levels = c("1cm", "10cm", "1m", "10m", "100m", "Unknown"))
+dat$grain <- factor(dat$grain, levels = c("1cm", "10cm", "1m", "10m", "Unknown"))
 
 
 dat$grainN <- as.numeric(dat$grain)
@@ -163,20 +166,23 @@ y <- y[y$Freq > 0,]
 
 sp <- data.frame(table(dat$SizeGroup, dat$Theory))
 
+theories <- levels(dat$Theory)
+
 
 pdf(file = file.path(figs, "MegaPlot.pdf"), width = 11)
 m <- matrix(c(1, 2, 3, 4, 5, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7), byrow = TRUE, ncol = 5)
 layout(m)
 
 par(mar=c(0.1, 0.1, 0.1, 0.1))
-pie(sp$Freq[sp$Var2 == "SER"], labels = "", clockwise = TRUE, col=colors)
-mtext("n = 15", 1)
-pie(sp$Freq[sp$Var2 == "IBT"], labels = "", clockwise = TRUE, col=colors)
-mtext("n = 15", 1)
-pie(sp$Freq[sp$Var2 == "MCT"], labels = "", clockwise = TRUE, col=colors)
-mtext("n = 18", 1)
-pie(sp$Freq[sp$Var2 == "Niche/Neutral"], labels = "", clockwise = TRUE, col=colors)
-mtext("n = 8", 1)
+pie(sp$Freq[sp$Var2 == theories[1]], labels = "", clockwise = TRUE, col=colors)
+mtext(paste("n = ", nrow(dat[dat$Theory == theories[1],]), sep =""), 1)
+pie(sp$Freq[sp$Var2 == theories[2]], labels = "", clockwise = TRUE, col=colors)
+mtext(paste("n = ", nrow(dat[dat$Theory == theories[2],]), sep =""), 1)
+pie(sp$Freq[sp$Var2 == theories[3]], labels = "", clockwise = TRUE, col=colors)
+mtext(paste("n = ", nrow(dat[dat$Theory == theories[3],]), sep =""), 1)
+pie(sp$Freq[sp$Var2 == theories[4]], labels = "", clockwise = TRUE, col=colors)
+mtext(paste("n = ", nrow(dat[dat$Theory == theories[4],]), sep =""), 1)
+
 plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(1, 4.5), ylim = c(0,4))
 points(rep(1, length = 4), 4:1, col = colors, pch = 19, cex = 2)
 text(rep(1.2, length = 4), 4:1, adj = c(0, 0.5), labels = levels(dat$SizeGroup))
@@ -186,24 +192,24 @@ symb <- 1
 
 par(mar=c(3, 4.5, 1, 4))
 plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(1, 4.5), ylim = c(0, 6))
-points(rep(1, length = nrow(x[x$Var2 == "SER",])), x$Var1[x$Var2 == "SER"], cex = log(x$Freq[x$Var2 == "SER"] + 1), pch = symb)
-points(rep(2, length = nrow(x[x$Var2 == "IBT",])), x$Var1[x$Var2 == "IBT"], cex = log(x$Freq[x$Var2 == "IBT"] + 1), pch = symb)
-points(rep(3, length = nrow(x[x$Var2 == "MCT",])), x$Var1[x$Var2 == "MCT"], cex = log(x$Freq[x$Var2 == "MCT"] + 1), pch = symb)
-points(rep(4, length = nrow(x[x$Var2 == "Niche/Neutral",])), x$Var1[x$Var2 == "Niche/Neutral"], cex = log(x$Freq[x$Var2 == "Niche/Neutral"] + 1), pch = symb)
+points(rep(1, length = nrow(x[x$Var2 == theories[1],])), x$Var1[x$Var2 == theories[1]], cex = log(x$Freq[x$Var2 == theories[1]] + 1), pch = symb)
+points(rep(2, length = nrow(x[x$Var2 == theories[2],])), x$Var1[x$Var2 == theories[2]], cex = log(x$Freq[x$Var2 == theories[2]] + 1), pch = symb)
+points(rep(3, length = nrow(x[x$Var2 == theories[3],])), x$Var1[x$Var2 == theories[3]], cex = log(x$Freq[x$Var2 == theories[3]] + 1), pch = symb)
+points(rep(4, length = nrow(x[x$Var2 == theories[4],])), x$Var1[x$Var2 == theories[4]], cex = log(x$Freq[x$Var2 == theories[4]] + 1), pch = symb)
 
-points(rep(1.4, length = nrow(y[y$Var2 == "SER",])), y$Var1[y$Var2 == "SER"], cex = log(y$Freq[y$Var2 == "SER"] + 1), pch = 19, col = "gray")
-points(rep(2.4, length = nrow(y[y$Var2 == "IBT",])), y$Var1[y$Var2 == "IBT"], cex = log(y$Freq[y$Var2 == "IBT"] + 1), pch = 19, col = "gray")
-points(rep(3.4, length = nrow(y[y$Var2 == "MCT",])), y$Var1[y$Var2 == "MCT"], cex = log(y$Freq[y$Var2 == "MCT"] + 1), pch = 19, col = "gray")
-points(rep(4.4, length = nrow(y[y$Var2 == "Niche/Neutral",])), y$Var1[y$Var2 == "Niche/Neutral"], cex = log(y$Freq[y$Var2 == "Niche/Neutral"] + 1), pch = 19, col = "gray")
+points(rep(1.4, length = nrow(y[y$Var2 == theories[1],])), y$Var1[y$Var2 == theories[1]], cex = log(y$Freq[y$Var2 == theories[1]] + 1), pch = 19)
+points(rep(2.4, length = nrow(y[y$Var2 == theories[2],])), y$Var1[y$Var2 == theories[2]], cex = log(y$Freq[y$Var2 == theories[2]] + 1), pch = 19)
+points(rep(3.4, length = nrow(y[y$Var2 == theories[3],])), y$Var1[y$Var2 == theories[3]], cex = log(y$Freq[y$Var2 == theories[3]] + 1), pch = 19)
+points(rep(4.4, length = nrow(y[y$Var2 == theories[4],])), y$Var1[y$Var2 == theories[4]], cex = log(y$Freq[y$Var2 == theories[4]] + 1), pch = 19)
 
 abline(v=c(1.7, 2.7, 3.7), lty = 2)
 
-axis(1, at = c(1.2, 2.2, 3.2, 4.2), labels = c("SER", "IBT", "MCT", "Niche/Neutral"))
-axis(2, at = 1:5, labels = levels(dat$grain), las = 2)
-axis(4, at = 1:6, labels = levels(dat$Extent), las = 2)
+axis(1, at = c(1.2, 2.2, 3.2, 4.2), labels = theories)
+axis(2, at = 1:length(unique(dat$grainN)), labels = levels(dat$grain), las = 2)
+axis(4, at = 1:length(unique(dat$ExtentN)), labels = levels(dat$Extent), las = 2)
 
 mtext("Grain (Black circles)", side = 2, line = 3)
-mtext("Extent (Gray dots)", side = 4, line = 3.5, col = "gray")
+mtext("Extent (Black dots)", side = 4, line = 3.6, col = "gray")
 
 par(mar=c(0.1, 0.1, 0.1,0.1))
 plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(1, 4.5), ylim = c(0,4))
@@ -213,7 +219,9 @@ text(1.3, 3.8, "Number of Cases", adj = c(0, 0.5))
 
 dev.off()
 
-
+#################################################
+## Not corrected/checked past this point
+################################################
 
 #############################################
 ## Grain/Extent on Y, Theory on X
