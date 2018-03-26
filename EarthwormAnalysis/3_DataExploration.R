@@ -15,7 +15,7 @@ library(maptools)
 library(maps)
 library(plyr)
 library(dplyr)
-
+source("Functions/FormatData.R")
 #################################################
 # 2. Loading in variables
 #################################################
@@ -50,10 +50,10 @@ sites <- SiteLevels(sites)
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 118 papers
-length(unique(sites$Study_Name)) ## 146 studies
+length(unique(sites$file)) ## 132 papers
+length(unique(sites$Study_Name)) ## 164 studies
 
-length(unique(sites$Country))## 42 Countries
+length(unique(sites$Country))## 48 Countries
 
 #################################################
 # 5. Create Map
