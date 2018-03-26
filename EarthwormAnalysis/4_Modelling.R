@@ -69,47 +69,7 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 #################################################
 # 5. Investigating Climate Variables
 #################################################
-
-## RandomForest classification to determine variable importance
-## Species Richness
-spR <- sites[!(is.na(sites$SpeciesRichness)),]
-spR <- spR[!(is.na(spR$bio10_19)),]
-spR1 <- randomForest(SpeciesRichness ~ bio10_1 + bio10_2 +bio10_3 +bio10_4 +bio10_5 
-                     + bio10_6 +bio10_7 +bio10_8 +bio10_9 +bio10_10 +bio10_11
-                     + bio10_12 + bio10_13 + bio10_14 + bio10_15 +bio10_16 +bio10_17 
-                     +bio10_18 +bio10_19 , data = spR, importance=TRUE)
-# % Var explained: 54.16
-plot(spR1)
-varImpPlot(spR1, type = 2)
-importance(spR1)
-
-
-## RandomForest classification to determine variable importance
-## Abundance
-Ab <- sites[!(is.na(sites$Site_Abundance)),]
-Ab <- Ab[!(is.na(Ab$bio10_19)),]
-Ab1 <- randomForest(Site_Abundance ~ bio10_1 + bio10_2 +bio10_3 +bio10_4 +bio10_5 
-                     + bio10_6 +bio10_7 +bio10_8 +bio10_9 +bio10_10 +bio10_11
-                     + bio10_12 + bio10_13 + bio10_14 + bio10_15 +bio10_16 +bio10_17 
-                     +bio10_18 +bio10_19 , data = Ab, importance=TRUE)
-# % Var explained: 36.35
-plot(Ab1)
-varImpPlot(Ab1, type = 2)
-importance(Ab1)
-
-
-## RandomForest classification to determine variable importance
-## Biomass
-Bio <- sites[!(is.na(sites$Site_WetBiomass)),]
-Bio <- Bio[!(is.na(Bio$bio10_19)),]
-Bio1 <- randomForest(Site_WetBiomass ~ bio10_1 + bio10_2 +bio10_3 +bio10_4 +bio10_5 
-                    + bio10_6 +bio10_7 +bio10_8 +bio10_9 +bio10_10 +bio10_11
-                    + bio10_12 + bio10_13 + bio10_14 + bio10_15 +bio10_16 +bio10_17 
-                    +bio10_18 +bio10_19 , data = Bio, importance=TRUE)
-# % Var explained: -2.43
-plot(Bio1)
-varImpPlot(Bio1, type = 2)
-importance(Bio1)
+## No longer doing random forest models
 
 
 
