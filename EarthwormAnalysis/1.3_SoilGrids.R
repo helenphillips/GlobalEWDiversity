@@ -50,7 +50,7 @@ sites <- read.csv(file.path(data_in, loadinsites))
 #################################################
 
 
-soil <- "C:\\Users\\hp39wasi\\Dropbox\\sWorm\\SoilGrids\\1km"
+soil <- "I:\\sDiv-postdocs-work\\Phillips\\sWorm\\SpatialAnalysis\\SoilGrids\\1km"
 
 tifs <- c("PHIHOX", "CLYPPT", "SLTPPT", "SNDPPT", "CECSOL", "ORCDRC", "TAXNWRB_1")
 layers <- c("sl1","sl2", "sl3", "sl4")
@@ -85,7 +85,7 @@ for(t in tifs){
 }
 
 
-soil_tax <- read.delim(file = "C:\\Users\\hp39wasi\\Dropbox\\sWorm\\SoilGrids\\1km\\TAXNWRB.txt")
+# soil_tax <- read.delim(file = "C:\\Users\\Dropbox\\sWorm\\SoilGrids\\1km\\TAXNWRB.txt")
 ## This has not been sorted
 
 #################################################
