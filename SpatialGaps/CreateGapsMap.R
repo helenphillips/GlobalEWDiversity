@@ -1,9 +1,11 @@
 library(raster)
 library(dismo)
+library(maps)
 
 sites <- read.csv("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\4_Data\\sitesRichness_2017-12-04.csv")
 
-map <- raster("C:\\Users\\hp39wasi\\Desktop\\spRFinalRaster.tif")
+map <- raster("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\6_Data\\spRFinalRaster.tif")
+mask <- raster("AccClimateMask.tif")
 
 plot(map)
 
@@ -99,7 +101,11 @@ gc()
 
 
 
+############################################
+## Change in climate versus sampled points
 
-
-
-
+pdf(file = "ClimateChange_gaps.pdf")
+map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
+plot(mask, add = TRUE, legend = FALSE)
+points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
+dev.off()

@@ -16,25 +16,24 @@ rasterOptions(tmpdir = "/work/phillips", chunksize = 524288, maxmemory = 1342177
 # CLdir <- "/data/idiv_sdiv"
 # outDir <- "/work/phillips"
 ## Load Accessibility layer
-acc <- raster(file.path(data_dir, "accessibility_to_cities_2015_v1.tif"))
 print("Loading accessibility layer")
+acc <- raster(file.path(data_dir, "accessibility_to_cities_2015_v1.tif"))
+
+## if accessibility is very low
+#  accessibility is in minutes. This is 24 hours
+print("doing subset based on acccesibility")
+acc[acc > 720] <- NA
+
+
 
 ## Load future climate layers
 # precipitation
-print("loaded precipitation layer")
+print("loading precipitation layer")
 f_precip <- raster(file.path(data_dir, "CHELSA_pr_1985-2050.tif"))
 
 ## They are different extents
 print("cropping precipitation layer")
 f_precip <- crop(f_precip, acc, filename= file.path(output_dir, "CHELSA_pr_1985-2050_crop.tif"), overwrite=TRUE)
-
-
-## If temperature change is above 20 (becuse I haven't divided by 10)
-print("doing subset based on precipitation layer")
-acc[f_precip > -50 & f_precip < 50] <- NA
-
-print("removing precipitation layer")
-rm(f_precip)
 
 
 # Temperature
@@ -46,18 +45,18 @@ f_temp <- raster(file.path(data_dir, "CHELSA_tas_1985-2050.tif"))
 print("cropping temperature layer")
 f_temp <- crop(f_temp, acc, filename= file.path(output_dir, "CHELSA_tas_1985-2050_crop.tif"), overwrite=TRUE)
 
+## If temperature change is above 25 (becuse I haven't divided by 10)
+## AND precitation is greater than abs. 50
+print("doing subset based on precipitation and temp layer")
+acc[(f_precip > -100 & f_precip < 100) & f_temp < 30] <- NA
 
-print("doing subset based on temperature")
-acc[f_temp < 25] <- NA
+# Removing precipitation layer
+print("removing precipitation layer")
+rm(f_precip)
 
 # Removing temperature raster
+print("removing temperature layer")
 rm(f_temp)
-
-
-## and if accessibility is very low
-#  accessibility is in minutes. This is 24 hours
-print("doing subset based on acccesibility")
-acc[acc > 720] <- NA
 
 
 ## make it into a mask
@@ -68,3 +67,5 @@ print("saving...")
 
 ### save it
 rf <- writeRaster(acc,  filename=file.path(output_dir, "AccClimateMask.tif"), format="GTiff", overwrite=TRUE)
+
+print("Done!")
