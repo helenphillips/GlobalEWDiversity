@@ -62,6 +62,8 @@ all_files <- x$sheet_title[grep("^\\d*\\_", x$sheet_title, perl = TRUE)]
 
 cat(paste("\nFound", length(all_files), "datasheets"))
 
+options( warn = 2 )
+
 #all_bib <- list(length = length(bib_names))
 #names(all_bib) <- bib_names
 all_sites <- list()
@@ -146,20 +148,20 @@ for(file in all_files){
   ## Check if site level species richness values were given
     check <- which(!(is.na(sites$SpeciesRichness)) && (sites$SpeciesRichnessUnit == "Number of species"))
     if(length(check) > 0){
-      if(any(sites$SpeciesRichness[check] != sites$NumberofSpecies[check])){cat(paste("\n", file, ":Some of the site level species richness values do not add up"))}
+      if(any(sites$SpeciesRichness[check] != sites$NumberofSpecies[check])){cat(paste("\n", file, ":Some of the site level species richness values do not add up\n"))}
     }
     rm(check)
     
   ## Check if abundance and biomass values were given
     check <- which(!(is.na(sites$Site_WetBiomass)) & !(is.na(sites$Biomass_fromspecies)))
     if(length(check) > 0){
-      if(any(sites$Site_WetBiomass[check] != sites$Biomass_fromspecies[check])){cat(paste("\n", file, ":Some of the site level biomass values do not add up"))}
+      if(any(sites$Site_WetBiomass[check] != sites$Biomass_fromspecies[check])){cat(paste("\n", file, ":Some of the site level biomass values do not add up\n"))}
     }
     rm(check)
     
     check <- which(!(is.na(sites$Site_Abundance)) & !(is.na(sites$Individuals_fromspecies)))
     if(length(check) > 0){
-      if(any(sites$Site_Abundance[check] != sites$Individuals_fromspecies[check])){cat(paste("\n", file, ":Some of the site level abundance values do not add up"))}
+      if(any(sites$Site_Abundance[check] != sites$Individuals_fromspecies[check])){cat(paste("\n", file, ":Some of the site level abundance values do not add up\n"))}
     }
     rm(check)
     
