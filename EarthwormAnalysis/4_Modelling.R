@@ -71,43 +71,44 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 #################################################
 ## No longer doing random forest models
 
-
+## Bio 1, 4, 7, 12, 15
 
 ## Checking for collinearity
-plot(sites$bio10_14 ~ sites$bio10_13)
-r1 <- lm(sites$bio10_14 ~ sites$bio10_13)
-summary(r1) # low r1, with no random effect structure
+# plot(sites$bio10_14 ~ sites$bio10_13)
+# r1 <- lm(sites$bio10_14 ~ sites$bio10_13)
+# summary(r1) # low r1, with no random effect structure
 
 ##https://stats.stackexchange.com/questions/82984/how-to-test-and-avoid-multicollinearity-in-mixed-linear-model/142032
-## That page said a cut of 4. We are at 0.3
-x <- data.frame(sites$bio10_14,sites$bio10_13)
+## That page said a cut of 4. We are not higher than 0.9
+x <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_7,sites$bio10_12,sites$bio10_15)
 correl_dummy_df <- round(cor(x, use = "pair"), 2) 
 
 ## VIFs
 source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
-z <- data.frame(sites$bio10_14,sites$bio10_13,sites$bio10_5)
-corvif(z) ## All three seem fine
+corvif(x) ## There might be an issue here
+y <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15)
+corvif(y)
 
 #################################################
 # 4. Species Richness
 #################################################
 
-richness <- sites[complete.cases(sites$SpeciesRichness),]
+richness <- sites[complete.cases(sites$SpeciesRichness),] #3119
 richness <- droplevels(richness[richness$ESA != "Unknown",])
 richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),])
 
 # richness <- richness[complete.cases(richness$scalePH),]
 
 richness <- droplevels(richness[!(is.na(richness$PHIHOX)),])
-richness <- droplevels(richness[!(is.na(richness$bio10_2)),]) ## 1781
+richness <- droplevels(richness[!(is.na(richness$bio10_2)),]) ## 2645
 
 
 table(richness$ESA)
 richness_notinclude <- c("Needleleaf deciduous forest", 
-                         "Sparse vegetation",  
-                         "Bare area (consolidated", "Paddy field")
+                         "Sparse vegetation",  "Cropland/Other vegetation mosaic",
+                         "Bare area (consolidated", "Paddy field", "Wetland/Herbaceous")
 
-richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##  1764
+richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##  2623
 summary(richness$PHIHOX)
 richness$scalePH <- as.vector(scale(richness$PHIHOX))
 richness$scaleCLYPPT <- scale(richness$CLYPPT)
@@ -117,19 +118,21 @@ richness$scaleORCDRC <- scale(richness$ORCDRC)
 
 
 # Three most important climate variables
-richness$bio10_2_scaled <- scale(richness$bio10_2)
+richness$bio10_1_scaled <- scale(richness$bio10_1)
+richness$bio10_4_scaled <- scale(richness$bio10_4)
+# richness$bio10_7_scaled <- scale(richness$bio10_7)
+richness$bio10_12_scaled <- scale(richness$bio10_12)
 richness$bio10_15_scaled <- scale(richness$bio10_15)
-richness$bio10_5_scaled <- scale(richness$bio10_5)
-
 ## Save the data
 write.csv(richness, file = file.path(data_out, paste("sitesRichness_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
 r1 <- glmer(SpeciesRichness ~  ESA + (scalePH  + 
              scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_2_scaled + bio10_15_scaled + bio10_5_scaled)^2 + 
+             (bio10_1_scaled + bio10_4_scaled + 
+                bio10_12_scaled + bio10_15_scaled)^2 + 
              #  SNDPPT # Not included, as the other two dictate the third
               
-              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+             #  (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
              
              # HabitatCover + 
              #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
@@ -162,14 +165,14 @@ biomass <- sites[complete.cases(sites$logBiomass),]
 biomass <- droplevels(biomass[biomass$ESA != "Unknown",])
 
 biomass <- droplevels(biomass[!(is.na(biomass$PHIHOX)),])
-biomass <- droplevels(biomass[!(is.na(biomass$bio10_2)),]) ## 1011
+biomass <- droplevels(biomass[!(is.na(biomass$bio10_2)),]) ## 1605
 
 
 table(biomass$ESA)
-biomass_notinclude <- c("Tree open", "Shrub", "Sparse vegetation", 
+biomass_notinclude <- c("Tree open", "Sparse vegetation", "Cropland/Other vegetation mosaic",
                         "Urban", "Paddy field")
 
-biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##  985
+biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##  1585
 summary(biomass$PHIHOX)
 biomass$scalePH <- as.vector(scale(biomass$PHIHOX))
 biomass$scaleCLYPPT <- scale(biomass$CLYPPT)
@@ -177,7 +180,11 @@ biomass$scaleSLTPPT <- scale(biomass$SLTPPT)
 biomass$scaleCECSOL <- scale(biomass$CECSOL)
 biomass$scaleORCDRC <- scale(biomass$ORCDRC)
 
-biomass$bio10_8_scaled <- scale(biomass$bio10_8)
+biomass$bio10_1_scaled <- scale(biomass$bio10_1)
+biomass$bio10_4_scaled <- scale(biomass$bio10_4)
+biomass$bio10_7_scaled <- scale(biomass$bio10_7)
+biomass$bio10_12_scaled <- scale(biomass$bio10_12)
+biomass$bio10_15_scaled <- scale(biomass$bio10_15)
 
 ## Save the data
 write.csv(biomass, file = file.path(data_out, paste("sitesBiomass_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
@@ -186,7 +193,8 @@ write.csv(biomass, file = file.path(data_out, paste("sitesBiomass_", Sys.Date(),
 
 b1 <- lmer(logBiomass ~  ESA + (scalePH  + 
             scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             bio10_8_scaled + 
+             (bio10_1_scaled + bio10_4_scaled + 
+                bio10_12_scaled + bio10_15_scaled)^2 +
              #  SNDPPT # Not included, as the other two dictate the third
              
              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -209,17 +217,17 @@ save(biomass_model, file = file.path(models, "biomassmodel_full.rds"))
 hist(sites$Site_Abundance)
 hist(sites$logAbundance)
 abundance <- sites[complete.cases(sites$Site_Abundance),]
-abundance <- droplevels(abundance[abundance$ESA != "Unknown",])
+abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #3455
 
 abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
-abundance <- droplevels(abundance[!(is.na(abundance$bio10_2)),]) ## 2091
+abundance <- droplevels(abundance[!(is.na(abundance$bio10_2)),]) ##  3329
 
 
 table(abundance$ESA)
-abundance_notinclude <- c("Needleleaf deciduous forest", "Sparse vegetation",
-                         "Bare area (consolidated", "Paddy field")
+abundance_notinclude <- c("Needleleaf deciduous forest", "Sparse vegetation", "Cropland/Other vegetation mosaic", 
+                         "Bare area (consolidated", "Bare area (unconsolidated",  "Paddy field", "Wetland/Herbaceous")
 
-abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),])
+abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  3284
 tapply(abundance$scalePH, abundance$ESA, summary)
 
 
@@ -229,9 +237,12 @@ abundance$scaleSLTPPT <- scale(abundance$SLTPPT)
 abundance$scaleCECSOL <- scale(abundance$CECSOL)
 abundance$scaleORCDRC <- scale(abundance$ORCDRC)
 
-abundance$bio10_2_scaled <- scale(abundance$bio10_2)
-abundance$bio10_10_scaled <- scale(abundance$bio10_10)
-abundance$bio10_18_scaled <- scale(abundance$bio10_18)
+abundance$bio10_1_scaled <- scale(abundance$bio10_1)
+abundance$bio10_4_scaled <- scale(abundance$bio10_4)
+abundance$bio10_7_scaled <- scale(abundance$bio10_7)
+abundance$bio10_12_scaled <- scale(abundance$bio10_12)
+abundance$bio10_15_scaled <- scale(abundance$bio10_15)
+
 
 ## Save the data
 write.csv(abundance, file = file.path(data_out, paste("sitesAbundance_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
@@ -239,7 +250,8 @@ write.csv(abundance, file = file.path(data_out, paste("sitesAbundance_", Sys.Dat
 
 a1 <- lmer(logAbundance ~  ESA + (scalePH  + 
                                     scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_2_scaled + bio10_10_scaled + bio10_18_scaled)^2 + 
+             (bio10_1_scaled + bio10_4_scaled + 
+                bio10_12_scaled + bio10_15_scaled)^2 +
              #  SNDPPT # Not included, as the other two dictate the third
              
              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
