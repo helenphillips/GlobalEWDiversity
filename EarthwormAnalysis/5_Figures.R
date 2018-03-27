@@ -76,44 +76,21 @@ abundanceCols <- ColourPicker(abundance$ESA)
 ###############################################
 
 # pdf(file = file.path(figures, "Abundance_ph.pdf"), height = 4)
-jpeg(file = file.path(figures, "Abundance_ph.jpg"), quality = 100, res = 200, height = 1000, width = 1500)
-
-plotSingle(model= a4b, modelFixedEffs = c("scalePH", "ESA", "bio10_14_scaled", "bio10_13_scaled", "bio10_5_scaled"), 
-           Effect1 = "scalePH", 
-           responseVar = "logAbundance", seMultiplier = 1, data = abundance, cols = "000000", 
-           legend.position, ylabel = "log(Abundance)", xlabel = "pH", otherContEffectsFun = "median")
-dev.off()  
-
-jpeg(file = file.path(figures, "Abundance_bio10_14.jpg"), quality = 100, res = 200, height = 1000, width = 1500)
-plotSingle(model= a4b, modelFixedEffs = c("scalePH", "ESA", "bio10_14_scaled", "bio10_13_scaled", "bio10_5_scaled"), 
-           Effect1 = "bio10_14_scaled", 
-           responseVar = "logAbundance", seMultiplier = 1, data = abundance, cols = "000000", 
-           legend.position, ylabel = "log(Abundance)", xlabel = "Precip. of driest month", otherContEffectsFun = "median")
-dev.off()  
-
-jpeg(file = file.path(figures, "Abundance_bio10_13.jpg"), quality = 100, res = 200, height = 1000, width = 1500)
-plotSingle(model= a4b, modelFixedEffs = c("scalePH", "ESA", "bio10_14_scaled", "bio10_13_scaled", "bio10_5_scaled"), 
-           Effect1 = "bio10_13_scaled", 
-           responseVar = "logAbundance", seMultiplier = 1, data = abundance, cols = "000000", 
-           legend.position, ylabel = "log(Abundance)", xlabel = "Precip. of wettest month", otherContEffectsFun = "median")
-dev.off()  
-
-jpeg(file = file.path(figures, "Abundance_bio10_5.jpg"), quality = 100, res = 200, height = 1000, width = 1500)
-plotSingle(model= a4b, modelFixedEffs = c("scalePH", "ESA", "bio10_14_scaled", "bio10_13_scaled", "bio10_5_scaled"), 
-           Effect1 = "bio10_5_scaled", 
-           responseVar = "logAbundance", seMultiplier = 1, data = abundance, cols = "000000", 
-           legend.position, ylabel = "log(Abundance)", xlabel = "Max temp. of warmest month", otherContEffectsFun = "median")
-dev.off()  
-
-
 
 jpeg(file = file.path(figures, "Abundance_ESA.jpg"), quality = 100, res = 200, height = 1000, width = 1500, pointsize = 12)
-plotSingle(model= a4b, modelFixedEffs = c("scalePH", "ESA", "bio10_14_scaled", "bio10_13_scaled", "bio10_5_scaled"),
+plotSingle(model= abundance_model, modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleCECSOL", "scaleORCDRC", 
+            "ESA", "bio10_1_scaled", "bio10_4_scaled", "bio10_12_scaled", "bio10_15_scaled"),
            Effect1 = "ESA", 
-           responseVar = "logAbundance", seMultiplier = 1, data = abundance, cols = habitCols, 
+           responseVar = "logAbundance", seMultiplier = 1, data = abundance, cols = abundanceCols, 
            legend.position, ylabel = "log(Abundance)", xlabel = "", otherContEffectsFun = "median")
 dev.off()
 
+plotInteraction(model = abundance_model, Effect1 = "scalePH", Effect2 = "scaleCECSOL",
+                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleCECSOL", "scaleORCDRC", 
+                                   "ESA", "bio10_1_scaled", "bio10_4_scaled", "bio10_12_scaled", "bio10_15_scaled"),
+                responseVar = "logAbundance", seMultiplier = 1.96,
+                data = abundance, cols = "black", legend.position = "topleft",
+                ylabel = "", xlabel = "")
 
 
 #################################################
