@@ -6,7 +6,7 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 
   climate_GLs <- "C:\\Users\\hp39wasi\\Dropbox\\sWorm\\CHELSAData\\BioClim"
-  soil_GLs <- "C:\\Users\\hp39wasi\\Dropbox\\sWorm\\SoilGrids\\1km"
+  soil_GLs <- "I:\\sDiv-postdocs-work\\Phillips\\sWorm\\SpatialAnalysis\\SoilGrids\\1km"
   
   }
 
