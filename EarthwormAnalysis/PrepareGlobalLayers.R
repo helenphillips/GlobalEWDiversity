@@ -35,7 +35,7 @@ scaleGL <- function(layername, data, load = ".", save = "."){
   
   print("Saving tif")
   writeRaster(tif, save, format = "GTiff")
-  do.call(file.remove, list(list.files(dirname(rasterTmpFile()), full.names = TRUE)))
+  # do.call(file.remove, list(list.files(dirname(rasterTmpFile()), full.names = TRUE)))
   
 
   rm(tif)
@@ -43,7 +43,8 @@ scaleGL <- function(layername, data, load = ".", save = "."){
 
 
 calculateWeightedMeanGL <- function(folder, savefolder){
-  tifs <- c("PHIHOX", "CLYPPT", "SLTPPT", "CECSOL", "ORCDRC") ## "SNDPPT",  "TAXNWRB_1"
+  # tifs <- c("PHIHOX", "CLYPPT", "SLTPPT", "CECSOL", "ORCDRC") ## "SNDPPT",  "TAXNWRB_1"
+  tifs <- "ORCDRC"
   print(tifs)
   layers <- c("sl1","sl2", "sl3", "sl4")
   weight <- c(0.001, 0.05, 0.1, 0.15)
@@ -62,7 +63,7 @@ calculateWeightedMeanGL <- function(folder, savefolder){
     weighted.mean(x = s, w = weight, na.rm=FALSE,
                   filename=file.path(savefolder, paste(t, "_weighted.tif", sep ="")), format = "GTiff")
     rm(s)
-    do.call(file.remove, list(list.files(dirname(rasterTmpFile()), full.names = TRUE)))
+   #  do.call(file.remove, list(list.files(dirname(rasterTmpFile()), full.names = TRUE)))
   }
   
 }
@@ -73,11 +74,12 @@ args <- commandArgs(trailingOnly = TRUE)
 folder <- args[1] # data_dir
 savefolder <- args[2] # output_dir
 date <- args[3]
+previous_dir <- args[4]
 
 print(folder)
 print(savefolder)
 print(date)
-
+print(previous_dir)
 
 list.files(folder)
 
@@ -90,65 +92,65 @@ richness <- read.csv(file.path(folder, paste('sitesRichness_', date, '.csv', sep
 abundance <- read.csv(file.path(folder, paste('sitesAbundance_', date, '.csv', sep="")))
 biomass <- read.csv(file.path(folder, paste('sitesBiomass_', date, '.csv', sep="")))
 
-print("Calculating the weighted mean of soil data")
-calculateWeightedMeanGL(folder, savefolder)
+# print("Calculating the weighted mean of soil data")
+# calculateWeightedMeanGL(folder, savefolder)
 
-print("Calculating richness layers")
+# print("Calculating richness layers")
 ## Richness
 
-scaleGL(layername = "ORCDRC", data = richness, load =  file.path(savefolder, "ORCDRC_weighted.tif"), 
-        save = file.path(savefolder, 'ORCDRC_RichnessCutScaled.tif'))
-scaleGL(layername = "PHIHOX", data = richness, load =  file.path(savefolder, "PHIHOX_weighted.tif"), 
-        save = file.path(savefolder, 'PHIHOX_RichnessCutScaled.tif'))
-scaleGL(layername = "CLYPPT", data = richness, load =  file.path(savefolder, "CLYPPT_weighted.tif"), 
-        save = file.path(savefolder, 'CLYPPT_RichnessCutScaled.tif'))
-scaleGL(layername = "SLTPPT", data = richness, load =  file.path(savefolder, "SLTPPT_weighted.tif"), 
-        save = file.path(savefolder, 'SLTPPT_RichnessCutScaled.tif'))
-scaleGL(layername = "CECSOL", data = richness, load =  file.path(savefolder, "CECSOL_weighted.tif"), 
-        save = file.path(savefolder, 'CECSOL_RichnessCutScaled.tif'))
+# scaleGL(layername = "ORCDRC", data = richness, load =  file.path(savefolder, "ORCDRC_weighted.tif"), 
+#        save = file.path(savefolder, 'ORCDRC_RichnessCutScaled.tif'))
+# scaleGL(layername = "PHIHOX", data = richness, load =  file.path(savefolder, "PHIHOX_weighted.tif"), 
+#        save = file.path(savefolder, 'PHIHOX_RichnessCutScaled.tif'))
+# scaleGL(layername = "CLYPPT", data = richness, load =  file.path(savefolder, "CLYPPT_weighted.tif"), 
+#        save = file.path(savefolder, 'CLYPPT_RichnessCutScaled.tif'))
+# scaleGL(layername = "SLTPPT", data = richness, load =  file.path(savefolder, "SLTPPT_weighted.tif"), 
+#        save = file.path(savefolder, 'SLTPPT_RichnessCutScaled.tif'))
+# scaleGL(layername = "CECSOL", data = richness, load =  file.path(savefolder, "CECSOL_weighted.tif"), 
+#        save = file.path(savefolder, 'CECSOL_RichnessCutScaled.tif'))
 
-scaleGL(layername = 'bio10_1', data = richness, load = file.path(folder, 'CHELSA_bio10_1.tif'), 
-        save = file.path(savefolder, 'CHELSA_bio10_1_RichnessCutScaled.tif'))
-scaleGL(layername = 'bio10_4', data = richness, load = file.path(folder, 'CHELSA_bio10_4.tif'), 
-        save = file.path(savefolder, 'CHELSA_bio10_4_RichnessCutScaled.tif'))
-scaleGL(layername = 'bio10_12', data = richness, load = file.path(folder, 'CHELSA_bio10_12.tif'), 
-        save = file.path(savefolder, 'CHELSA_bio10_12_RichnessCutScaled.tif'))
-scaleGL(layername = 'bio10_15', data = richness, load = file.path(folder, 'CHELSA_bio10_15.tif'), 
-        save = file.path(savefolder, 'CHELSA_bio10_15_RichnessCutScaled.tif'))
+# scaleGL(layername = 'bio10_1', data = richness, load = file.path(folder, 'CHELSA_bio10_1.tif'), 
+#        save = file.path(savefolder, 'CHELSA_bio10_1_RichnessCutScaled.tif'))
+# scaleGL(layername = 'bio10_4', data = richness, load = file.path(folder, 'CHELSA_bio10_4.tif'), 
+#        save = file.path(savefolder, 'CHELSA_bio10_4_RichnessCutScaled.tif'))
+# scaleGL(layername = 'bio10_12', data = richness, load = file.path(folder, 'CHELSA_bio10_12.tif'), 
+#        save = file.path(savefolder, 'CHELSA_bio10_12_RichnessCutScaled.tif'))
+# scaleGL(layername = 'bio10_15', data = richness, load = file.path(folder, 'CHELSA_bio10_15.tif'), 
+#        save = file.path(savefolder, 'CHELSA_bio10_15_RichnessCutScaled.tif'))
 
 ## Abundance
 print("Calculating abundance layers")
-scaleGL(layername = "ORCDRC", data = abundance, load =  file.path(savefolder, "ORCDRC_weighted.tif"), 
-        save = file.path(savefolder, 'ORCDRC_AbundanceCutScaled.tif'))
-scaleGL(layername = "PHIHOX", data = abundance, load =  file.path(savefolder, "PHIHOX_weighted.tif"), 
-        save = file.path(savefolder, 'PHIHOX_AbundanceCutScaled.tif'))
-scaleGL(layername = "CLYPPT", data = abundance, load =  file.path(savefolder, "CLYPPT_weighted.tif"), 
-        save = file.path(savefolder, 'CLYPPT_AbundanceCutScaled.tif'))
-scaleGL(layername = "SLTPPT", data = abundance, load =  file.path(savefolder, "SLTPPT_weighted.tif"), 
-        save = file.path(savefolder, 'SLTPPT_AbundanceCutScaled.tif'))
-scaleGL(layername = "CECSOL", data = abundance, load =  file.path(savefolder, "CECSOL_weighted.tif"), 
-        save = file.path(savefolder, 'CECSOL_AbundanceCutScaled.tif'))
+# scaleGL(layername = "ORCDRC", data = abundance, load =  file.path(savefolder, "ORCDRC_weighted.tif"), 
+#        save = file.path(savefolder, 'ORCDRC_AbundanceCutScaled.tif'))
+# scaleGL(layername = "PHIHOX", data = abundance, load =  file.path(savefolder, "PHIHOX_weighted.tif"), 
+#        save = file.path(savefolder, 'PHIHOX_AbundanceCutScaled.tif'))
+# scaleGL(layername = "CLYPPT", data = abundance, load =  file.path(savefolder, "CLYPPT_weighted.tif"), 
+#        save = file.path(savefolder, 'CLYPPT_AbundanceCutScaled.tif'))
+# scaleGL(layername = "SLTPPT", data = abundance, load =  file.path(previous_dir, "SLTPPT_weighted.tif"), 
+#        save = file.path(savefolder, 'SLTPPT_AbundanceCutScaled.tif'))
+# scaleGL(layername = "CECSOL", data = abundance, load =  file.path(previous_dir, "CECSOL_weighted.tif"), 
+#        save = file.path(savefolder, 'CECSOL_AbundanceCutScaled.tif'))
 
-scaleGL(layername = 'bio10_1', data = abundance, load = file.path(folder, 'CHELSA_bio10_1.tif'), 
-        save = file.path(savefolder, 'CHELSA_bio10_1_AbundanceCutScaled.tif'))
-scaleGL(layername = 'bio10_4', data = abundance, load = file.path(folder, 'CHELSA_bio10_4.tif'), 
-        save = file.path(savefolder, 'CHELSA_bio10_4_AbundanceCutScaled.tif'))
-scaleGL(layername = 'bio10_12', data = abundance, load = file.path(folder, 'CHELSA_bio10_12.tif'), 
-        save = file.path(savefolder, 'CHELSA_bio10_12_AbundanceCutScaled.tif'))
+# scaleGL(layername = 'bio10_1', data = abundance, load = file.path(folder, 'CHELSA_bio10_1.tif'), 
+#        save = file.path(savefolder, 'CHELSA_bio10_1_AbundanceCutScaled.tif'))
+# scaleGL(layername = 'bio10_4', data = abundance, load = file.path(folder, 'CHELSA_bio10_4.tif'), 
+#        save = file.path(savefolder, 'CHELSA_bio10_4_AbundanceCutScaled.tif'))
+# scaleGL(layername = 'bio10_12', data = abundance, load = file.path(folder, 'CHELSA_bio10_12.tif'), 
+#        save = file.path(savefolder, 'CHELSA_bio10_12_AbundanceCutScaled.tif'))
 scaleGL(layername = 'bio10_15', data = abundance, load = file.path(folder, 'CHELSA_bio10_15.tif'), 
         save = file.path(savefolder, 'CHELSA_bio10_15_AbundanceCutScaled.tif'))
 
 ## Biomass
 print("Calculating biomass layers")
-scaleGL(layername = "ORCDRC", data = biomass, load =  file.path(savefolder, "ORCDRC_weighted.tif"), 
+scaleGL(layername = "ORCDRC", data = biomass, load =  file.path(previous_dir, "ORCDRC_weighted.tif"), 
         save = file.path(savefolder, 'ORCDRC_BiomassCutScaled.tif'))
-scaleGL(layername = "PHIHOX", data = biomass, load =  file.path(savefolder, "PHIHOX_weighted.tif"), 
+scaleGL(layername = "PHIHOX", data = biomass, load =  file.path(previous_dir, "PHIHOX_weighted.tif"), 
         save = file.path(savefolder, 'PHIHOX_BiomassCutScaled.tif'))
-scaleGL(layername = "CLYPPT", data = biomass, load =  file.path(savefolder, "CLYPPT_weighted.tif"), 
+scaleGL(layername = "CLYPPT", data = biomass, load =  file.path(previous_dir, "CLYPPT_weighted.tif"), 
         save = file.path(savefolder, 'CLYPPT_BiomassCutScaled.tif'))
-scaleGL(layername = "SLTPPT", data = biomass, load =  file.path(savefolder, "SLTPPT_weighted.tif"), 
+scaleGL(layername = "SLTPPT", data = biomass, load =  file.path(previous_dir, "SLTPPT_weighted.tif"), 
         save = file.path(savefolder, 'SLTPPT_BiomassCutScaled.tif'))
-scaleGL(layername = "CECSOL", data = biomass, load =  file.path(savefolder, "CECSOL_weighted.tif"), 
+scaleGL(layername = "CECSOL", data = biomass, load =  file.path(previous_dir, "CECSOL_weighted.tif"), 
         save = file.path(savefolder, 'CECSOL_BiomassCutScaled.tif'))
 
 scaleGL(layername = 'bio10_1', data = biomass, load = file.path(folder, 'CHELSA_bio10_1.tif'), 
