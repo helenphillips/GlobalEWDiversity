@@ -5,7 +5,7 @@ createNewdata <- function(model, modelFixedEffects, mainEffect, data){
   for(e in 1:length(modelFixedEffects)){
     if(is.numeric(data[,which(names(data) == modelFixedEffects[e])])){
       ## If not the main effect being plotted, only need the median
-      if(modelFixedEffects[e] == mainEffect){
+      if(modelFixedEffects[e] %in% mainEffect){
         vars[[e]] <- seq(min(data[,which(names(data) == modelFixedEffects[e])], na.rm = TRUE), max(data[,which(names(data) == modelFixedEffects[e])], na.rm = TRUE), length.out = 100)
       }else{vars[[e]] <- 0 } ## This only works because all continuous variables have been scaled
     } else { vars[[e]] <- levels(model@frame[,which(names(model@frame) == modelFixedEffects[e])])}
@@ -148,7 +148,10 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
   # ci <- confint(model, method="Wald")
   
   # Create newdata 
-  newdata <- createNewdata(model = model, modelFixedEffects = modelFixedEffs, data = data)
+  
+  
+  
+  newdata <- createNewdata(model = model, modelFixedEffects = modelFixedEffs, mainEffect = c(Effect1, Effect2), data = data)
   
   
   ## Which column on newdata is Effect1
@@ -156,6 +159,7 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
   ## Which column of newdata is Effect2
   ndEff2 <- which(names(newdata) == Effect2)
   
+  ## If Effect 1 is numeric and effect 2 not
   ## Remove continuous variables not represented by data
   if(is.numeric(data[,which(names(data) == Effect1)]) && !(is.numeric(data[,which(names(data) == Effect2)]))){
     for(l in levels(newdata[,which(names(newdata) == Effect2)])){
@@ -168,6 +172,8 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
     }
   }
   
+
+  ## If Effect 2 is numeric and effect 1 is not
   if(is.numeric(data[,which(names(data) == Effect2)]) && !(is.numeric(data[,which(names(data) == Effect1)]))){
     for(l in levels(newdata[,which(names(newdata) == Effect1)])){
       tmp <- data[data[which(names(data) == Effect1)] == l,]
@@ -179,9 +185,10 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
     }
   }
   
-  ## Predict response and variance
-  newdata <- predictValues(model, newdata, responseVar, seMultiplier = seMultiplier, re.form = NA)
   
+
+  
+   
   # if(length(which(c(class(newdata[,1]), class(newdata[,2])) == "factor")) != 1){
   #  stop("Plotting only works for one factor level and one continuous at the moment. Sorry")
   # }
@@ -220,6 +227,9 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
   r <- which(names(newdata) == responseVar)
   p1 <- which(names(newdata) == Effect1)
   p2 <- which(names(newdata) == Effect2)
+  
+  ## Predict response and variance
+  newdata <- predictValues(model, newdata, responseVar, seMultiplier = seMultiplier, re.form = NA)
   
   
   ###########################################################################
@@ -325,8 +335,36 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
   ############################################################################
   
    if(class(newdata[,p1]) == "numeric" && class(newdata[,p2]) == "numeric"){
-    stop("Plotting does not work for two continuous variables at the moment. Sorry")
-   }
+    
+     x <- unique(newdata[,p1])
+     y <- unique(newdata[,p2])
+     
+     z <- matrix(newdata[,r], nrow = 100, ncol = 100, byrow = TRUE)
+     
+     if(length(cols) == 1) {print("Plot would look better with at least two cols specified. Adding 'white' to the plot")
+      cols <- c("white", cols)}
+     
+     col.pal<-colorRampPalette(cols)
+     colors<-col.pal(100)
+     # height of facets
+     z.facet.center <- (z[-1, -1] + z[-1, -ncol(z)] + z[-nrow(z), -1] + z[-nrow(z), -ncol(z)])/4
+     # Range of the facet center on a 100-scale (number of colors)
+     z.facet.range<-cut(z.facet.center, 100)
+     
+     
+     
+     
+     s <- persp(x, y, z, 
+           xlab = names(newdata)[p1], ylab = names(newdata)[p2], zlab = names(newdata)[r],
+           theta = 30, phi = 25, border = NA, 
+           col =colors[z.facet.range])
+     
+      # draw lines parallel to x axis. seq(...) depends on your data's length(y)
+     for(i in seq(10, 90, length=10)) lines(trans3d(x, y[i], z[,i], pmat = s), col = "black")
+     # draw lines parallel to y axis. seq(...) depends on your data's length(x)
+     for(i in seq(10, 90, length=10)) lines(trans3d(x[i], y, z[i,], pmat = s), col = "black")
+     
+     }
   
   
 }
