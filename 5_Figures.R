@@ -71,6 +71,23 @@ biomassCols <- ColourPicker(biomass$ESA)
 richnessCols <- ColourPicker(richness$ESA)
 abundanceCols <- ColourPicker(abundance$ESA)
 
+
+############################################
+# SPECIES RICHNES
+#############################################
+
+
+
+
+plotInteraction(model = richness_model, Effect1 = "scalePH", Effect2 = "scaleORCDRC",
+                modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
+                                   "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
+                responseVar = "SpeciesRichness", seMultiplier = 1.96,
+                data = richness, cols = "black", legend.position = "topleft",
+                ylabel = "", xlabel = "")
+
+
+
 #############################################
 # ABUNDANCE
 ###############################################
