@@ -123,7 +123,7 @@ plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier
     pt_cols <- paste("#", cols, sep="")
     
     
-    par(mar=c(11, 3, 1, 1))
+    par(mar=c(15, 3, 1, 1))
     plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
          xlim = c(0, (nrow(newdata)-1)),  ylab = ylabel, xlab = xlabel,  xaxt='n', axes = FALSE)
     Axis(side = 2 )
@@ -224,20 +224,21 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
   
   
 
-  r <- which(names(newdata) == responseVar)
-  p1 <- which(names(newdata) == Effect1)
-  p2 <- which(names(newdata) == Effect2)
-  
+ 
   ## Predict response and variance
   newdata <- predictValues(model, newdata, responseVar, seMultiplier = seMultiplier, re.form = NA)
   
+  r <- which(names(newdata) == responseVar)
+  p1 <- which(names(newdata) == Effect1)
+  p2 <- which(names(newdata) == Effect2)
   
   ###########################################################################
   ### With one categorical and one factorial effect
   ############################################################################
   
-  if(any(c(class(newdata[,p1]) == "numeric", class(newdata[,p2]) == "numeric"))){
-    
+  
+  # if(any(c(class(newdata[,p1]) == "numeric", class(newdata[,p2]) == "numeric"))){
+  if((class(newdata[,p1]) == "numeric") +  (class(newdata[,p2]) == "numeric")== 1){
     fac <- ifelse(class(newdata[,p1]) == "factor", p1, p2)
     num <- ifelse(class(newdata[,p2]) == "factor", p1, p2)
     
