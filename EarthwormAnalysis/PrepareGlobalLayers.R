@@ -154,13 +154,13 @@ scaleGL(layername = "CECSOL", data = biomass, load =  file.path(previous_dir, "C
         save = file.path(savefolder, 'CECSOL_BiomassCutScaled.tif'))
 
 scaleGL(layername = 'bio10_1', data = biomass, load = file.path(folder, 'CHELSA_bio10_1.tif'), 
-        save = file.path(folder, 'CHELSA_bio10_1_BiomassCutScaled.tif'))
+        save = file.path(savefolder, 'CHELSA_bio10_1_BiomassCutScaled.tif'))
 scaleGL(layername = 'bio10_4', data = biomass, load = file.path(folder, 'CHELSA_bio10_4.tif'), 
-        save = file.path(folder, 'CHELSA_bio10_4_BiomassCutScaled.tif'))
+        save = file.path(savefolder, 'CHELSA_bio10_4_BiomassCutScaled.tif'))
 scaleGL(layername = 'bio10_12', data = biomass, load = file.path(folder, 'CHELSA_bio10_12.tif'), 
-        save = file.path(folder, 'CHELSA_bio10_12_BiomassCutScaled.tif'))
+        save = file.path(savefolder, 'CHELSA_bio10_12_BiomassCutScaled.tif'))
 scaleGL(layername = 'bio10_15', data = biomass, load = file.path(folder, 'CHELSA_bio10_15.tif'), 
-        save = file.path(folder, 'CHELSA_bio10_15_BiomassCutScaled.tif'))
+        save = file.path(savefolder, 'CHELSA_bio10_15_BiomassCutScaled.tif'))
 
 print("Done!")
 
