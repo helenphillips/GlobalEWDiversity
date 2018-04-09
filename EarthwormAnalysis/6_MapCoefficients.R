@@ -88,86 +88,126 @@ fixedeffs <- summary(richness_model)$coefficients[,1]
 
 print("Calculating individual coefficients")
 print("Climate coefficients....")
-fun <- function(x) { round(x * fixedeffs['bio10_1_scaled'], digits = 2 )}
-bio1 <- calc(bio1, fun, filename = file.path(savefolder, "bio10_1_richnesscoef.tif")) 
+# fun <- function(x) { round(x * fixedeffs['bio10_1_scaled'], digits = 2 )}
+# bio1 <- calc(bio1, fun, filename = file.path(savefolder, "bio10_1_richnesscoef.tif")) 
+bio1 <- raster(file.path(GLs_folder, "bio10_1_richnesscoef.tif"))
 
-fun <- function(x) { round(x * fixedeffs['bio10_4_scaled'], digits = 2 )}
-bio4 <- calc(bio4, fun, filename = file.path(savefolder, "bio10_4_richnesscoef.tif")) 
+#fun <- function(x) { round(x * fixedeffs['bio10_4_scaled'], digits = 2 )}
+#bio4 <- calc(bio4, fun, filename = file.path(savefolder, "bio10_4_richnesscoef.tif")) 
+bio4 <- raster(file.path(GLs_folder, "bio10_4_richnesscoef.tif"))
 
-fun <- function(x) { round(x * fixedeffs['bio10_12_scaled'], digits = 2 )}
-bio12 <- calc(bio12, fun, filename = file.path(savefolder, "bio10_12_richnesscoef.tif")) 
 
-fun <- function(x) { round(x * fixedeffs['bio10_15_scaled'], digits = 2 )}
-bio15 <- calc(bio15, fun, filename = file.path(savefolder, "bio10_15_richnesscoef.tif")) 
-# bio15 <- raster(file.path(climate_GLs, "bio10_15_richnesscoef.tif"))
+#fun <- function(x) { round(x * fixedeffs['bio10_12_scaled'], digits = 2 )}
+#bio12 <- calc(bio12, fun, filename = file.path(savefolder, "bio10_12_richnesscoef.tif")) 
+bio12 <- raster(file.path(GLs_folder, "bio10_12_richnesscoef.tif"))
+
+
+#fun <- function(x) { round(x * fixedeffs['bio10_15_scaled'], digits = 2 )}
+#bio15 <- calc(bio15, fun, filename = file.path(savefolder, "bio10_15_richnesscoef.tif")) 
+bio15 <- raster(file.path(GLs_folder, "bio10_15_richnesscoef.tif"))
 
 print("Soil coefficients....")
-fun <- function(x) { round(x * fixedeffs['scalePH'], digits = 2 ) }
-ph <- calc(ph, fun, filename = file.path(savefolder, "ph_richnesscoef.tif"))
-# ph2 <- raster(file.path(soil_GLs, "ph_richnesscoef.tif"))
+#fun <- function(x) { round(x * fixedeffs['scalePH'], digits = 2 ) }
+#ph <- calc(ph, fun, filename = file.path(savefolder, "ph_richnesscoef.tif"))
+ph<- raster(file.path(GLs_folder, "ph_richnesscoef.tif"))
 
 #fun <- function(x) { round(x * fixedeffs['scaleCLYPPT'], digits = 2 ) }
 #clay2 <- calc(clay, fun, filename = file.path(GLs_folder, "clay_richnesscoef.tif"))
 # clay2 <- raster(file.path(soil_GLs, "clay_richnesscoef.tif"))
 
-fun <- function(x) { round(x * fixedeffs['scaleCECSOL'], digits = 2 ) }
-cec <- calc(cec, fun, filename = file.path(savefolder, "cec_richnesscoef.tif"))
-#cec2 <- calc(file.path(soil_GLs, "cec_richnesscoef.tif"))
+#fun <- function(x) { round(x * fixedeffs['scaleCECSOL'], digits = 2 ) }
+#cec <- calc(cec, fun, filename = file.path(savefolder, "cec_richnesscoef.tif"))
+cec <- raster(file.path(GLs_folder, "cec_richnesscoef.tif"))
 
-fun <- function(x) { round(x *fixedeffs['scaleORCDRC'], digits = 2 ) }
-orgC <- calc(orgC, fun, filename = file.path(savefolder, "orgc_richnesscoef.tif"))
-#orgC2 <- raster(file.path(soil_GLs, "orgc_richnesscoef.tif"))
+#fun <- function(x) { round(x *fixedeffs['scaleORCDRC'], digits = 2 ) }
+#orgC <- calc(orgC, fun, filename = file.path(savefolder, "orgc_richnesscoef.tif"))
+orgC <- raster(file.path(GLs_folder, "orgc_richnesscoef.tif"))
 
 print("Habitat cover...")
-esa[esa == 0] <- NA ## They have an NA pixel number 
-esa[esa == 60] <- 0 ## intercept is added later
-esa[esa == 50] <- fixedeffs['ESABroadleaf evergreen forest']
-esa[esa == 70] <- fixedeffs['ESANeedleleaf evergreen forest']
-esa[esa == 90] <- fixedeffs['ESAMixed forest']
-esa[esa == 100] <- fixedeffs['ESATree open']
-esa[esa == 110] <- fixedeffs['ESAHerbaceous with spare tree/shrub']
-esa[esa == 120] <- fixedeffs['ESAShrub']
-esa[esa == 130] <- fixedeffs['ESAHerbaceous']
-esa[esa == 10] <- fixedeffs['ESAProduction - Herbaceous']
-esa[esa == 12] <- fixedeffs['ESAProduction - Plantation']
-esa[esa == 210] <- fixedeffs['ESAWater bodies']
+# esa[esa == 0] <- NA ## They have an NA pixel number 
+# esa[esa == 60] <- 0 ## intercept is added later
+# print("2 done")
+# esa[esa == 50] <- round(fixedeffs['ESABroadleaf evergreen forest'], digits = 2)
+# esa[esa == 70] <- round(fixedeffs['ESANeedleleaf evergreen forest'], digits = 2)
+# print("4 done")
+# esa[esa == 90] <- round(fixedeffs['ESAMixed forest'], digits = 2)
+# esa[esa == 100] <- round(fixedeffs['ESATree open'], digits = 2)
+# print("6 done")
+# esa[esa == 110] <- round(fixedeffs['ESAHerbaceous with spare tree/shrub'], digits = 2)
+# esa[esa == 120] <- round(fixedeffs['ESAShrub'], digits = 2)
+# print("8 done")
+# esa[esa == 130] <- round(fixedeffs['ESAHerbaceous'], digits = 2)
+# esa[esa == 10] <- round(fixedeffs['ESAProduction - Herbaceous'], digits = 2)
+# print("10 done. Last 3...")
+# esa[esa == 12] <- round(fixedeffs['ESAProduction - Plantation'], digits = 2)
+# esa[esa == 210] <- round(fixedeffs['ESAWater bodies'], digits = 2)
 # do.call(file.remove, list(list.files(dirname(rasterTmpFile()), full.names = TRUE)))
 
 ## Put all habitat covers where we don't have the habitat cover in the model to NA
-esa[esa > 10] <- NA
+#esa[esa > 10] <- NA
+
+print("Saving ESA layer")
+#esa <- writeRaster(esa,  filename=file.path(savefolder, "ESA_coefs.tif"), format="GTiff", overwrite=TRUE)
+esa <- raster(file.path(GLs_folder, "ESA_coefs.tif"))
 
 print("Calculating interacting coefficients") 
-print("Soil....")
-phOrgC <- overlay(ph, orgC, fun = createInteractionCoef, 
-                  filename = file.path(savefolder, "phCrichness.tif"))
-phOrgC <- calc(phOrgC, fun = function(x){round(x * fixedeffs['scalePH:scaleORCDRC'], digits = 2)}, 
-               filename = file.path(savefolder, "phCrichnesscoef.tif"), overwrite = TRUE) 
-# phOrgC <- raster(file.path(soil_GLs, "phCrichnesscoef.tif"))
+print("Soil....Just 1")
+# phOrgC <- overlay(ph, orgC, fun = createInteractionCoef, 
+#                  filename = file.path(savefolder, "phCrichness.tif"))
+# phOrgC <- calc(phOrgC, fun = function(x){round(x * fixedeffs['scalePH:scaleORCDRC'], digits = 2)}, 
+#               filename = file.path(savefolder, "phCrichnesscoef.tif"), overwrite = TRUE) 
+phOrgC <- raster(file.path(GLs_folder, "phCrichnesscoef.tif"))
   
 print("Climate....")
-bio1bio4 <- overlay(bio1, bio4, fun = createInteractionCoef, 
-                  filename = file.path(savefolder, "bio1bio4richness.tif"))
-bio1bio4 <- calc(bio1bio4, fun = function(x){round(x * fixedeffs['bio10_1_scaled:bio10_4_scaled'], digits = 2)}, 
-               filename = file.path(savefolder, "bio1bio4richnesscoef.tif"), overwrite = TRUE) 
+#bio1bio4 <- overlay(bio1, bio4, fun = createInteractionCoef, 
+#                  filename = file.path(savefolder, "bio1bio4richness.tif"))
+#bio1bio4 <- calc(bio1bio4, fun = function(x){round(x * fixedeffs['bio10_1_scaled:bio10_4_scaled'], digits = 2)}, 
+#               filename = file.path(savefolder, "bio1bio4richnesscoef.tif"), overwrite = TRUE) 
+bio1bio4 <- raster(file.path(GLs_folder, "bio1bio4richnesscoef.tif"))
 
-bio12bio15 <- overlay(bio12, bio15, fun = createInteractionCoef, 
-                    filename = file.path(savefolder, "bio12bio15richness.tif"))
-bio12bio15 <- calc(bio12bio15, fun = function(x){round(x * fixedeffs['bio10_12_scaled:bio10_15_scaled'], digits = 2)}, 
-                 filename = file.path(savefolder, "bio12bio15richnesscoef.tif"), overwrite = TRUE) 
+
+print("1 down, 1 to go")
+#bio12bio15 <- overlay(bio12, bio15, fun = createInteractionCoef, 
+#                    filename = file.path(savefolder, "bio12bio15richness.tif"))
+#bio12bio15 <- calc(bio12bio15, fun = function(x){round(x * fixedeffs['bio10_12_scaled:bio10_15_scaled'], digits = 2)}, 
+#                 filename = file.path(savefolder, "bio12bio15richnesscoef.tif"), overwrite = TRUE) 
+bio12bio15 <- raster(file.path(GLs_folder, "bio12bio15richnesscoef.tif"))
 
 # do.call(file.remove, list(list.files(dirname(rasterTmpFile()), full.names = TRUE))) 
 
 
 ######## ADd them all together
 print("Cropping CHELSA layers")
-bio1 <- crop(bio1, cec, filename= file.path(savefolder, "bio1richnesscoef_crop.tif"))
-bio4 <- crop(bio14, cec, filename= file.path(savefolder, "bio4richnesscoef_crop.tif"))
-bio12 <- crop(bio12, cec, filename= file.path(savefolder, "bio12richnesscoef_crop.tif"))
-bio15 <- crop(bio15, cec, filename= file.path(savefolder, "bio15richnesscoef_crop.tif"))
-  
-bio1bio4 <- crop(bio1bio4, cec, filename= file.path(savefolder, "bio1bio4richnesscoef_crop.tif"))
-bio12bio15 <- crop(bio12bio15, cec, filename= file.path(savefolder, "bio12bio15richnesscoef_crop.tif"))
+bio1 <- crop(bio1, esa, snap= "near",filename= file.path(savefolder, "bio1richnesscoef_crop.tif"))
+#bio1 <- raster(file.path(GLs_folder, "bio1richnesscoef_crop.tif"))
 
+bio4 <- crop(bio4, esa, snap= "near",filename= file.path(savefolder, "bio4richnesscoef_crop.tif"))
+#bio4 <- raster(file.path(GLs_folder, "bio4richnesscoef_crop.tif"))
+
+bio12 <- crop(bio12, esa,snap= "near", filename= file.path(savefolder, "bio12richnesscoef_crop.tif"))
+#bio12 <- raster(file.path(GLs_folder, "bio12richnesscoef_crop.tif"))
+
+print("Three down, 3 to go")
+bio15 <- crop(bio15, esa, snap= "near",filename= file.path(savefolder, "bio15richnesscoef_crop.tif"))
+#bio15 <- raster(file.path(GLs_folder, "bio15richnesscoef_crop.tif"))
+
+bio1bio4 <- crop(bio1bio4, esa, snap= "near",filename= file.path(savefolder, "bio1bio4richnesscoef_crop.tif"))
+#bio1bio4 <- raster(file.path(GLs_folder, "bio1bio4richnesscoef_crop.tif"))
+
+bio12bio15 <- crop(bio12bio15, esa, snap= "near",filename= file.path(savefolder, "bio12bio15richnesscoef_crop.tif"))
+#bio12bio15 <- raster(file.path(GLs_folder, "bio12bio15richnesscoef_crop.tif"))
+dim(bio12bio15)
+
+print("Croping soil laters")
+phOrgC <- crop(phOrgC, esa, snap= "near", filename= file.path(savefolder, "phOrgCrichnesscoef_crop.tif"))
+ph <- crop(ph, esa,snap= "near", filename= file.path(savefolder, "phrichnesscoef_crop.tif"))
+cec <- crop(cec, esa, snap= "near",filename= file.path(savefolder, "cecrichnesscoef_crop.tif"))
+orgC <- crop(orgC, esa, snap= "near",filename= file.path(savefolder, "orgCrichnesscoef_crop.tif"))
+
+dim(cec)
+dim(ph)
+# esa <- crop(esa, cec, filename= file.path(savefolder, "esarichnesscoef_crop.tif"))
+dim(esa)
 
 print("Adding all layers together")
 cec <- calc(cec, fun = function(x) {round(x +  fixedeffs['(Intercept)'], digits = 2)}, 
@@ -180,4 +220,4 @@ f_together <- function(a, b, c, d, e, f, g, h, i, j, k){
 spR_finalraster <- overlay(bio1, bio4, bio12, bio15, ph, cec, orgC, 
                            phOrgC, bio1bio4, bio12bio15, esa, fun = f_together, 
                              filename = file.path(savefolder, "spRFinalRaster.tif"))
- 
+print("Done!") 
