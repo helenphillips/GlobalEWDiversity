@@ -148,8 +148,11 @@ print("Habitat cover...")
 
 print("Saving ESA layer")
 #esa <- writeRaster(esa,  filename=file.path(savefolder, "ESA_coefs.tif"), format="GTiff", overwrite=TRUE)
-esa <- raster(file.path(GLs_folder, "ESA_coefs.tif"))
-
+#esa <- raster(file.path(GLs_folder, "ESA_coefs.tif"))
+#esa
+#str(esa)
+#summary(esa)
+#unique(getValues(esa))
 print("Calculating interacting coefficients") 
 print("Soil....Just 1")
 # phOrgC <- overlay(ph, orgC, fun = createInteractionCoef, 
@@ -178,46 +181,51 @@ bio12bio15 <- raster(file.path(GLs_folder, "bio12bio15richnesscoef.tif"))
 
 ######## ADd them all together
 print("Cropping CHELSA layers")
-bio1 <- crop(bio1, esa, snap= "near",filename= file.path(savefolder, "bio1richnesscoef_crop.tif"))
+bio1 <- crop(bio1, cec, filename= file.path(savefolder, "bio1richnesscoef_crop.tif"))
 #bio1 <- raster(file.path(GLs_folder, "bio1richnesscoef_crop.tif"))
 
-bio4 <- crop(bio4, esa, snap= "near",filename= file.path(savefolder, "bio4richnesscoef_crop.tif"))
+bio4 <- crop(bio4, cec, filename= file.path(savefolder, "bio4richnesscoef_crop.tif"))
 #bio4 <- raster(file.path(GLs_folder, "bio4richnesscoef_crop.tif"))
 
-bio12 <- crop(bio12, esa,snap= "near", filename= file.path(savefolder, "bio12richnesscoef_crop.tif"))
+bio12 <- crop(bio12, cec, filename= file.path(savefolder, "bio12richnesscoef_crop.tif"))
 #bio12 <- raster(file.path(GLs_folder, "bio12richnesscoef_crop.tif"))
 
 print("Three down, 3 to go")
-bio15 <- crop(bio15, esa, snap= "near",filename= file.path(savefolder, "bio15richnesscoef_crop.tif"))
+bio15 <- crop(bio15, cec, filename= file.path(savefolder, "bio15richnesscoef_crop.tif"))
 #bio15 <- raster(file.path(GLs_folder, "bio15richnesscoef_crop.tif"))
 
-bio1bio4 <- crop(bio1bio4, esa, snap= "near",filename= file.path(savefolder, "bio1bio4richnesscoef_crop.tif"))
+bio1bio4 <- crop(bio1bio4, cec,filename= file.path(savefolder, "bio1bio4richnesscoef_crop.tif"))
 #bio1bio4 <- raster(file.path(GLs_folder, "bio1bio4richnesscoef_crop.tif"))
 
-bio12bio15 <- crop(bio12bio15, esa, snap= "near",filename= file.path(savefolder, "bio12bio15richnesscoef_crop.tif"))
+bio12bio15 <- crop(bio12bio15, cec, filename= file.path(savefolder, "bio12bio15richnesscoef_crop.tif"))
 #bio12bio15 <- raster(file.path(GLs_folder, "bio12bio15richnesscoef_crop.tif"))
 dim(bio12bio15)
 
 print("Croping soil laters")
-phOrgC <- crop(phOrgC, esa, snap= "near", filename= file.path(savefolder, "phOrgCrichnesscoef_crop.tif"))
-ph <- crop(ph, esa,snap= "near", filename= file.path(savefolder, "phrichnesscoef_crop.tif"))
-cec <- crop(cec, esa, snap= "near",filename= file.path(savefolder, "cecrichnesscoef_crop.tif"))
-orgC <- crop(orgC, esa, snap= "near",filename= file.path(savefolder, "orgCrichnesscoef_crop.tif"))
-
+#phOrgC <- crop(phOrgC, esa, snap= "near", filename= file.path(savefolder, "phOrgCrichnesscoef_crop.tif"))
+#ph <- crop(ph, esa,snap= "near", filename= file.path(savefolder, "phrichnesscoef_crop.tif"))
+#cec <- crop(cec, esa, snap= "near",filename= file.path(savefolder, "cecrichnesscoef_crop.tif"))
+#orgC <- crop(orgC, esa, snap= "near",filename= file.path(savefolder, "orgCrichnesscoef_crop.tif"))
+ph
+str(ph)
+summary(ph)
 dim(cec)
 dim(ph)
 # esa <- crop(esa, cec, filename= file.path(savefolder, "esarichnesscoef_crop.tif"))
-dim(esa)
+#dim(esa)
 
 print("Adding all layers together")
 cec <- calc(cec, fun = function(x) {round(x +  fixedeffs['(Intercept)'], digits = 2)}, 
               filename = file.path(savefolder, "CECrichnesscoef_plusInt.tif"))
 
-f_together <- function(a, b, c, d, e, f, g, h, i, j, k){
-  round(a + b +c +d +e +f +g + h+ i + j + k, digits = 2)
+f_together <- function(a, b, c, d, e, f, g, h, i, j){
+  round(a + b +c +d +e +f +g + h+ i + j , digits = 2)
 }
 
 spR_finalraster <- overlay(bio1, bio4, bio12, bio15, ph, cec, orgC, 
-                           phOrgC, bio1bio4, bio12bio15, esa, fun = f_together, 
-                             filename = file.path(savefolder, "spRFinalRaster.tif"))
+                           phOrgC, bio1bio4, bio12bio15, fun = f_together, 
+                             filename = file.path(savefolder, "spRFinalRasterMinusESA.tif"))
+min(spR_finalraster)
+max(spR_finalraster)
+spR_finalraster
 print("Done!") 
