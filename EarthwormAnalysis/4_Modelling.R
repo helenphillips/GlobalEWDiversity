@@ -83,11 +83,15 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 x <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_7,sites$bio10_12,sites$bio10_15)
 correl_dummy_df <- round(cor(x, use = "pair"), 2) 
 
+## 7 is highly collinear with bio4 and quite collinear with bio1
+
 ## VIFs
 source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
 corvif(x) ## There might be an issue here
 y <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15)
 corvif(y)
+corvif(x)
+## Problems with bio4 and bio7
 
 #################################################
 # 4. Species Richness
