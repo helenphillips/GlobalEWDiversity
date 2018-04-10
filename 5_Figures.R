@@ -77,7 +77,7 @@ abundanceCols <- ColourPicker(abundance$ESA)
 ############################################
 # SPECIES RICHNES
 ####(#########################################
-jpeg(file = file.path(figures, "richness_pHOrgc.jpg"))
+jpeg(file = file.path(figures, "richness_pHOrgc.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
 plotInteraction(model = richness_model, Effect1 = "scalePH", Effect2 = "scaleORCDRC",
                 modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
                                    "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
@@ -86,7 +86,7 @@ plotInteraction(model = richness_model, Effect1 = "scalePH", Effect2 = "scaleORC
                 ylabel = "", xlabel = "")
 dev.off()
 
-jpeg(file = file.path(figures, "richness_Bio12Bio15.jpg"))
+jpeg(file = file.path(figures, "richness_Bio12Bio15.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
 plotInteraction(model = richness_model, Effect1 = "bio10_12_scaled", Effect2 = "bio10_15_scaled",
                 modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
                                    "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
@@ -95,7 +95,7 @@ plotInteraction(model = richness_model, Effect1 = "bio10_12_scaled", Effect2 = "
                 ylabel = "", xlabel = "")
 dev.off()
 
-jpeg(file = file.path(figures, "richness_Bio1Bio4.jpg"))
+jpeg(file = file.path(figures, "richness_Bio1Bio4.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
 plotInteraction(model = richness_model, Effect1 = "bio10_1_scaled", Effect2 = "bio10_4_scaled",
                 modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
                                    "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
@@ -104,12 +104,12 @@ plotInteraction(model = richness_model, Effect1 = "bio10_1_scaled", Effect2 = "b
                 ylabel = "", xlabel = "")
 dev.off()
 
-jpeg(file = file.path(figures, "richness_ESA.jpg"))
+jpeg(file = file.path(figures, "richness_ESA.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
 plotSingle(model= richness_model, 
            modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
                               "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
            Effect1 = "ESA", 
-           responseVar = "SpeciesRichness", seMultiplier = 1, data = abundance, cols = abundanceCols, 
+           responseVar = "SpeciesRichness", seMultiplier = 1, data = richness, cols = richnessCols, 
            legend.position, ylabel = "Species Richness", xlabel = "", otherContEffectsFun = "median")
 dev.off()
 
@@ -118,7 +118,7 @@ plotSingle(model= richness_model,
            modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
                               "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
            Effect1 = "scaleCECSOL", 
-           responseVar = "SpeciesRichness", seMultiplier = 1, data = abundance, cols = abundanceCols, 
+           responseVar = "SpeciesRichness", seMultiplier = 1, data = richness, cols = "black", 
            legend.position, ylabel = "Species Richness", xlabel = "CEC", otherContEffectsFun = "median")
 dev.off()
 #############################################
@@ -257,7 +257,7 @@ plotInteraction(model = biomass_model, Effect1 = "scalePH", Effect2 = "scaleCECS
                 ylabel = "", xlabel = "")
 dev.off()
 
-jpeg(file = file.path(figures, "biomass_ESA.jpg"))
+jpeg(file = file.path(figures, "biomass_ESA.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
 plotSingle(model= biomass_model, 
            modelFixedEffs = c("scalePH", "scaleORCDRC", "scaleCLYPPT", "bio10_1_scaled", "bio10_4_scaled", 
                               "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
