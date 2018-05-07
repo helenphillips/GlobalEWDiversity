@@ -44,7 +44,7 @@ predictValues <- function(model, newdata, responseVar, re.form = NA, seMultiplie
 
 
 plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier = 1.96, data, cols = "000000", legend.position, 
-                       ylabel = "", xlabel = "", otherContEffectsFun = "median"){
+                       ylabel = "", xlabel = "", otherContEffectsFun = "median", pt_cex = 1.5, pt_lwd = 1, axis_size =1){
   
   newdata <- createNewdata(model = model, modelFixedEffects = modelFixedEffs, mainEffect = Effect1, data = data)
   
@@ -123,13 +123,13 @@ plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier
     pt_cols <- paste("#", cols, sep="")
     
     
-    par(mar=c(15, 3, 1, 1))
+    par(mar=c(15, 4, 1, 1))
     plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
          xlim = c(0, (nrow(newdata)-1)),  ylab = ylabel, xlab = xlabel,  xaxt='n', axes = FALSE)
-    Axis(side = 2 )
+    Axis(side = 2, cex.axis = axis_size)
     errbar(0:(nrow(newdata)-1), newdata[,r], newdata$upper, newdata$lower,
-           add = TRUE, col = pt_cols, errbar.col = pt_cols, cex = 1.5)
-    axis(side=1, at = 0:(nrow(newdata)-1), labels = levels(newdata[,p]), las=2)
+           add = TRUE, col = pt_cols, errbar.col = pt_cols, cex = pt_cex, lwd = pt_lwd)
+    axis(side=1, at = 0:(nrow(newdata)-1), labels = levels(newdata[,p]), las=2, cex.axis = axis_size)
     
     }
   # legend(legend.position, legend = fac, col = pt_cols, lwd = 2, bty = "n")
