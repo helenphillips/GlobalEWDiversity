@@ -71,6 +71,15 @@ for(t in tifs){
 
 #### 
 ## Check that any without values are because they have no coordinate
+
+unique(sites$file[is.na(sites$bio10_1)]) ## They all have coordiantes
+
+for(i in unique(sites$file[is.na(sites$bio10_1)])){
+  print(i)
+  print(summary(sites[sites$file == i, c(80)]))
+}
+
+# But just some sites don't match....
 #################################################
 # 5. Save data
 #################################################

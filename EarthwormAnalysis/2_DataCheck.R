@@ -166,6 +166,9 @@ rm(known);rm(morethan1); rm(landusecomp); rm(fileswith)
 #################################################
 
 any(!(is.na(sites$Site_WetBiomass)) && is.na(sites$Site_WetBiomassUnits)) ## If true, there's no units for samples
+
+# nrow(sites[!(is.na(sites$Site_WetBiomass)) && is.na(sites$Site_WetBiomassUnits),])
+
 any(!(is.na(sites$Site_Abundance)) && is.na(sites$Site_AbundanceUnits))
 
 
