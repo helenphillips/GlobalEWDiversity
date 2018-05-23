@@ -134,6 +134,7 @@ for(file in all_files){
     names(ta) <- "Individuals_fromspecies"
     ta$Individuals_fromspeciesUnits <- species$Abundance_Unit[1]
     ta$SS <- rownames(ta)
+    ta$Individuals_fromspecies <- unname(ta$Individuals_fromspecies)
     sites <- merge(sites, ta, by.x = "Study_site", by.y = "SS")
     rm(ta)
   
@@ -142,6 +143,7 @@ for(file in all_files){
     names(bm) <- "Biomass_fromspecies"
     bm$Biomass_fromspeciesUnits <- species$WetBiomassUnits[1]
     bm$SS <- rownames(bm)
+    bm$Biomass_fromspecies <- unname(bm$Biomass_fromspecies)
     sites <- merge(sites, bm, by.x = "Study_site", by.y = "SS")
     rm(bm)
     
@@ -203,6 +205,8 @@ sites$SpeciesRichnessUnit[sitelevel_spR] <- "Number of species"
 rm(sitelevel_spR)
 
 sites$Site_WetBiomassUnits <- as.character(sites$Site_WetBiomassUnits)
+
+str(which(!(is.na(sites$Biomass_fromspecies))))
 
 sitelevel_biom <- which(is.na(sites$Site_WetBiomass) & !(is.na(sites$Biomass_fromspecies)))
 if(length(sitelevel_biom ) > 0) {
