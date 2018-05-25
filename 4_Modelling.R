@@ -80,7 +80,7 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 
 ##https://stats.stackexchange.com/questions/82984/how-to-test-and-avoid-multicollinearity-in-mixed-linear-model/142032
 ## That page said a cut of 4. We are not higher than 0.9
-x <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_7,sites$bio10_12,sites$bio10_15)
+x <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_7,sites$bio10_12,sites$bio10_15, sites$SnowMonths)
 correl_dummy_df <- round(cor(x, use = "pair"), 2) 
 
 ## 7 is highly collinear with bio4 and quite collinear with bio1
@@ -88,7 +88,7 @@ correl_dummy_df <- round(cor(x, use = "pair"), 2)
 ## VIFs
 source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
 corvif(x) ## There might be an issue here
-y <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15)
+y <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15,sites$SnowMonths)
 corvif(y)
 corvif(x)
 ## Problems with bio4 and bio7
