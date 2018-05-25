@@ -50,10 +50,10 @@ sites <- SiteLevels(sites)
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 132 papers
-length(unique(sites$Study_Name)) ## 164 studies
+length(unique(sites$file)) ## 199 papers
+length(unique(sites$Study_Name)) ## 253 studies
 
-length(unique(sites$Country))## 48 Countries
+length(unique(sites$Country))## 64 Countries
 
 #################################################
 # 5. Create Map
@@ -186,6 +186,7 @@ hist(sites$Site_Abundance)
 summary(sites$Site_Abundance)
 tapply(sites$Site_Abundance, sites$LU_Mgmt, summary)
 sites$logAbundance <- log(sites$Site_Abundance + 1)
+hist(sites$logAbundance)
 ###########################################################
 ## Looking at biomass
 #############################################################
@@ -193,12 +194,16 @@ hist(sites$Site_WetBiomass)
 summary(sites$Site_WetBiomass)
 tapply(sites$Site_WetBiomass, sites$LU_Mgmt, summary)
 sites$logBiomass <- log(sites$Site_WetBiomass +1)
-
+hist(sites$logBiomass)
 ###########################################################
 ## CONTROVERSIAL!! - Altering ph values
 #############################################################
+table(sites$PH_Collection_Method)
+
+
 sites$ph_new <- sites$PH
-sites$ph_new <- ifelse(sites$PH_Collection_Method == "CaCl2", sites$PH + 1, sites$PH)
+sites$ph_new[which(sites$PH_Collection_Method == "CaCl2")] <- sites$PH[which(sites$PH_Collection_Method == "CaCl2")] - 1
+sites$ph_new[which(sites$PH_Collection_Method == "KCl")] <- sites$PH[which(sites$PH_Collection_Method == "KCl")] + 1
 summary(sites$ph_new) # Seems reasonably after previous mistake
 sites$scalePH <-scale(sites$ph_new)
 ###########################################################
