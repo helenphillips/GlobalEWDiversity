@@ -24,7 +24,7 @@ source("Functions/ModelSimplification.R")
 # 2. Loading in variables
 #################################################
 
-data_in <-"3_Data"
+data_in <-"3.5_Data"
 
 files <- list.files(file.path(data_in))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
@@ -97,28 +97,30 @@ corvif(x)
 # 4. Species Richness
 #################################################
 
-richness <- sites[complete.cases(sites$SpeciesRichness),] #3119
-richness <- droplevels(richness[richness$ESA != "Unknown",])
-richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),])
+richness <- sites[complete.cases(sites$SpeciesRichness),] #6093
+richness <- droplevels(richness[richness$ESA != "Unknown",]) # 5664
+richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),]) # 5646
 
 # richness <- richness[complete.cases(richness$scalePH),]
 
-richness <- droplevels(richness[!(is.na(richness$PHIHOX)),])
-richness <- droplevels(richness[!(is.na(richness$bio10_2)),]) ## 2645
+# richness <- droplevels(richness[!(is.na(richness$PHIHOX)),])
+richness <- droplevels(richness[!(is.na(richness$bio10_1)),]) ## 5633
+richness <- droplevels(richness[!(is.na(richness$OCFinal)),]) ## 5622
+richness <- droplevels(richness[!(is.na(richness$phFinal)),]) ## 5622
 
 
 table(richness$ESA)
-richness_notinclude <- c("Needleleaf deciduous forest", 
+richness_notinclude <- c("Needleleaf deciduous forest", "Tree open",
                          "Sparse vegetation",  "Cropland/Other vegetation mosaic",
-                         "Bare area (consolidated", "Paddy field", "Wetland/Herbaceous")
+                         "Bare area (consolidated", "Paddy field", "Wetland/Herbaceous", "Water bodies")
 
-richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##  2623
-summary(richness$PHIHOX)
-richness$scalePH <- as.vector(scale(richness$PHIHOX))
-richness$scaleCLYPPT <- scale(richness$CLYPPT)
-richness$scaleSLTPPT <- scale(richness$SLTPPT)
+richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##  5565
+summary(richness$phFinal)
+richness$scalePH <- as.vector(scale(richness$phFinal))
+richness$scaleCLYPPT <- scale(richness$ClayFinal)
+richness$scaleSLTPPT <- scale(richness$SiltFinal)
 richness$scaleCECSOL <- scale(richness$CECSOL)
-richness$scaleORCDRC <- scale(richness$ORCDRC)
+richness$scaleORCDRC <- scale(richness$OCFinal)
 
 
 # Three most important climate variables
@@ -165,24 +167,26 @@ save(richness_model, file = file.path(models, "richnessmodel_full.rds"))
 #################################################
 # 5. Biomass
 #################################################
-biomass <- sites[complete.cases(sites$logBiomass),]
-biomass <- droplevels(biomass[biomass$ESA != "Unknown",])
+biomass <- sites[complete.cases(sites$logBiomass),] # 3698
+biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 3377
 
-biomass <- droplevels(biomass[!(is.na(biomass$PHIHOX)),])
-biomass <- droplevels(biomass[!(is.na(biomass$bio10_2)),]) ## 1605
+# biomass <- droplevels(biomass[!(is.na(biomass$PHIHOX)),])
+biomass <- droplevels(biomass[!(is.na(biomass$bio10_1)),]) ## 3374
+biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 3373
+biomass <- droplevels(biomass[!(is.na(biomass$phFinal)),]) ## 3373
 
 
 table(biomass$ESA)
 biomass_notinclude <- c("Tree open", "Sparse vegetation", "Cropland/Other vegetation mosaic",
                         "Urban", "Paddy field")
 
-biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##  1585
-summary(biomass$PHIHOX)
-biomass$scalePH <- as.vector(scale(biomass$PHIHOX))
-biomass$scaleCLYPPT <- scale(biomass$CLYPPT)
-biomass$scaleSLTPPT <- scale(biomass$SLTPPT)
+biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##   3339
+summary(biomass$phFinal)
+biomass$scalePH <- as.vector(scale(biomass$phFinal))
+biomass$scaleCLYPPT <- scale(biomass$ClayFinal)
+biomass$scaleSLTPPT <- scale(biomass$SiltFinal)
 biomass$scaleCECSOL <- scale(biomass$CECSOL)
-biomass$scaleORCDRC <- scale(biomass$ORCDRC)
+biomass$scaleORCDRC <- scale(biomass$OCFinal)
 
 biomass$bio10_1_scaled <- scale(biomass$bio10_1)
 biomass$bio10_4_scaled <- scale(biomass$bio10_4)
@@ -221,25 +225,27 @@ save(biomass_model, file = file.path(models, "biomassmodel_full.rds"))
 hist(sites$Site_Abundance)
 hist(sites$logAbundance)
 abundance <- sites[complete.cases(sites$Site_Abundance),]
-abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #3455
+abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #6811
 
-abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
-abundance <- droplevels(abundance[!(is.na(abundance$bio10_2)),]) ##  3329
+# abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
+abundance <- droplevels(abundance[!(is.na(abundance$bio10_1)),]) ##   6796
+abundance <- droplevels(abundance[!(is.na(abundance$OCFinal)),]) ##  6783
+abundance <- droplevels(abundance[!(is.na(abundance$phFinal)),]) ##  6783
 
 
 table(abundance$ESA)
-abundance_notinclude <- c("Needleleaf deciduous forest", "Sparse vegetation", "Cropland/Other vegetation mosaic", 
-                         "Bare area (consolidated", "Bare area (unconsolidated",  "Paddy field", "Wetland/Herbaceous")
+abundance_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Sparse vegetation", 
+                         "Bare area (consolidated", "Bare area (unconsolidated",  "Paddy field", "Wetland/Herbaceous",
+                         "Water bodies")
 
-abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  3284
-tapply(abundance$scalePH, abundance$ESA, summary)
+abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  6709
 
 
-abundance$scalePH <- as.vector(scale(abundance$PHIHOX))
-abundance$scaleCLYPPT <- scale(abundance$CLYPPT)
-abundance$scaleSLTPPT <- scale(abundance$SLTPPT)
+abundance$scalePH <- as.vector(scale(abundance$phFinal))
+abundance$scaleCLYPPT <- scale(abundance$ClayFinal)
+abundance$scaleSLTPPT <- scale(abundance$SiltFinal)
 abundance$scaleCECSOL <- scale(abundance$CECSOL)
-abundance$scaleORCDRC <- scale(abundance$ORCDRC)
+abundance$scaleORCDRC <- scale(abundance$OCFinal)
 
 abundance$bio10_1_scaled <- scale(abundance$bio10_1)
 abundance$bio10_4_scaled <- scale(abundance$bio10_4)

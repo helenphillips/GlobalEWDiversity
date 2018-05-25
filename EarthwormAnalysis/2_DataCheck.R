@@ -172,6 +172,7 @@ any(!(is.na(sites$Site_WetBiomass)) && is.na(sites$Site_WetBiomassUnits)) ## If 
 any(!(is.na(sites$Site_Abundance)) && is.na(sites$Site_AbundanceUnits))
 
 
+
 #################################################
 #  Save file
 #################################################
@@ -179,5 +180,5 @@ any(!(is.na(sites$Site_Abundance)) && is.na(sites$Site_AbundanceUnits))
 write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
 ## Sites for Carlos
-write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+# write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
