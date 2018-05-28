@@ -4,8 +4,9 @@ library(raster)
 args <- commandArgs(trailingOnly = TRUE)
 
 GLs_folder <- args[1] # GLs_dir
+## Something like "/data/idiv_sdiv/sworm/ProccessGLs"
 savefolder <- args[2] # output_dir
-
+## Something like "/data/idiv_sdiv/sworm/ProccessGLs"
 
 print(GLs_folder)
 print(savefolder)
@@ -15,7 +16,7 @@ rasterOptions(tmpdir = "/work/phillips", chunksize = 524288, maxmemory = 1342177
 
 
 print("Loading ESA raster")
-r <- raster(file.path(GLs_folder, "ESACCI-LC-L4-LCCS-Map-1000m-P5Y-2010-v1.6.1.tif"))
+r <- raster(file.path(GLs_folder, "ESACCI-LC-L4-LCCS-Map-1000m-P5Y-2010-v1.6.1_NEW.tif"))
 # getValues(r)
 # plot(r)
 
