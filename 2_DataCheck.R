@@ -23,6 +23,9 @@ data_out <- "2_Data"
 
 data_in <-"1_Data"
 files <- list.files(file.path(data_in))
+files <- files[grep("sitesWithChelsaAndSoilAndOthers_", files)]
+
+
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
