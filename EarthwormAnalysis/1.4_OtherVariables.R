@@ -62,18 +62,23 @@ sites$SnowMonths <- extract(tif, data.frame(sites$Longitude__Decimal_Degrees, si
 arid <- "I:\\sWorm\\Database\\AI_annual"
 tif <- raster(file.path(arid, "ai_yr_TIF.tif"))
 sites$Aridity <- extract(tif, data.frame(sites$Longitude__Decimal_Degrees, sites$Latitude__decimal_degrees))
-
+sites$scaleAridity <- scale(sites$Aridity)
 ############## PET
 
 pet <- "I:\\sWorm\\Database\\PET_he_annual"
 tif <- raster(file.path(pet, "pet_he_yr_TIF.tif"))
 sites$PETyr <- extract(tif, data.frame(sites$Longitude__Decimal_Degrees, sites$Latitude__decimal_degrees))
+sites$ScalePET <- scale(sites$PETyr)
 
-petSD
-
+petSD <- "I:\\sWorm\\Database\\PET_he_monthly"
+tif <- raster(file.path(petSD, "pet_he_SD.tif"))
+sites$PET_SD <- extract(tif, data.frame(sites$Longitude__Decimal_Degrees, sites$Latitude__decimal_degrees))
+sites$ScalePETSD <- scale(sites$PET_SD)
 #################################################
 # 5. Save data
 #################################################
 
 write.csv(sites, file = file.path(data_out, paste("sitesWithChelsaAndSoilAndOthers_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
+
 
