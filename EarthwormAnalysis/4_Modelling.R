@@ -166,7 +166,7 @@ r1 <- glmer(SpeciesRichness ~  ESA + (scalePH  +
              scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
              (bio10_1_scaled + bio10_4_scaled + 
                 bio10_12_scaled + bio10_15_scaled +
-                scaleAridity + ScalePET + ScalePETSD + SnowMonths)^2 + 
+                SnowMonths)^2 + 
              #  SNDPPT # Not included, as the other two dictate the third
               
              #  (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -200,26 +200,6 @@ richness_model <- modelSimplification(model = r1, data = richness, alpha = 0.05,
 save(richness_model, file = file.path(models, "richnessmodel_full.rds"))
 # load(file.path(models, "richnessmodel_full.rds"))
 
-
-r2 <- glmer(SpeciesRichness ~  ESA + (scalePH  + 
-                                        scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-              (bio10_1_scaled + bio10_4_scaled + 
-                 bio10_12_scaled + bio10_15_scaled +
-                 scaleAridity + SnowMonths)^2 + 
-              #  SNDPPT # Not included, as the other two dictate the third
-              
-              #  (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
-              
-              # HabitatCover + 
-              #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
-              # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
-              (1|file/Study_Name), data = richness, family = poisson,
-            control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-
-overdisp_fun(r2)
-
-richness_model2 <- modelSimplification(model = r2, data = richness, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
-save(richness_model2, file = file.path(models, "richnessmodel_full2.rds"))
 
 
 ##  From DHARMa
@@ -271,7 +251,7 @@ b1 <- lmer(logBiomass ~  ESA + (scalePH  +
             scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
              (bio10_1_scaled + bio10_4_scaled + 
                 bio10_12_scaled + bio10_15_scaled + 
-                scaleAridity + ScalePET + ScalePETSD + SnowMonths)^2 +
+                SnowMonths)^2 +
              #  SNDPPT # Not included, as the other two dictate the third
              
              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -288,45 +268,13 @@ plotSimulatedResiduals(simulationOutput = simulationOutput,quantreg = TRUE)
 
 biomass_model <- modelSimplification(model = b1, data = biomass, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
 save(biomass_model, file = file.path(models, "biomassmodel_full.rds"))
-load(file.path(models, "biomassmodel_full.rds"))
+# load(file.path(models, "biomassmodel_full.rds"))
 
 simulationOutput_bm <- simulateResiduals(fittedModel = biomass_model, n = 250)
 plotSimulatedResiduals(simulationOutput = simulationOutput_bm,quantreg = TRUE)
-simulationOutput_bmb <- simulateResiduals(fittedModel = biomass_model, refit = TRUE)
 testOverdispersion(simulationOutput_bm, alternative = "overdispersion", plot = TRUE)
 # Not overdispersed
 testZeroInflation(simulationOutput_bm, plot = TRUE, alternative = "more")
-## But zeroinflated
-
-
-
-
-b2 <- lmer(logBiomass ~  ESA + (scalePH  + 
-                                  scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_1_scaled + bio10_4_scaled + 
-                bio10_12_scaled + bio10_15_scaled + 
-                scaleAridity + SnowMonths)^2 +
-             #  SNDPPT # Not included, as the other two dictate the third
-             
-             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
-             
-             # HabitatCover + 
-             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
-             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
-             (1|file/Study_Name), data = biomass,
-           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-plot(b2)
-
-biomass_model2 <- modelSimplification(model = b2, data = biomass, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
-save(biomass_model2, file = file.path(models, "biomassmodel_full2.rds"))
-load(file.path(models, "biomassmodel_full2.rds"))
-
-simulationOutput_bm2 <- simulateResiduals(fittedModel = biomass_model2, n = 250)
-plotSimulatedResiduals(simulationOutput = simulationOutput_bm2,quantreg = TRUE)
-simulationOutput_bmb2 <- simulateResiduals(fittedModel = biomass_model2, refit = TRUE)
-testOverdispersion(simulationOutput_bm2, alternative = "overdispersion", plot = TRUE)
-# Not overdispersed
-testZeroInflation(simulationOutput_bm2, plot = TRUE, alternative = "more")
 ## But zeroinflated
 
 
@@ -376,7 +324,7 @@ a1 <- lmer(logAbundance ~  ESA + (scalePH  +
                                     scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
              (bio10_1_scaled + bio10_4_scaled + 
                 bio10_12_scaled + bio10_15_scaled + 
-                scaleAridity + ScalePET + ScalePETSD + SnowMonths)^2 +
+               SnowMonths)^2 +
              #  SNDPPT # Not included, as the other two dictate the third
              
              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -410,22 +358,3 @@ testOverdispersion(simulationOutput_a2, alternative = "overdispersion", plot = T
 testZeroInflation(simulationOutput_a2, plot = TRUE, alternative = "more")
 ## But zeroinflated
 
-
-a2 <- lmer(logAbundance ~  ESA + (scalePH  + 
-                                    scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_1_scaled + bio10_4_scaled + 
-                bio10_12_scaled + bio10_15_scaled + 
-                scaleAridity + SnowMonths)^2 +
-             #  SNDPPT # Not included, as the other two dictate the third
-             
-             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
-             
-             # HabitatCover + 
-             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
-             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
-             (1|file/Study_Name), data = abundance,
-           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-
-plot(a2)
-abundance_model2 <- modelSimplification(model = a2, data = abundance, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
-save(abundance_model2, file = file.path(models, "abundancemodel2_full.rds"))
