@@ -61,8 +61,62 @@ all_spp <- c(as.vector(all_spp), as.vector(bib$file[which(is.na(bib$Entire.Commu
 sites <- sites[sites$file %in% all_spp,]
 
 #################################################
-# 6. MAke some factor levels consistent
+# 6. Biomass and Abundance units
 #################################################
+sites$Site_Biomassm2 <- NA
+sites$Site_Biomassm2[which(sites$Site_WetBiomassUnits == "g/m2")] <- sites$Site_WetBiomass[which(sites$Site_WetBiomassUnits == "g/m2")]
+
+
+# mg/m2 -> g/m2 = divide by 1000
+table(sites$Site_WetBiomassUnits)
+sites$Site_Biomassm2[which(sites$Site_WetBiomassUnits == "mg/m2")] <- sites$Site_WetBiomass[which(sites$Site_WetBiomassUnits == "mg/m2")] /1000
+
+
+## convert g to g/m2, divide by the sampled area (in m2)
+
+
+table(sites$Sampled_Area_Unit[which(sites$Site_WetBiomassUnits == "g")])
+
+sites$Site_Biomassm2[which(sites$Site_WetBiomassUnits == "g" & sites$Sampled_Area_Unit == "m2")] <-
+  sites$Site_WetBiomass[which(sites$Site_WetBiomassUnits == "g" & sites$Sampled_Area_Unit == "m2")] / sites$Sampled_Area[which(sites$Site_WetBiomassUnits == "g" & sites$Sampled_Area_Unit == "m2")]
+
+
+## cm2 >- m2 = divide by 10000
+table(sites$Sampled_Area_Unit[which(sites$Site_WetBiomassUnits == "g")])
+
+sites$Site_Biomassm2[which(sites$Site_WetBiomassUnits == "g" & sites$Sampled_Area_Unit == "cm2")] <-
+  sites$Site_WetBiomass[which(sites$Site_WetBiomassUnits == "g" & sites$Sampled_Area_Unit == "cm2")] / (sites$Sampled_Area[which(sites$Site_WetBiomassUnits == "g" & sites$Sampled_Area_Unit == "cm2")] / 10000)
+
+
+##########################################################
+## Abundance values
+
+table(sites$Site_AbundanceUnits)
+
+sites$Sites_Abundancem2 <- NA
+sites$Sites_Abundancem2[which(sites$Site_AbundanceUnits == "Individuals per m2")] <- sites$Site_Abundance[which(sites$Site_AbundanceUnits == "Individuals per m2")]
+## individuals per m3 is basically the same per m2
+sites$Sites_Abundancem2[which(sites$Site_AbundanceUnits == "Individuals per m3")] <- sites$Site_Abundance[which(sites$Site_AbundanceUnits == "Individuals per m3")]
+
+
+# number of individual when sampled area is in m2
+table(sites$Sampled_Area_Unit[which(sites$Site_AbundanceUnits == "Number of individuals")])
+
+sites$Sites_Abundancem2[which(sites$Site_AbundanceUnits == "Number of individuals" & sites$Sampled_Area_Unit == "m2")] <-
+  sites$Site_Abundance[which(sites$Site_AbundanceUnits == "Number of individuals" & sites$Sampled_Area_Unit == "m2")] / sites$Sampled_Area[which(sites$Site_AbundanceUnits == "Number of individuals" & sites$Sampled_Area_Unit == "m2")]
+
+
+## When in cm2
+sites$Sites_Abundancem2[which(sites$Site_AbundanceUnits == "Number of individuals" & sites$Sampled_Area_Unit == "cm2")] <-
+  sites$Site_Abundance[which(sites$Site_AbundanceUnits == "Number of individuals" & sites$Sampled_Area_Unit == "cm2")] / (sites$Sampled_Area[which(sites$Site_AbundanceUnits == "Number of individuals" & sites$Sampled_Area_Unit == "cm2")] / 10000)
+
+# unique(sites$file[which(sites$Site_AbundanceUnits == "Number of individuals" & sites$Sampled_Area_Unit == "m3")])
+
+hist(sites$Site_Biomassm2)
+hist(sites$Sites_Abundancem2)
+
+
+# tail(sites[which(is.na(sites$Sites_Abundancem2) & !(is.na(sites$Site_Abundance))),c(2, 15, 16, 59, 60, 96)], 90)
 
 
 #################################################
