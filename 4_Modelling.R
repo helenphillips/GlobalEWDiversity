@@ -216,7 +216,7 @@ biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 3377
 biomass <- droplevels(biomass[!(is.na(biomass$bio10_1)),]) ## 3374
 biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 3373
 biomass <- droplevels(biomass[!(is.na(biomass$phFinal)),]) ## 3373
-
+biomass <- droplevels(biomass[!(is.na(biomass$SnowMonths)),]) ## 3370
 
 table(biomass$ESA)
 biomass_notinclude <- c("Tree open", "Sparse vegetation", "Cropland/Other vegetation mosaic",
