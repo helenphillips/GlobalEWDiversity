@@ -108,6 +108,16 @@ corvif(aa)
 bb <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15,
                 sites$SnowMonths, sites$Aridity)
 corvif(bb)
+
+cc <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15,
+                 sites$SnowMonths)
+corvif(cc)
+
+dd <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15,
+                 sites$Aridity)
+corvif(dd)
+
+
 #################################################
 # 4. Species Richness
 #################################################
