@@ -144,7 +144,7 @@ plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier
 
 plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar, seMultiplier = 1.96, data, 
                             otherContEffectsFun = "median", cols = "000000", 
-                            legend.position = "topleft", ylabel = "", xlabel = ""){
+                            legend.position = "topleft", ylabel = "", xlabel = "", theta = 30, phi = 25){
   # ci <- confint(model, method="Wald")
   
   # Create newdata 
@@ -357,7 +357,7 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
      
      s <- persp(x, y, z, 
            xlab = names(newdata)[p1], ylab = names(newdata)[p2], zlab = names(newdata)[r],
-           theta = 30, phi = 25, border = NA, 
+           theta = theta, phi = phi, border = NA, 
            col =colors[z.facet.range])
      
       # draw lines parallel to x axis. seq(...) depends on your data's length(y)
