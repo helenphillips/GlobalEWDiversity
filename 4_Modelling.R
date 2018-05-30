@@ -80,58 +80,48 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 
 ##https://stats.stackexchange.com/questions/82984/how-to-test-and-avoid-multicollinearity-in-mixed-linear-model/142032
 ## That page said a cut of 4. We are not higher than 0.9
+## VIFs
+source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
 x <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_7,sites$bio10_12,sites$bio10_15, 
                 sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD)
 correl_dummy_df <- round(cor(x, use = "pair"), 2) 
 
 ## 7 is highly collinear with bio4 and quite collinear with bio1
-
-## VIFs
-source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
 corvif(x) ## There might be an issue here
-y <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15,
-                sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD)
-corvif(y)
-corvif(x)
-## Problems with bio4 and bio7
+## Zuur et al 2010 MEE recommended dropping the variable with the highest VIF scor
+## then recalculating. Until all are below the threshold. 
+## They use 3.
+## So dropping Bio4
 
-# Maybe problem with PET
-z <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15,
-                sites$SnowMonths, sites$Aridity, sites$PET_SD)
-corvif(z)
-
-aa <-  data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15,
-                  sites$Aridity, sites$PETyr, sites$PET_SD)
-
-corvif(aa)
-
-bb <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15,
-                sites$SnowMonths, sites$Aridity)
-corvif(bb)
-
-cc <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15,
-                 sites$SnowMonths)
-corvif(cc)
-
-dd <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_12,sites$bio10_15,
-                 sites$Aridity)
-corvif(dd)
-
+corvif(data.frame(sites$bio10_1,sites$bio10_7,sites$bio10_12,sites$bio10_15, 
+                  sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD))
+## Now dropping 1
+corvif(data.frame(sites$bio10_7,sites$bio10_12,sites$bio10_15, 
+                  sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD))
+## Now dropping Bio7
+corvif(data.frame(sites$bio10_12,sites$bio10_15, 
+                  sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD))
+# Now Bio12
+corvif(data.frame(sites$bio10_15, 
+                  sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD))
+## The rest seem fine
 
 #################################################
 # 4. Species Richness
 #################################################
 
-richness <- sites[complete.cases(sites$SpeciesRichness),] #6093
-richness <- droplevels(richness[richness$ESA != "Unknown",]) # 5664
-richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),]) # 5646
+richness <- sites[complete.cases(sites$SpeciesRichness),] #6089
+richness <- droplevels(richness[richness$ESA != "Unknown",]) # 5660
+richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),]) # 5642
 
 # richness <- richness[complete.cases(richness$scalePH),]
 
 # richness <- droplevels(richness[!(is.na(richness$PHIHOX)),])
-richness <- droplevels(richness[!(is.na(richness$bio10_1)),]) ## 5633
+richness <- droplevels(richness[!(is.na(richness$bio10_15)),]) ## 5629
 richness <- droplevels(richness[!(is.na(richness$OCFinal)),]) ## 5622
-richness <- droplevels(richness[!(is.na(richness$phFinal)),]) ## 5622
+richness <- droplevels(richness[!(is.na(richness$phFinal)),]) ## 5618
+richness <- droplevels(richness[!(is.na(richness$scaleAridity)),]) ## 5509
+richness <- droplevels(richness[!(is.na(richness$SnowMonths)),]) ## 5466
 
 
 table(richness$ESA)
@@ -139,7 +129,7 @@ richness_notinclude <- c("Needleleaf deciduous forest", "Tree open",
                          "Sparse vegetation",  "Cropland/Other vegetation mosaic",
                          "Bare area (consolidated", "Paddy field", "Wetland/Herbaceous", "Water bodies")
 
-richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##  5565
+richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##   5414
 summary(richness$phFinal)
 richness$scalePH <- as.vector(scale(richness$phFinal))
 richness$scaleCLYPPT <- scale(richness$ClayFinal)
@@ -164,9 +154,8 @@ write.csv(richness, file = file.path(data_out, paste("sitesRichness_", Sys.Date(
 
 r1 <- glmer(SpeciesRichness ~  ESA + (scalePH  + 
              scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_1_scaled + bio10_4_scaled + 
-                bio10_12_scaled + bio10_15_scaled +
-                SnowMonths)^2 + 
+             (bio10_15_scaled + SnowMonths + scaleAridity + 
+                ScalePET + ScalePETSD)^2 + 
              #  SNDPPT # Not included, as the other two dictate the third
               
              #  (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -209,20 +198,22 @@ plotSimulatedResiduals(simulationOutput = simulationOutput,quantreg = TRUE)
 #################################################
 # 5. Biomass
 #################################################
-biomass <- sites[complete.cases(sites$logBiomass),] # 3698
-biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 3377
+biomass <- sites[complete.cases(sites$logBiomass),] # 3689
+biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 3368
 
 # biomass <- droplevels(biomass[!(is.na(biomass$PHIHOX)),])
-biomass <- droplevels(biomass[!(is.na(biomass$bio10_1)),]) ## 3374
-biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 3373
-biomass <- droplevels(biomass[!(is.na(biomass$phFinal)),]) ## 3373
-biomass <- droplevels(biomass[!(is.na(biomass$SnowMonths)),]) ## 3370
+biomass <- droplevels(biomass[!(is.na(biomass$bio10_15)),]) ## 3365
+biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 3364
+biomass <- droplevels(biomass[!(is.na(biomass$phFinal)),]) ## 3364
+biomass <- droplevels(biomass[!(is.na(biomass$SnowMonths)),]) ##  3361
+biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  3357
+
 
 table(biomass$ESA)
 biomass_notinclude <- c("Tree open", "Sparse vegetation", "Cropland/Other vegetation mosaic",
                         "Urban", "Paddy field")
 
-biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##   3339
+biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##   3324
 summary(biomass$phFinal)
 biomass$scalePH <- as.vector(scale(biomass$phFinal))
 biomass$scaleCLYPPT <- scale(biomass$ClayFinal)
@@ -249,9 +240,8 @@ write.csv(biomass, file = file.path(data_out, paste("sitesBiomass_", Sys.Date(),
 
 b1 <- lmer(logBiomass ~  ESA + (scalePH  + 
             scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_1_scaled + bio10_4_scaled + 
-                bio10_12_scaled + bio10_15_scaled + 
-                SnowMonths)^2 +
+             (bio10_15_scaled + SnowMonths + scaleAridity + 
+                ScalePET + ScalePETSD)^2 +
              #  SNDPPT # Not included, as the other two dictate the third
              
              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -277,19 +267,41 @@ testOverdispersion(simulationOutput_bm, alternative = "overdispersion", plot = T
 testZeroInflation(simulationOutput_bm, plot = TRUE, alternative = "more")
 ## But zeroinflated
 
+b1_poisson <- glmer(round(Site_Biomassm2) ~  ESA + (scalePH  + 
+                                  scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+             (bio10_15_scaled + SnowMonths + scaleAridity + 
+                ScalePET + ScalePETSD)^2 +
+             #  SNDPPT # Not included, as the other two dictate the third
+             
+             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+             
+             # HabitatCover + 
+             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+             (1|file/Study_Name), data = biomass,  family = poisson,
+           control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+simulationOutput_bmpoisson <- simulateResiduals(fittedModel = b1_poisson, n = 250)
+plotSimulatedResiduals(simulationOutput = simulationOutput_bmpoisson,quantreg = TRUE)
+testOverdispersion(simulationOutput_bmpoisson, alternative = "overdispersion", plot = TRUE)
+# Not overdispersed
+testZeroInflation(simulationOutput_bmpoisson, plot = TRUE, alternative = "more")
+## But zeroinflated
+
 
 #################################################
 # 6. Abundance
 #################################################
-hist(sites$Site_Abundance)
 hist(sites$logAbundance)
-abundance <- sites[complete.cases(sites$Site_Abundance),]
-abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #6811
+abundance <- sites[complete.cases(sites$logAbundance),] # 7211
+abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #6759
 
 # abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
-abundance <- droplevels(abundance[!(is.na(abundance$bio10_1)),]) ##   6796
-abundance <- droplevels(abundance[!(is.na(abundance$OCFinal)),]) ##  6783
-abundance <- droplevels(abundance[!(is.na(abundance$phFinal)),]) ##  6783
+abundance <- droplevels(abundance[!(is.na(abundance$bio10_15)),]) ##   
+abundance <- droplevels(abundance[!(is.na(abundance$OCFinal)),]) ##  
+abundance <- droplevels(abundance[!(is.na(abundance$phFinal)),]) ##  6731
+abundance <- droplevels(abundance[!(is.na(abundance$SnowMonths)),]) ##  6657
+abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6576
 
 
 table(abundance$ESA)
@@ -322,9 +334,8 @@ write.csv(abundance, file = file.path(data_out, paste("sitesAbundance_", Sys.Dat
 
 a1 <- lmer(logAbundance ~  ESA + (scalePH  + 
                                     scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_1_scaled + bio10_4_scaled + 
-                bio10_12_scaled + bio10_15_scaled + 
-               SnowMonths)^2 +
+             (bio10_15_scaled + SnowMonths + scaleAridity + 
+                ScalePET + ScalePETSD)^2 +
              #  SNDPPT # Not included, as the other two dictate the third
              
              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -338,8 +349,8 @@ a1 <- lmer(logAbundance ~  ESA + (scalePH  +
 plot(a1)
 simulationOutput_a1 <- simulateResiduals(fittedModel = a1, n = 250)
 plotSimulatedResiduals(simulationOutput = simulationOutput_a1,quantreg = TRUE)
-simulationOutput_a1b <- simulateResiduals(fittedModel = a1, refit = TRUE)
-testOverdispersion(simulationOutput_a1b, alternative = "overdispersion", plot = TRUE)
+# simulationOutput_a1b <- simulateResiduals(fittedModel = a1, refit = TRUE)
+testOverdispersion(simulationOutput_a1, alternative = "overdispersion", plot = TRUE)
 # Not overdispersed
 testZeroInflation(simulationOutput_a1, plot = TRUE, alternative = "more")
 ## But zeroinflated
@@ -358,3 +369,24 @@ testOverdispersion(simulationOutput_a2, alternative = "overdispersion", plot = T
 testZeroInflation(simulationOutput_a2, plot = TRUE, alternative = "more")
 ## But zeroinflated
 
+a1_poisson <- glmer(round(Sites_Abundancem2) ~  ESA + (scalePH  + 
+                                    scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+             (bio10_15_scaled + SnowMonths + scaleAridity + 
+                ScalePET + ScalePETSD)^2 +
+             #  SNDPPT # Not included, as the other two dictate the third
+             
+             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+             
+             # HabitatCover + 
+             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+             (1|file/Study_Name), data = abundance, family = poisson, 
+           control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+plot(a1_poisson)
+
+simulationOutput_a1poisson <- simulateResiduals(fittedModel = a1_poisson, n = 250)
+plotSimulatedResiduals(simulationOutput = simulationOutput_a1poisson,quantreg = TRUE)
+testOverdispersion(simulationOutput_a1poisson, alternative = "overdispersion", plot = TRUE)
+# Overdispersed
+testZeroInflation(simulationOutput_a1poisson, plot = TRUE, alternative = "more")
+# And still zero inflated
