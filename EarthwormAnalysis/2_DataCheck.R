@@ -87,7 +87,8 @@ table(sites$Sampled_Area_Unit[which(sites$Site_WetBiomassUnits == "g")])
 sites$Site_Biomassm2[which(sites$Site_WetBiomassUnits == "g" & sites$Sampled_Area_Unit == "cm2")] <-
   sites$Site_WetBiomass[which(sites$Site_WetBiomassUnits == "g" & sites$Sampled_Area_Unit == "cm2")] / (sites$Sampled_Area[which(sites$Site_WetBiomassUnits == "g" & sites$Sampled_Area_Unit == "cm2")] / 10000)
 
-
+summary(sites$Site_Biomassm2)
+summary(sites$Site_WetBiomass)
 ##########################################################
 ## Abundance values
 
@@ -114,10 +115,22 @@ sites$Sites_Abundancem2[which(sites$Site_AbundanceUnits == "Number of individual
 
 hist(sites$Site_Biomassm2)
 hist(sites$Sites_Abundancem2)
-
+summary(sites$Sites_Abundancem2)
+summary(sites$Site_Abundance)
 
 # tail(sites[which(is.na(sites$Sites_Abundancem2) & !(is.na(sites$Site_Abundance))),c(2, 15, 16, 59, 60, 96)], 90)
 
+##### One study has ridiculous number of individuals per m2.
+## I have checked it, and I have transferred correctly from paper.
+## Removing, as massive outlier.
+
+sites$file[which(sites$Sites_Abundancem2 > 3000)]
+
+sites <- droplevels(sites[sites$file != "949_Johnson-Maynard2002",]) # 7805
+hist(sites$Site_Biomassm2)
+hist(sites$Sites_Abundancem2)
+summary(sites$Site_Biomassm2)
+summary(sites$Sites_Abundancem2)
 
 #################################################
 # 7. Rename factor levels
