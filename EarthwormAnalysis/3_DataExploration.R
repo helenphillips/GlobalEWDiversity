@@ -50,8 +50,8 @@ sites <- SiteLevels(sites)
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 199 papers
-length(unique(sites$Study_Name)) ## 253 studies
+length(unique(sites$file)) ## 196 papers
+length(unique(sites$Study_Name)) ##  250 studies
 
 length(unique(sites$Country))## 64 Countries
 
@@ -60,7 +60,7 @@ length(unique(sites$Country))## 64 Countries
 #################################################
 
 coord<-aggregate(cbind(sites$Longitude__Decimal_Degrees, sites$Latitude__decimal_degrees), list(sites$Study_Name), mean)
-## six don't have coordinates yet
+## 3 don't have coordinates yet
 coord <- coord[complete.cases(coord),]
 
 
@@ -182,18 +182,18 @@ points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
 ###########################################################
 ## Looking at abundance
 #############################################################
-hist(sites$Site_Abundance)
-summary(sites$Site_Abundance)
-tapply(sites$Site_Abundance, sites$LU_Mgmt, summary)
-sites$logAbundance <- log(sites$Site_Abundance + 1)
+hist(sites$Sites_Abundancem2)
+summary(sites$Sites_Abundancem2)
+tapply(sites$Sites_Abundancem2, sites$LU_Mgmt, summary)
+sites$logAbundance <- log(sites$Sites_Abundancem2 + 1)
 hist(sites$logAbundance)
 ###########################################################
 ## Looking at biomass
 #############################################################
-hist(sites$Site_WetBiomass)
-summary(sites$Site_WetBiomass)
-tapply(sites$Site_WetBiomass, sites$LU_Mgmt, summary)
-sites$logBiomass <- log(sites$Site_WetBiomass +1)
+hist(sites$Site_Biomassm2)
+summary(sites$Site_Biomassm2)
+tapply(sites$Site_Biomassm2, sites$LU_Mgmt, summary)
+sites$logBiomass <- log(sites$Site_Biomassm2 +1)
 hist(sites$logBiomass)
 ###########################################################
 ## CONTROVERSIAL!! - Altering ph values
@@ -211,7 +211,16 @@ sites$scalePH <-scale(sites$ph_new)
 #############################################################
 
 hist(sites$Soil_Moisture_percent)
+## Not sure its the right measurement
+sites$Soil_Moisture_percent[which(sites$file == "4714_Birkhofer2011")] <- NA
+hist(sites$Soil_Moisture_percent)
+
 hist(sites$Soil_Organic_Matter__percent)
+## According to 4336_Scharenbroch2012 there are values above 100%
+
+hist(sites$Organic_Carbon__percent)
+## One study is obviously not the right units
+sites$Organic_Carbon__percent[which(sites$file == "4327_Wu2012")] <- NA
 hist(sites$Organic_Carbon__percent)
 hist(sites$C.N_ratio)
 
@@ -256,7 +265,7 @@ table(sites$LU_Mgmt, sites$intensity)
 ## Save files
 #############################################################
 
-write.csv(sites, file = file.path(data_out, paste("Sites_", Sys.Date(), ".csv", sep = "")))
+write.csv(sites, file = file.path(data_out, paste("Sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
 ######################################################
 ## Species level data
