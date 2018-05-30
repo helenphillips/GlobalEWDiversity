@@ -53,7 +53,7 @@ sites <- SiteLevels(sites)
 ph1 <- lm(ph_new ~ PHIHOX, data = sites)
 plot(ph1)
 plot(ph_new ~ PHIHOX, data = sites)
-# r2 = 0.232
+# r2 = 0.23
 
 ## Just sites where coordinates varied within a study 
 ## (we know that if coordiantes don't vary the fit won't be good!)
@@ -81,7 +81,7 @@ vardat <- sites[sites$Study_Name %in% varStudyes,]
 ph2 <- lm(ph_new ~ PHIHOX, data = vardat)
 plot(ph2)
 plot(ph_new ~ PHIHOX, data = vardat)
-## r2 = 0.343
+## r2 = 0.35
 
 
 ###### What about the mean of each study
@@ -103,7 +103,7 @@ mean.df <- as.data.frame(mean.df)
 ph3 <- lm(ph ~ sgph, data = mean.df)
 plot(ph3)
 plot(ph ~ sgph, data = mean.df)
-# r2 = 0.391
+# r2 = 0.392
 
 ### Regardless, stick with the approach of filling in
 
@@ -172,5 +172,5 @@ t <- summary.df$Study_Name[intersect(which(summary.df$coords > 0), which(summary
 ## Save files
 #############################################################
 
-write.csv(sites, file = file.path(data_out, paste("Sites_", Sys.Date(), ".csv", sep = "")))
+write.csv(sites, file = file.path(data_out, paste("Sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
