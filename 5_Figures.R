@@ -77,49 +77,129 @@ abundanceCols <- ColourPicker(abundance$ESA)
 ############################################
 # SPECIES RICHNES
 ####(#########################################
+
+
+
 jpeg(file = file.path(figures, "richness_pHOrgc.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
 plotInteraction(model = richness_model, Effect1 = "scalePH", Effect2 = "scaleORCDRC",
-                modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
-                                   "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
+                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                                      "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                                      "ESA", "scaleCLYPPT", "scaleSLTPPT"),
                 responseVar = "SpeciesRichness", seMultiplier = 1.96,
                 data = richness, cols = c("white", "red"), legend.position = "topleft",
                 ylabel = "", xlabel = "")
 dev.off()
 
-jpeg(file = file.path(figures, "richness_Bio12Bio15.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
-plotInteraction(model = richness_model, Effect1 = "bio10_12_scaled", Effect2 = "bio10_15_scaled",
-                modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
-                                   "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
+
+jpeg(file = file.path(figures, "richness_AridityBio15.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
+plotInteraction(model = richness_model, Effect1 = "scaleAridity", Effect2 = "bio10_15_scaled",
+                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
                 responseVar = "SpeciesRichness", seMultiplier = 1.96,
                 data = richness, cols = c("white", "red"), legend.position = "topleft",
                 ylabel = "", xlabel = "")
 dev.off()
 
-jpeg(file = file.path(figures, "richness_Bio1Bio4.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
-plotInteraction(model = richness_model, Effect1 = "bio10_1_scaled", Effect2 = "bio10_4_scaled",
-                modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
-                                   "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
+
+jpeg(file = file.path(figures, "richness_pHCEC.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
+plotInteraction(model = richness_model, Effect1 = "scalePH", Effect2 = "scaleCECSOL",
+                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
+                responseVar = "SpeciesRichness", seMultiplier = 1.96,
+                data = richness, cols = c("white", "red"), legend.position = "topleft",
+                ylabel = "", xlabel = "", theta = 125)
+dev.off()
+
+
+ 
+jpeg(file = file.path(figures, "richness_Bio15PET.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
+plotInteraction(model = richness_model, Effect1 = "bio10_15_scaled", Effect2 = "ScalePET",
+                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
                 responseVar = "SpeciesRichness", seMultiplier = 1.96,
                 data = richness, cols = c("white", "red"), legend.position = "topleft",
                 ylabel = "", xlabel = "")
 dev.off()
+
+
+jpeg(file = file.path(figures, "richness_Bio15PETSD.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
+plotInteraction(model = richness_model, Effect1 = "ScalePETSD", Effect2 = "bio10_15_scaled",
+                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
+                responseVar = "SpeciesRichness", seMultiplier = 1.96,
+                data = richness, cols = c("white", "red"), legend.position = "topleft",
+                ylabel = "", xlabel = "", theta = 205)
+dev.off()
+
+
+jpeg(file = file.path(figures, "richness_SnowPETSD.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
+plotInteraction(model = richness_model, Effect1 = "ScalePETSD", Effect2 = "SnowMonths",
+                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
+                responseVar = "SpeciesRichness", seMultiplier = 1.96,
+                data = richness, cols = c("white", "red"), legend.position = "topleft",
+                ylabel = "", xlabel = "")
+dev.off()
+
+  
+
+jpeg(file = file.path(figures, "richness_SnowPET.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
+plotInteraction(model = richness_model, Effect1 = "ScalePET", Effect2 = "SnowMonths",
+                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
+                responseVar = "SpeciesRichness", seMultiplier = 1.96,
+                data = richness, cols = c("white", "red"), legend.position = "topleft",
+                ylabel = "", xlabel = "")
+dev.off()
+
+
+
+jpeg(file = file.path(figures, "richness_AridityPETSD.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
+plotInteraction(model = richness_model, Effect1 = "scaleAridity", Effect2 = "ScalePETSD",
+                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
+                responseVar = "SpeciesRichness", seMultiplier = 1.96,
+                data = richness, cols = c("white", "red"), legend.position = "topleft",
+                ylabel = "", xlabel = "")
+dev.off()
+
+
 
 jpeg(file = file.path(figures, "richness_ESA.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
 plotSingle(model= richness_model, 
-           modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
-                              "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
+           modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                               "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                               "ESA", "scaleCLYPPT", "scaleSLTPPT"),
            Effect1 = "ESA", 
            responseVar = "SpeciesRichness", seMultiplier = 1, data = richness, cols = richnessCols, 
            legend.position, ylabel = "Species Richness", xlabel = "", otherContEffectsFun = "median")
 dev.off()
 
-jpeg(file = file.path(figures, "richness_CEC.jpg"))
-plotSingle(model= richness_model, 
-           modelFixedEffs = c("scalePH", "scaleORCDRC", "bio10_1_scaled", "bio10_4_scaled", 
-                              "bio10_12_scaled", "bio10_15_scaled", "ESA", "scaleCECSOL"),
-           Effect1 = "scaleCECSOL", 
-           responseVar = "SpeciesRichness", seMultiplier = 1, data = richness, cols = "black", 
-           legend.position, ylabel = "Species Richness", xlabel = "CEC", otherContEffectsFun = "median")
+scaleCLYPPT + scaleSLTPPT 
+
+jpeg(file = file.path(figures, "richness_Clay.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
+plotSingle(model= richness_model, Effect1 = "scaleCLYPPT", 
+           modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                               "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                               "ESA", "scaleCLYPPT", "scaleSLTPPT"),
+           responseVar = "SpeciesRichness", seMultiplier = 1, data = richness,
+           ylabel = "Species Richness", xlabel = "Clay", otherContEffectsFun = "median")
+dev.off()
+
+jpeg(file = file.path(figures, "richness_Silt.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
+plotSingle(model= richness_model, Effect1 = "scaleSLTPPT", 
+           modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
+                               "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
+                               "ESA", "scaleCLYPPT", "scaleSLTPPT"),
+           responseVar = "SpeciesRichness", seMultiplier = 1, data = richness,
+           ylabel = "Species Richness", xlabel = "Silt", otherContEffectsFun = "median")
 dev.off()
 #############################################
 # ABUNDANCE
@@ -368,3 +448,9 @@ mar=c(0,0,0,0)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
 points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
 dev.off()
+
+
+nrow(all_studies)
+length(unique(all_studies$file))
+length(unique(all_studies$Study_Name))
+unique(all_studies$Country)
