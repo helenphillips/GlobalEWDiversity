@@ -67,44 +67,6 @@ rm(loadin)
 sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 
 
-#################################################
-# 5. Investigating Climate Variables
-#################################################
-## No longer doing random forest models
-
-## Bio 1, 4, 7, 12, 15
-
-## Checking for collinearity
-# plot(sites$bio10_14 ~ sites$bio10_13)
-# r1 <- lm(sites$bio10_14 ~ sites$bio10_13)
-# summary(r1) # low r1, with no random effect structure
-
-##https://stats.stackexchange.com/questions/82984/how-to-test-and-avoid-multicollinearity-in-mixed-linear-model/142032
-## That page said a cut of 4. We are not higher than 0.9
-## VIFs
-x <- data.frame(sites$bio10_1,sites$bio10_4,sites$bio10_7,sites$bio10_12,sites$bio10_15, 
-                sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD)
-correl_dummy_df <- round(cor(x, use = "pair"), 2) 
-
-## 7 is highly collinear with bio4 and quite collinear with bio1
-corvif(x) ## There might be an issue here
-## Zuur et al 2010 MEE recommended dropping the variable with the highest VIF scor
-## then recalculating. Until all are below the threshold. 
-## They use 3.
-## So dropping Bio4
-
-corvif(data.frame(sites$bio10_1,sites$bio10_7,sites$bio10_12,sites$bio10_15, 
-                  sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD))
-## Now dropping 1
-corvif(data.frame(sites$bio10_7,sites$bio10_12,sites$bio10_15, 
-                  sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD))
-## Now dropping Bio7
-corvif(data.frame(sites$bio10_12,sites$bio10_15, 
-                  sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD))
-# Now Bio12
-corvif(data.frame(sites$bio10_15, 
-                  sites$SnowMonths, sites$Aridity, sites$PETyr, sites$PET_SD))
-## The rest seem fine
 
 #################################################
 # 4. Species Richness
@@ -258,19 +220,33 @@ write.csv(biomass, file = file.path(data_out, paste("sitesBiomass_", Sys.Date(),
 
 
 corvif(data.frame(biomass$bio10_1,biomass$bio10_4,biomass$bio10_7,biomass$bio10_12,biomass$bio10_15, 
-       biomass$SnowMonths, biomass$Aridity, biomass$PETyr, biomass$PET_SD))
+       biomass$SnowMonths, biomass$Aridity, biomass$PETyr, biomass$PET_SD,
+       biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
+
 ## REmove 7
 corvif(data.frame(biomass$bio10_1,biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$SnowMonths, biomass$Aridity, biomass$PETyr, biomass$PET_SD))
+                  biomass$SnowMonths, biomass$Aridity, biomass$PETyr, biomass$PET_SD,
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
 # Remove 1
 corvif(data.frame(biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$SnowMonths, biomass$Aridity, biomass$PETyr, biomass$PET_SD))
+                  biomass$SnowMonths, biomass$Aridity, biomass$PETyr, biomass$PET_SD,
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
 # Remove Aridity
 corvif(data.frame(biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$SnowMonths, biomass$PETyr, biomass$PET_SD))
+                  biomass$SnowMonths, biomass$PETyr, biomass$PET_SD,
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
 # Remove 4
 corvif(data.frame(biomass$bio10_12,biomass$bio10_15, 
-                  biomass$SnowMonths, biomass$PETyr, biomass$PET_SD))
+                  biomass$SnowMonths, biomass$PETyr, biomass$PET_SD,
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
+## now want less than 3
+# Remove PETyr
+corvif(data.frame(biomass$bio10_12,biomass$bio10_15, 
+                  biomass$SnowMonths, biomass$PET_SD,
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
+
+
+
 ## All fine
 
 b1 <- lmer(logBiomass ~  ESA + (scalePH  + 
