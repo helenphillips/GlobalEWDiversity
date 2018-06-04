@@ -156,6 +156,9 @@ r1 <- glmer(SpeciesRichness ~  ESA + (scalePH  +
 
 
 summary(r1)
+save(r1, file = file.path(models, "richnessmodel_initialmodel.rds"))
+load(file.path(models, "richnessmodel_initialmodel.rds"))
+
 
 simulationOutput_r1 <- simulateResiduals(fittedModel = r1, n = 250)
 plotSimulatedResiduals(simulationOutput = simulationOutput_r1,quantreg = TRUE)
