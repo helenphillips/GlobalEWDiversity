@@ -270,9 +270,9 @@ table(sites$LU_Mgmt, sites$intensity)
 ## Grouping anything 5 and above into one category will give around 272 sites
 
 sites$SnowMonths_cat <- (sites$SnowMonths)
-sites$SnowMonths_cat[which(sites$SnowMonths_cat > 4)] <- 5
+sites$SnowMonths_cat[which(sites$SnowMonths_cat > 3)] <- 4
 sites$SnowMonths_cat <- as.factor(sites$SnowMonths_cat)
-levels(sites$SnowMonths_cat)[levels(sites$SnowMonths_cat) == 5] <- "5plus"
+levels(sites$SnowMonths_cat)[levels(sites$SnowMonths_cat) == 4] <- "4plus"
 
 
 ###########################################################
