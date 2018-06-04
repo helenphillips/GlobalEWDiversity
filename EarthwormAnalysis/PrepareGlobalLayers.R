@@ -87,6 +87,19 @@ list.files(folder)
 # savefolder <- folder
 # date <- date
 
+print("Reclassifying Snow Layer")
+
+r <- raster(file.path(folder, "snow_2015_sum.tif"))
+
+print("Changing values")
+r[r > 3] <- 4 # Anything above 3
+
+print("Saving!")
+r <- writeRaster(r,  filename=file.path(savefolder, "Snow_newValues.tif"), format="GTiff", overwrite=TRUE)
+
+
+
+
 print("Loading datasets")
 richness <- read.csv(file.path(folder, paste('sitesRichness_', date, '.csv', sep="")))
 abundance <- read.csv(file.path(folder, paste('sitesAbundance_', date, '.csv', sep="")))
