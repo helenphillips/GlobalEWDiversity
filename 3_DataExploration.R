@@ -261,6 +261,20 @@ sites$intensity <- rowSums(sites[,which(names(sites) %in% intensityvars)], na.rm
 sites$intensity <- ifelse(sites$LU_Mgmt == "Unknown", NA, sites$intensity)
 sites$intensity <- as.factor(sites$intensity)
 table(sites$LU_Mgmt, sites$intensity)
+
+
+##########################################################
+## Snow months to categorical variable
+#############################################################
+
+## Grouping anything 5 and above into one category will give around 272 sites
+
+sites$SnowMonths_cat <- (sites$SnowMonths)
+sites$SnowMonths_cat[which(sites$SnowMonths_cat > 4)] <- 5
+sites$SnowMonths_cat <- as.factor(sites$SnowMonths_cat)
+levels(sites$SnowMonths_cat)[levels(sites$SnowMonths_cat) == 5] <- "5plus"
+
+
 ###########################################################
 ## Save files
 #############################################################
