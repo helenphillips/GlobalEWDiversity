@@ -1,11 +1,6 @@
 library(lme4)
 
 
-## This link helps to explain why coefficiens of poly(X, 1) are not the same as a simple linear term
-## https://stackoverflow.com/questions/29999900/poly-in-lm-difference-between-raw-vs-orthogonal
-
-
-
 modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5,  data, alpha = 0.05){
   
   
@@ -31,9 +26,6 @@ modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5
   all.terms <- rownames(anova(model))
   interactions <- all.terms[grep(":", all.terms)]
   main <- all.terms[!(all.terms %in% interactions)]
-  polys <- main[grep("poly", main)]
-  
-  if(length(polys) > 0){polyModel = TRUE}
   
   res <- data.frame(term = NA, pVal = NA)
   
@@ -46,47 +38,6 @@ modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5
     refModel <- lmer(formula = model@call$formula, data = data, 
                      control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
   } ## How do I change this 
-  
-  if(polyModel){
-    cat("Currently assumes only a second degree polynomial \n")
-    ## Would need to sort out the polynomial term first
-    ## But only if in an interaction
-    ## to begin with
-    if(grep("poly", interactions) >= 1){
-      polyInteractions <- interactions[grep("poly", interactions)]
-      
-      for(p in 1:length(polyInteractions)){
-        cat(paste("Testing polynomial: ", polyInteractions[p], "\n", sep = ""))
-        
-        used <- c(main, interactions[-which(interactions == polyInteractions[p])])
-        res[p, 'term'] <- polyInteractions[p]
-
-        
-        newInteraction <- gsub("poly\\(", "", polyInteractions[p])
-        newInteraction <- gsub(", 2\\)", "", newInteraction)
-        
-        used <- c(used, newInteraction)
-        
-        fixedeffs <- paste(used,collapse="+")
-        
-        call <- paste(response, "~", fixedeffs, randEffect)
-        
-        if(fam == "poisson"){
-          model2 <- glmer(formula = call, data = data, family = fam, 
-                          control = glmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
-        }else{
-          model2 <- lmer(formula = call, data = data,
-                         control = lmerControl(optimizer = optimizer,optCtrl=list(maxfun=Iters)))
-          
-        }
-        
-        
-        }
-      
-    }
-    
-  }
-  
   
   
   if(length(interactions) > 0){
