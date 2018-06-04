@@ -190,7 +190,7 @@ modelSimplificationAIC <- function(model = model, optimizer = "bobyqa", Iters = 
   interactions <- all.terms[grep(":", all.terms)]
   main <- all.terms[!(all.terms %in% interactions)]
   
-  res <- data.frame(term = NA, AIC = NA)
+  res <- data.frame(term = NA, AIC = 0)
   
   
   if(fam == "poisson"){
@@ -207,9 +207,9 @@ modelSimplificationAIC <- function(model = model, optimizer = "bobyqa", Iters = 
   
     if(length(interactions) > 0){
       while(length(interactions) > 0){
-        ## break loop if remaining interactions have pValues greater than alpha
+        ## break loop if remaining interactions have AIC values lower than the ref model
         # (and none of the pvalues are NA)
-        if(all(!(is.na(res$AIC))) > AICRefModel)
+        if(min(res$AIC, na.rm = TRUE) > AICRefModel)
         {
           break
         }
