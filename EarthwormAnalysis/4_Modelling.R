@@ -83,7 +83,7 @@ richness <- droplevels(richness[!(is.na(richness$bio10_15)),]) ## 5629
 richness <- droplevels(richness[!(is.na(richness$OCFinal)),]) ## 5622
 richness <- droplevels(richness[!(is.na(richness$phFinal)),]) ## 5618
 richness <- droplevels(richness[!(is.na(richness$scaleAridity)),]) ## 5509
-richness <- droplevels(richness[!(is.na(richness$SnowMonths)),]) ## 5466
+richness <- droplevels(richness[!(is.na(richness$SnowMonths_cat)),]) ## 5466
 
 
 table(richness$ESA)
@@ -99,11 +99,9 @@ richness$scaleSLTPPT <- scale(richness$SiltFinal)
 richness$scaleCECSOL <- scale(richness$CECSOL)
 richness$scaleORCDRC <- scale(richness$OCFinal)
 
-
-# Three most important climate variables
 richness$bio10_1_scaled <- scale(richness$bio10_1)
 richness$bio10_4_scaled <- scale(richness$bio10_4)
-# richness$bio10_7_scaled <- scale(richness$bio10_7)
+richness$bio10_7_scaled <- scale(richness$bio10_7)
 richness$bio10_12_scaled <- scale(richness$bio10_12)
 richness$bio10_15_scaled <- scale(richness$bio10_15)
 
@@ -116,28 +114,36 @@ write.csv(richness, file = file.path(data_out, paste("sitesRichness_", Sys.Date(
 
 
 corvif(data.frame(richness$bio10_1,richness$bio10_4,richness$bio10_7,richness$bio10_12,richness$bio10_15, 
-                richness$SnowMonths, richness$Aridity, richness$PETyr, richness$PET_SD))
-# Remove 7
-corvif(data.frame(richness$bio10_1,richness$bio10_4,richness$bio10_12,richness$bio10_15, 
-                richness$SnowMonths, richness$Aridity, richness$PETyr, richness$PET_SD))
-# Remove 1
-corvif(data.frame(richness$bio10_4,richness$bio10_12,richness$bio10_15, 
-                richness$SnowMonths, richness$Aridity, richness$PETyr, richness$PET_SD))
-# Remove 12
-corvif(data.frame(richness$bio10_4,richness$bio10_15, 
-                richness$SnowMonths, richness$Aridity, richness$PETyr, richness$PET_SD))
+                richness$Aridity, richness$PETyr, richness$PET_SD,
+                richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal))
 # Remove 4
-corvif(data.frame(richness$bio10_15, 
-                richness$SnowMonths, richness$Aridity, richness$PETyr, richness$PET_SD))
-# That's fine
+corvif(data.frame(richness$bio10_1,richness$bio10_7,richness$bio10_12,richness$bio10_15, 
+                  richness$Aridity, richness$PETyr, richness$PET_SD,
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal))
+# REmove 1
+corvif(data.frame(richness$bio10_7,richness$bio10_12,richness$bio10_15, 
+                  richness$Aridity, richness$PETyr, richness$PET_SD,
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal))
+# Remove 12
+corvif(data.frame(richness$bio10_7,richness$bio10_15, 
+                  richness$Aridity, richness$PETyr, richness$PET_SD,
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal))
+# Remove PETSD
+corvif(data.frame(richness$bio10_7,richness$bio10_15, 
+                  richness$Aridity, richness$PETyr,
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal))
 
-
+## That's fine
 
 
 r1 <- glmer(SpeciesRichness ~  ESA + (scalePH  + 
              scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_15_scaled + SnowMonths + scaleAridity + 
-                ScalePET + ScalePETSD)^2 + 
+             (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                ScalePET)^2 + 
+              scaleCLYPPT:bio10_7_scaled + scaleSLTPPT:bio10_7_scaled +
+              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+              scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+             
              #  SNDPPT # Not included, as the other two dictate the third
               
              #  (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -167,7 +173,7 @@ testZeroInflation(simulationOutput_r1, plot = TRUE, alternative = "more")
 # max(abs(sc_grad1))
 # max(pmin(abs(sc_grad1),abs(derivs1$gradient)))
 
-richness_model <- modelSimplification(model = r1, data = richness, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
+richness_model <- modelSimplificationAIC(model = r1, data = richness, optimizer = "bobyqa", Iters = 2e5)
 save(richness_model, file = file.path(models, "richnessmodel_full.rds"))
 # load(file.path(models, "richnessmodel_full.rds"))
 
@@ -187,7 +193,7 @@ biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 3368
 biomass <- droplevels(biomass[!(is.na(biomass$bio10_15)),]) ## 3365
 biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 3364
 biomass <- droplevels(biomass[!(is.na(biomass$phFinal)),]) ## 3364
-biomass <- droplevels(biomass[!(is.na(biomass$SnowMonths)),]) ##  3361
+biomass <- droplevels(biomass[!(is.na(biomass$SnowMonths_cat)),]) ##  3361
 biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  3357
 
 
@@ -214,61 +220,57 @@ biomass$scaleAridity <- scale(biomass$Aridity)
 biomass$ScalePET <- scale(biomass$PETyr)
 biomass$ScalePETSD <- scale(biomass$PET_SD)
 
-
 ## Save the data
 write.csv(biomass, file = file.path(data_out, paste("sitesBiomass_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
-
+## No longer including CEC
 corvif(data.frame(biomass$bio10_1,biomass$bio10_4,biomass$bio10_7,biomass$bio10_12,biomass$bio10_15, 
-       biomass$SnowMonths, biomass$Aridity, biomass$PETyr, biomass$PET_SD,
-       biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
+       biomass$Aridity, biomass$PETyr, biomass$PET_SD,
+       biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal))
 
 ## REmove 7
 corvif(data.frame(biomass$bio10_1,biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$SnowMonths, biomass$Aridity, biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
+                  biomass$Aridity, biomass$PETyr, biomass$PET_SD,
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal))
 # Remove 1
 corvif(data.frame(biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$SnowMonths, biomass$Aridity, biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
+                  biomass$Aridity, biomass$PETyr, biomass$PET_SD,
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal,  biomass$OCFinal))
 # Remove Aridity
 corvif(data.frame(biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$SnowMonths, biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
+                  biomass$PETyr, biomass$PET_SD,
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal,biomass$OCFinal))
 # Remove 4
 corvif(data.frame(biomass$bio10_12,biomass$bio10_15, 
-                  biomass$SnowMonths, biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
-## now want less than 3
-# Remove PETyr
-corvif(data.frame(biomass$bio10_12,biomass$bio10_15, 
-                  biomass$SnowMonths, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$CECSOL, biomass$OCFinal))
+                  biomass$PETyr, biomass$PET_SD,
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal))
 
 
 
 ## All fine
 
-b1 <- lmer(logBiomass ~  ESA + (scalePH  + 
-            scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_12_scaled  + bio10_15_scaled + SnowMonths +  
-                ScalePET + ScalePETSD)^2 +
-             #  SNDPPT # Not included, as the other two dictate the third
-             
-             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
-             
-             # HabitatCover + 
-             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
-             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
-             (1|file/Study_Name), data = biomass,
-           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-plot(b1)
+b1 <- lmer(logBiomass ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC)^2 +
+                (bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat +  
+                   ScalePET + ScalePETSD)^2 + 
+            scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+             scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+             scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD +
+                #  SNDPPT # Not included, as the other two dictate the third
+                
+                # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+                
+                # HabitatCover + 
+                #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+                # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+                (1|file/Study_Name), data = biomass,
+              control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 simulationOutput <- simulateResiduals(fittedModel = b1, n = 250)
 plotSimulatedResiduals(simulationOutput = simulationOutput,quantreg = TRUE)
 # Not perfect....but could be worse
 
-biomass_model <- modelSimplification(model = b1, data = biomass, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
+biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
 save(biomass_model, file = file.path(models, "biomassmodel_full.rds"))
 # load(file.path(models, "biomassmodel_full.rds"))
 
@@ -291,7 +293,7 @@ abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #6759
 abundance <- droplevels(abundance[!(is.na(abundance$bio10_15)),]) ##   
 abundance <- droplevels(abundance[!(is.na(abundance$OCFinal)),]) ##  
 abundance <- droplevels(abundance[!(is.na(abundance$phFinal)),]) ##  6731
-abundance <- droplevels(abundance[!(is.na(abundance$SnowMonths)),]) ##  6657
+abundance <- droplevels(abundance[!(is.na(abundance$SnowMonths_cat)),]) ##  6657
 abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6576
 
 
@@ -323,26 +325,33 @@ abundance$ScalePETSD <- scale(abundance$PET_SD)
 write.csv(abundance, file = file.path(data_out, paste("sitesAbundance_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
 corvif(data.frame(abundance$bio10_1,abundance$bio10_4,abundance$bio10_7,abundance$bio10_12,abundance$bio10_15, 
-                  abundance$SnowMonths, abundance$Aridity, abundance$PETyr, abundance$PET_SD))
+                  abundance$Aridity, abundance$PETyr, abundance$PET_SD,
+                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal))
 # REmove 4
 corvif(data.frame(abundance$bio10_1,abundance$bio10_7,abundance$bio10_12,abundance$bio10_15, 
-                  abundance$SnowMonths, abundance$Aridity, abundance$PETyr, abundance$PET_SD))
+                  abundance$Aridity, abundance$PETyr, abundance$PET_SD,
+                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal))
 # Remove PEtyr
 corvif(data.frame(abundance$bio10_1,abundance$bio10_7,abundance$bio10_12,abundance$bio10_15, 
-                  abundance$SnowMonths, abundance$Aridity, abundance$PET_SD))
+                  abundance$Aridity, abundance$PET_SD,
+                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal))
 # Remove 7
 corvif(data.frame(abundance$bio10_1,abundance$bio10_12,abundance$bio10_15, 
-                  abundance$SnowMonths, abundance$Aridity, abundance$PET_SD))
-# Remove 1
-corvif(data.frame(abundance$bio10_12,abundance$bio10_15, 
-                  abundance$SnowMonths, abundance$Aridity, abundance$PET_SD))
+                  abundance$Aridity, abundance$PET_SD,
+                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal))
+# Remove 12
+corvif(data.frame(abundance$bio10_1, abundance$bio10_15, 
+                  abundance$Aridity, abundance$PET_SD,
+                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal))
 
 
 
-a1 <- lmer(logAbundance ~  ESA + (scalePH  + 
-                                    scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_12_scaled + bio10_15_scaled + SnowMonths + scaleAridity + 
+a1 <- lmer(logAbundance ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+             (bio10_1_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
                 ScalePETSD)^2 +
+             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+             scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD + 
+             scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity + 
              #  SNDPPT # Not included, as the other two dictate the third
              
              # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -362,7 +371,7 @@ testZeroInflation(simulationOutput_a1, plot = TRUE, alternative = "more")
 ## But zeroinflated
 
 
-abundance_model <- modelSimplification(model = a1, data = abundance, alpha = 0.05, optimizer = "bobyqa", Iters = 2e5)
+abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
 save(abundance_model, file = file.path(models, "abundancemodel_full.rds"))
 
 simulationOutput_a2 <- simulateResiduals(fittedModel = abundance_model, n = 250)
