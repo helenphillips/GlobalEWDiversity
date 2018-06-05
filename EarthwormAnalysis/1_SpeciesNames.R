@@ -51,9 +51,9 @@ bib <- read.csv(file.path(data_in, loadinbib))
 # 6. Quick investigation
 #################################################
 
-length(unique(dat$SpeciesBinomial)) ## 198
+length(unique(dat$SpeciesBinomial)) ##  306
 
-table(dat$Functional_Type) ## Only unknown for 316
+table(dat$Functional_Type) ## Only unknown for  821
 
 ## Check that all are binomials
 which(
@@ -98,35 +98,35 @@ spp <- spp[-grep("Megadrile", spp$SpeciesBinomial, ignore.case = TRUE)]
 #################################################
 # 9. DriloBASE data
 #################################################
-
-drilobase <- "DriloBASE_uniqueSpecies"
-drilobase <- gs_title(drilobase)
-drilo <- as.data.frame(gs_read(drilobase, ws = "Sheet1"))
-
-###################################################
-# 10. Map our dataset
-###############################################
-
-s2 <- adist(spp$SpeciesBinomial, drilo$name)
-i2 <- apply(s2, 1, which.min) ## Gives the index
-spp$Drilobase <- drilo$name[i2]
-
-cols <-c("SpeciesBinomial", "FunctionalGroup", "Country", "file", "provider", 
-         "Drilobase", "Author of species", "ecologicalCategory")
-spp <- (merge(spp, drilo, by.x = "Drilobase", by.y = "name", all.x = TRUE))
-spp <- spp [,names(spp) %in% cols]
-spp <- spp[,c(2, 3, 4, 5, 6, 1, 7, 8)]
-names(spp) <- c("original", "original_fg", "Country", "PaperID", "dataProvider", "drilobase", "Authority of species", "drilobase_fg")
-
-###################################################
-# 111. Add blank columns for people to fill in
-###############################################
-
-
-spp$Revised <- NA
-spp$Revised_fg <- NA
-spp$Revised_Authority <- NA
-spp$sWormMember <- NA
+# 
+# drilobase <- "DriloBASE_uniqueSpecies"
+# drilobase <- gs_title(drilobase)
+# drilo <- as.data.frame(gs_read(drilobase, ws = "Sheet1"))
+# 
+# ###################################################
+# # 10. Map our dataset
+# ###############################################
+# 
+# s2 <- adist(spp$SpeciesBinomial, drilo$name)
+# i2 <- apply(s2, 1, which.min) ## Gives the index
+# spp$Drilobase <- drilo$name[i2]
+# 
+# cols <-c("SpeciesBinomial", "FunctionalGroup", "Country", "file", "provider", 
+#          "Drilobase", "Author of species", "ecologicalCategory")
+# spp <- (merge(spp, drilo, by.x = "Drilobase", by.y = "name", all.x = TRUE))
+# spp <- spp [,names(spp) %in% cols]
+# spp <- spp[,c(2, 3, 4, 5, 6, 1, 7, 8)]
+# names(spp) <- c("original", "original_fg", "Country", "PaperID", "dataProvider", "drilobase", "Authority of species", "drilobase_fg")
+# 
+# ###################################################
+# # 111. Add blank columns for people to fill in
+# ###############################################
+# 
+# 
+# spp$Revised <- NA
+# spp$Revised_fg <- NA
+# spp$Revised_Authority <- NA
+# spp$sWormMember <- NA
 
 ###################################################
 # 11. Save the data
