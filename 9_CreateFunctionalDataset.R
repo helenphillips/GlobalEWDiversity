@@ -16,7 +16,7 @@ if(!dir.exists("9_Data")){
 data_out <- "9_Data"
 
 data_in_fg <- "RevisedSpeciesNames"
-data_in_spp <- "0_Data"
+data_in_spp <- "1_Data"
 ########################################################
 # 3. Libraries
 ########################################################
@@ -25,19 +25,9 @@ library(googlesheets)
 ########################################################
 # 4. Load data
 ########################################################
-
-## Revised functional group datasets
-fg <- read.csv(file.path(data_in_fg, "UniqueSpecies+FunctionalGroups_MJIB.csv"))
-unwantedCol <- c("X", "X.1", "X.2", "X.3", "X.4", "X.5", "X.6", "X.7", "X.8", "X.9", "X.10", "X.11", "X.12")
-fg <- fg[,!(names(fg) %in% unwantedCol)]
-
-crucialCols <- c("original", "Revised", "Revised_fg")
-fg <- fg[,(names(fg) %in% crucialCols)]
-
 ## Species level dataset
 files <- list.files(file.path(data_in_spp))
 files <- files[grep("species_", files)]
-
 
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
@@ -48,6 +38,27 @@ loadin <- files[grep(date, files)]
 loadinspp <- loadin[grep("species_", loadin)]
 
 spp <- read.csv(file.path(data_in_spp, loadinspp))
+
+
+## Revised functional group datasets
+fg <- read.csv(file.path(data_in_fg, "UniqueSpecies+FunctionalGroups_MJIB.csv"))
+unwantedCol <- c("X", "X.1", "X.2", "X.3", "X.4", "X.5", "X.6", "X.7", "X.8", "X.9", "X.10", "X.11", "X.12")
+fg <- fg[,!(names(fg) %in% unwantedCol)]
+
+########################################################
+# 4.5 Edit data
+########################################################
+## Creating a new sheet I can share with all changes
+UpdatedSpp <- fg
+UpdatedSpp$drilobase <- NULL
+UpdatedSpp$Authority.of.species <- NULL
+UpdatedSpp$drilobase_fg <- NULL
+UpdatedSpp$sWormMember <- NULL
+
+
+
+crucialCols <- c("original", "Revised", "Revised_fg")
+fg <- fg[,(names(fg) %in% crucialCols)]
 
 ########################################################
 # 5. Straight matches of binomial names
@@ -69,6 +80,9 @@ spp2 <- unique(spp2)
 spp2 <- merge(spp2, fg, by.x = "SpeciesBinomial", by.y = "Revised", all.x = TRUE)
 
 complete <- spp2[which(!(is.na(spp2$Revised_fg))),]
+
+## Add to SppList
+
 
 for(species in 1:nrow(complete)){
   spp$Revised[which(spp$SpeciesBinomial == complete$SpeciesBinomial[species])] <- complete$SpeciesBinomial[species]
