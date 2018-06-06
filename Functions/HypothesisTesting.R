@@ -1,5 +1,9 @@
+library(MuMIn)
 
-HypothesisTesting <- function(model = model, data, TestingGroups){
+## https://stats.stackexchange.com/questions/46289/relative-variable-importance-with-aic
+
+
+HypothesisTesting <- function(model = model, data, TestingGroups = list()){
   
   optimizer <- "bobyqa"
   Iters <- 2e5
@@ -36,11 +40,11 @@ HypothesisTesting <- function(model = model, data, TestingGroups){
   # AICRefModel <- 10000000 # an imaginary number, so that it doesn't fail on the first loop through. This gets replaced
   
   for(group in 1:length(TestingGroups)){
-    cat(paste("Testing group: ", TestingGroups[group], "\n", sep = ""))
+    cat(paste("Testing group: ", names(TestingGroups[group]), "\n", sep = ""))
     
-    res[group, 'term'] <- TestingGroups[group]
+    res[group, 'term'] <- names(TestingGroups[group])
     
-    used <- all.terms[-(all.terms %in% TestingGroups[group])]
+    used <- all.terms[!(all.terms %in% TestingGroups[[group]])]
     
     fixedeffs <- paste(used,collapse="+")
     
@@ -64,8 +68,20 @@ HypothesisTesting <- function(model = model, data, TestingGroups){
     # print(AICRefModel - res[inter, 'AIC'])
     
   }
-  res[TestingGroups + 1, 'term'] <- "RefModel"
-  res[TestingGroups + 1, 'term'] <- AICRefModel
+  res[length(TestingGroups) + 1, 'term'] <- "RefModel"
+  res[length(TestingGroups) + 1, 'AIC'] <- AICRefModel
+  
+  res$deltaAIC <- res$AIC - res$AIC[length(TestingGroups) + 1]
+  
+  res$AICweight <- Weights(res$deltaAIC) # MuMIn version
+  
+  x <- list()
+  x$termRemoved <- res
+  x$termImportance <- data.frame(term = res$term[1:length(TestingGroups)])
+  x$termImportance$Importance <- NA
+  for(t in 1:length(x$termImportance$term)){
+    x$termImportance$Importance[t] <- sum(x$termRemoved$AICweight) - x$termRemoved$AICweight[t] - x$termRemoved$AICweight[x$termRemoved$term == "RefModel"]
+  }
   
   return(res)
 }
