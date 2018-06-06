@@ -253,7 +253,7 @@ corvif(data.frame(biomass$bio10_4, biomass$bio10_12,biomass$bio10_15,
 
 ## All fine
 
-b1 <- lmer(logBiomass ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC)^2 +
+b1 <- lmer(logBiomass ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
                 (bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat)^2 + 
             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
