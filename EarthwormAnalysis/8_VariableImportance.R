@@ -20,7 +20,8 @@ source("Functions/FormatData.R")
 source("Functions/lme4_ModellingFunctions.R")
 source("Functions/ModelSimplification.R")
 source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
-source("Functions/HypothesisTesting.R")
+# source("Functions/HypothesisTesting.R")
+source("Functions/RF_VariableSetImportance.R")
 
 #################################################
 # 2. Variables
@@ -43,7 +44,7 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 richness <- read.csv(file.path(data_in, loadin))
 
-# load(file.path(models, "richnessmodel_full.rds"))
+load(file.path(models, "richnessmodel_full.rds"))
 
 ## Biomass
 files <- list.files(file.path(data_in))
@@ -77,17 +78,129 @@ summary(abundance_model)
 
 
 ESA <- "ESA"
-mainEffects <- c("scalePH" , "scaleCLYPPT" ,"scaleSLTPPT" , "scaleCECSOL" , 
-                   "scaleORCDRC" , "bio10_1_scaled" , "bio10_15_scaled" , "SnowMonths_cat" ,
-                   "scaleAridity" , "ScalePETSD")
-Climate <- c("bio10_1_scaled:bio10_15_scaled" , "bio10_1_scaled:SnowMonths_cat" ,  
-  "bio10_1_scaled:scaleAridity" , "bio10_1_scaled:ScalePETSD" ,  
-  "bio10_15_scaled:SnowMonths_cat" , "SnowMonths_cat:ScalePETSD")
+
+Climate <- c("bio10_1_scaled", "bio10_15_scaled" , "SnowMonths_cat" ,  
+  "scaleAridity" , "ScalePETSD")
   
-Soil <- c("scalePH:scaleCLYPPT", "scalePH:scaleCECSOL", "scaleCLYPPT:scaleCECSOL", 
-  "scaleSLTPPT:scaleCECSOL", "scaleCECSOL:scaleORCDRC")
+Soil <- c("scalePH", "scaleCLYPPT", "scaleCECSOL", 
+  "scaleSLTPPT", "scaleORCDRC")
 
-WaterRetention <- c("scaleCLYPPT:bio10_15_scaled", "scaleCLYPPT:ScalePETSD")
+WaterRetention <- c("scaleCLYPPT","scaleSLTPPT", "bio10_15_scaled", "ScalePETSD")
+
+groups <- list(
+  ESA = ESA,
+  Climate = Climate,
+  Soil = Soil,
+  WaterRetention = WaterRetention
+)
+
+## Randomforests can usually still find the interaction
+# https://stats.stackexchange.com/questions/157665/including-interaction-terms-in-random-forest?rq=1
+# https://stats.stackexchange.com/questions/201893/how-to-include-an-interaction-term-in-a-random-forest-model
+## So maybe still comparable to the final regression??
+
+library(randomForest)
+
+## Abundance
+
+AbundmainEffects <- c("scalePH" , "scaleCLYPPT" ,"scaleSLTPPT" , "scaleCECSOL" , 
+                 "scaleORCDRC" , "bio10_1_scaled" , "bio10_15_scaled" , "SnowMonths_cat" ,
+                 "scaleAridity" , "ScalePETSD", "ESA")
+
+r <- randomForest(y = abundance$Sites_Abundancem2, x = abundance[,names(abundance) %in% mainEffects], 
+                  ntree=501, importance=TRUE, proximity = TRUE)
+varImpPlot(r, type=1) # mean decrease in accuracy
+# "The accuracy one tests to see how worse the model performs without each variable,
+# so a high decrease in accuracy would be expected for very predictive variables. 
+# The Gini one (type 2) digs into the mathematics behind decision trees, but essentially 
+# measures how pure the nodes are at the end of the tree. Again it tests to see the 
+# result if each variable is taken out and a high score means the variable was important."
+# http://trevorstephens.com/post/73770963794/titanic-getting-started-with-r-part-5-random
+varImpPlot(r, type=2)
+
+## Variable importance across a set
+## USing GINI accuracy
+abundance_import <- group.importance(r, groups) 
+
+############
+# Richness
+
+richness_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL",  
+  "scaleORCDRC", "bio10_7_scaled", "bio10_15_scaled", "SnowMonths_cat",  
+  "scaleAridity", "ScalePET", "ESA")
 
 
-t <- HypothesisTesting(model = abundance_model, data = abundance, TestingGroups = list(ESA = ESA, Climate = Climate, Soil = Soil, WaterRetention = WaterRetention))
+ESA <- "ESA"
+
+Climate <- c("bio10_7_scaled", "bio10_15_scaled", "SnowMonths_cat",  
+             "scaleAridity", "ScalePET")
+
+Soil <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC")
+
+WaterRetention <- c("scaleCLYPPT","scaleSLTPPT", "bio10_15_scaled", "ScalePET")
+
+groups <- list(
+  ESA = ESA,
+  Climate = Climate,
+  Soil = Soil,
+  WaterRetention = WaterRetention
+)
+
+
+spR_rf <- randomForest(y = richness$SpeciesRichness, x = richness[,names(richness) %in% richness_mainEffects], 
+                  ntree=501, importance=TRUE, proximity = TRUE)
+varImpPlot(spR_rf, type=1)
+richness_import <- group.importance(spR_rf, groups) 
+
+############################
+## Biomass
+biomass_mainEffects <- c("scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "bio10_12_scaled",  
+  "bio10_15_scaled", "SnowMonths_cat", "ScalePET", "ScalePETSD", "ESA")
+
+ESA <- "ESA"
+
+Climate <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", "ScalePET", "ScalePETSD")
+
+Soil <- c("scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC")
+
+WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", "ScalePETSD")
+
+groups <- list(
+  ESA = ESA,
+  Climate = Climate,
+  Soil = Soil,
+  WaterRetention = WaterRetention
+)
+
+bioM_rf <- randomForest(y = biomass$logBiomass, x = biomass[,names(biomass) %in% biomass_mainEffects], 
+                       ntree=501, importance=TRUE, proximity = TRUE)
+varImpPlot(bioM_rf, type=1)
+varImpPlot(bioM_rf, type=2)
+biomass_import <- group.importance(bioM_rf, groups) 
+
+#######################################
+## PLOTS
+#######################################
+
+a <- matrix(rep(NA, length = 4*3), nrow = 3, ncol = 4)
+colnames(a) <- names(groups)
+a[1,] <- as.vector(OrderImportance(richness_import))
+a[2,] <- as.vector(OrderImportance(abundance_import))
+a[3,] <- as.vector(OrderImportance(biomass_import))
+## 4 is most important, 1 is least important
+rownames(a) <- c("SpeciesRichness", "Abundance", "Biomass")
+
+
+# plot(1:4, type="n", axes=F, xlab="", ylab="")
+image(t(a),col=grey(seq(1, 0, length = 256)), )
+
+
+library(reshape)
+dat <- melt(a)
+
+library(ggplot2)
+p <- ggplot(data =  dat, aes(x = X2, y = X1)) +
+  geom_tile(aes(fill = value), colour = "white") +
+  geom_text(aes(label = sprintf("%1.2f",value)), vjust = 1) +
+  scale_fill_gradient(low = "white", high = "grey28")
+p
