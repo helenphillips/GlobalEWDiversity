@@ -114,36 +114,35 @@ write.csv(richness, file = file.path(data_out, paste("sitesRichness_", Sys.Date(
 
 
 corvif(data.frame(richness$bio10_1,richness$bio10_4,richness$bio10_7,richness$bio10_12,richness$bio10_15, 
-                richness$Aridity, richness$PETyr, richness$PET_SD,
-                richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal))
-# Remove 4
-corvif(data.frame(richness$bio10_1,richness$bio10_7,richness$bio10_12,richness$bio10_15, 
+                richness$Aridity, richness$PETyr, richness$PET_SD, 
+                richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
+# Remove 7
+corvif(data.frame(richness$bio10_1,richness$bio10_4,richness$bio10_12,richness$bio10_15, 
                   richness$Aridity, richness$PETyr, richness$PET_SD,
-                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal))
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
 # REmove 1
-corvif(data.frame(richness$bio10_7,richness$bio10_12,richness$bio10_15, 
+corvif(data.frame(richness$bio10_4,richness$bio10_12,richness$bio10_15, 
                   richness$Aridity, richness$PETyr, richness$PET_SD,
-                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal))
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
 # Remove 12
-corvif(data.frame(richness$bio10_7,richness$bio10_15, 
+corvif(data.frame(richness$bio10_4,richness$bio10_15, 
                   richness$Aridity, richness$PETyr, richness$PET_SD,
-                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal))
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
 # Remove PETSD
-corvif(data.frame(richness$bio10_7,richness$bio10_15, 
+corvif(data.frame(richness$bio10_4,richness$bio10_15, 
                   richness$Aridity, richness$PETyr,
-                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal))
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal,richness$CECSOL))
 
 ## That's fine
 
 
 r1 <- glmer(SpeciesRichness ~  ESA + (scalePH  + 
              scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+             (bio10_4_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
                 ScalePET)^2 + 
-              scaleCLYPPT:bio10_7_scaled + scaleSLTPPT:bio10_7_scaled +
               scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
               scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
-             
+              scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
              #  SNDPPT # Not included, as the other two dictate the third
               
              #  (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -226,39 +225,38 @@ biomass$ScalePETSD <- scale(biomass$PET_SD)
 ## Save the data
 write.csv(biomass, file = file.path(data_out, paste("sitesBiomass_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
-## No longer including CEC
+## 
 corvif(data.frame(biomass$bio10_1,biomass$bio10_4,biomass$bio10_7,biomass$bio10_12,biomass$bio10_15, 
        biomass$Aridity, biomass$PETyr, biomass$PET_SD,
-       biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal))
+       biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
 
 ## REmove 7
 corvif(data.frame(biomass$bio10_1,biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
                   biomass$Aridity, biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal))
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
 # Remove 1
 corvif(data.frame(biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
                   biomass$Aridity, biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal,  biomass$OCFinal))
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal,  biomass$OCFinal, biomass$CECSOL))
 # Remove Aridity
 corvif(data.frame(biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
                   biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal,biomass$OCFinal))
-# Remove 4
-corvif(data.frame(biomass$bio10_12,biomass$bio10_15, 
-                  biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal))
-
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal,biomass$OCFinal, biomass$CECSOL))
+# Remove PET_SD
+corvif(data.frame(biomass$bio10_4, biomass$bio10_12,biomass$bio10_15, 
+                  biomass$PETyr, 
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
+# Remove PETyr
+corvif(data.frame(biomass$bio10_4, biomass$bio10_12,biomass$bio10_15, 
+                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
 
 
 ## All fine
 
 b1 <- lmer(logBiomass ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC)^2 +
-                (bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat +  
-                   ScalePET + ScalePETSD)^2 + 
+                (bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat)^2 + 
             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-             scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
-             scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD +
                 #  SNDPPT # Not included, as the other two dictate the third
                 
                 # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -329,23 +327,23 @@ write.csv(abundance, file = file.path(data_out, paste("sitesAbundance_", Sys.Dat
 
 corvif(data.frame(abundance$bio10_1,abundance$bio10_4,abundance$bio10_7,abundance$bio10_12,abundance$bio10_15, 
                   abundance$Aridity, abundance$PETyr, abundance$PET_SD,
-                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal))
-# REmove 4
-corvif(data.frame(abundance$bio10_1,abundance$bio10_7,abundance$bio10_12,abundance$bio10_15, 
+                abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal, abundance$CECSOL))
+# REmove 7
+corvif(data.frame(abundance$bio10_1,abundance$bio10_4,abundance$bio10_12,abundance$bio10_15, 
                   abundance$Aridity, abundance$PETyr, abundance$PET_SD,
-                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal))
+                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal, abundance$CECSOL))
 # Remove PEtyr
-corvif(data.frame(abundance$bio10_1,abundance$bio10_7,abundance$bio10_12,abundance$bio10_15, 
+corvif(data.frame(abundance$bio10_1,abundance$bio10_4,abundance$bio10_12,abundance$bio10_15, 
                   abundance$Aridity, abundance$PET_SD,
-                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal))
-# Remove 7
+                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal, abundance$CECSOL))
+# Remove 4
 corvif(data.frame(abundance$bio10_1,abundance$bio10_12,abundance$bio10_15, 
                   abundance$Aridity, abundance$PET_SD,
-                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal))
+                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal, abundance$CECSOL))
 # Remove 12
 corvif(data.frame(abundance$bio10_1, abundance$bio10_15, 
                   abundance$Aridity, abundance$PET_SD,
-                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal))
+                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal, abundance$CECSOL))
 
 
 
