@@ -90,4 +90,4 @@ Soil <- c("scalePH:scaleCLYPPT", "scalePH:scaleCECSOL", "scaleCLYPPT:scaleCECSOL
 WaterRetention <- c("scaleCLYPPT:bio10_15_scaled", "scaleCLYPPT:ScalePETSD")
 
 
-HypothesisTesting(model = abundance_model, data = abundance, TestingGroups = c(ESA, Climate, Soil, WaterRetention))
+t <- HypothesisTesting(model = abundance_model, data = abundance, TestingGroups = list(ESA = ESA, Climate = Climate, Soil = Soil, WaterRetention = WaterRetention))
