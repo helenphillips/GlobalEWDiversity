@@ -21,7 +21,7 @@ r <- raster(file.path(GLs_folder, "ESACCI-LC-L4-LCCS-Map-1000m-P5Y-2010-v1.6.1_N
 # plot(r)
 
 print("Cropping based on soil layer")
-ph <- raster(file.path(GLs_folder,"PHIHOX_RichnessCutScaled.tif"))
+ph <- raster(file.path(GLs_folder,"PHIHOX_weighted.tif"))
 r <- crop(r, ph, filename= file.path(savefolder, "ESA_cropped.tif"), overwrite=TRUE)
 
 print("Changing values")
