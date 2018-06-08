@@ -91,34 +91,7 @@ for(reg in regions){
   
   fixedeffs <- summary(abundance_model)$coefficients[,1]
   
-  
-  
-  # fun <- function(x) { round(x * fixedeffs['scaleAridity'], digits = 2 )}
-  # aridity <- calc(aridity, fun, filename = file.path(savefolder, "aridity_abundancecoef.tif"))
-  # 
-  
-  # Intercept is added later, so can ignore 0
-  
-  # snow[snow == 1] <- round(fixedeffs['SnowMonths_cat1'], digits = 2)
-  # snow[snow == 2] <- round(fixedeffs['SnowMonths_cat2'], digits = 2)
-  # snow[snow == 3] <- round(fixedeffs['SnowMonths_cat3'], digits = 2)
-  # snow[snow == 4] <- round(fixedeffs['SnowMonths_cat4plus'], digits = 2)
-  # snow <- writeRaster(snow,  filename=file.path(savefolder, "snow_abundancecoefs.tif"), format="GTiff", overwrite=TRUE)
-  
-  # fun <- function(x) { round(x * fixedeffs['scalePH'], digits = 2 ) }
-  # ph <- calc(ph, fun, filename = file.path(savefolder, "ph_abundancecoef.tif"))
-  
-  # fun <- function(x) { round(x * fixedeffs['scaleCLYPPT'], digits = 2 ) }
-  # clay <- calc(clay, fun, filename = file.path(GLs_folder, "clay_abundancecoef.tif"))
-  
-  # fun <- function(x) { round(x * fixedeffs['scaleSLTPPT'], digits = 2 ) }
-  # silt <- calc(silt, fun, filename = file.path(GLs_folder, "silt_abundancecoef.tif"))
-  
-  # fun <- function(x) { round(x * fixedeffs['scaleCECSOL'], digits = 2 ) }
-  # cec <- calc(cec, fun, filename = file.path(savefolder, "cec_abundancecoef.tif"))
-  
-  # fun <- function(x) { round(x *fixedeffs['scaleORCDRC'], digits = 2 ) }
-  # orgC <- calc(orgC, fun, filename = file.path(savefolder, "orgc_abundancecoef.tif"))
+  #############################################################
   
   print("Habitat cover...")
   esa[esa == 0] <- NA ## They have an NA pixel number
@@ -142,12 +115,8 @@ for(reg in regions){
   
   print("Saving ESA layer")
   esa <- writeRaster(esa,  filename=file.path(savefolder, reg, "ESA_abundancecoefs.tif"), format="GTiff", overwrite=TRUE)
-  #esa <- raster(file.path(GLs_folder, "ESA_coefs.tif"))
-  #esa
-  #str(esa)
-  #summary(esa)
-  #unique(getValues(esa))
-  
+
+  ########################################################################
   print("Calculating interacting coefficients") 
   print("Soil....")
   
@@ -217,7 +186,7 @@ for(reg in regions){
   snow4[snow4 < 4 | snow4 > 4] <- NA
   snow4mask <- snow4
   snow4mask[snow4mask == 4] <- 1
-  snow4[snow4 == 4] <- round(fixedeffs['SnowMonths_cat4'], digits = 2)
+  snow4[snow4 == 4] <- round(fixedeffs['SnowMonths_cat4plus'], digits = 2)
   
   print("Interaction with snow....")
   ## Bio1 and Snow Months
@@ -252,12 +221,12 @@ for(reg in regions){
   bio1snow4 <- overlay(bio1, snow4mask, fun = createInteractionCoef, 
                        filename = file.path(savefolder, reg, "bio1snow4abundance.tif"))
   bio1snow4 <- calc(bio1snow4, 
-                    fun = function(x){round(x * fixedeffs['bio10_1_scaled:SnowMonths_cat4'] + fixedeffs['SnowMonths_cat4'], digits = 2)}, 
+                    fun = function(x){round(x * fixedeffs['bio10_1_scaled:SnowMonths_cat4plus'] + fixedeffs['SnowMonths_cat4plus'], digits = 2)}, 
                     filename = file.path(savefolder, reg, "bio1snow4abundancecoef.tif"), overwrite = TRUE) 
   
   
   f_together <- function(a, b, c, d){
-    round(a + b +c +d, digits = 2)
+    round(sum(c(a, b, c, d), na.rm = TRUE), digits = 2)
   }
   
   print("Adding together all bio1Snow coefs....")
@@ -297,7 +266,7 @@ for(reg in regions){
   bio15snow4 <- overlay(bio15, snow4mask, fun = createInteractionCoef, 
                         filename = file.path(savefolder, reg, "bio15snow4abundance.tif"))
   bio15snow4 <- calc(bio15snow4, 
-                     fun = function(x){round(x * fixedeffs['bio10_15_scaled:SnowMonths_cat4'] + fixedeffs['SnowMonths_cat4'], digits = 2)}, 
+                     fun = function(x){round(x * fixedeffs['bio10_15_scaled:SnowMonths_cat4plus'] + fixedeffs['SnowMonths_cat4plus'], digits = 2)}, 
                      filename = file.path(savefolder, reg, "bio15snow4abundancecoef.tif"), overwrite = TRUE) 
   
   print("Adding together all bio15Snow coefs....")
@@ -337,7 +306,7 @@ for(reg in regions){
   petsdsnow4 <- overlay(petsd, snow4mask, fun = createInteractionCoef, 
                         filename = file.path(savefolder, reg, "petsdsnow4abundance.tif"))
   petsdsnow4 <- calc(petsdsnow4, 
-                     fun = function(x){round(x * fixedeffs['ScalePETSD:SnowMonths_cat4'] + fixedeffs['SnowMonths_cat4'], digits = 2)}, 
+                     fun = function(x){round(x * fixedeffs['ScalePETSD:SnowMonths_cat4plus'] + fixedeffs['SnowMonths_cat4plus'], digits = 2)}, 
                      filename = file.path(savefolder, reg, "snow4petsd_abundancecoef.tif"), overwrite = TRUE) 
   
   print("Adding together all petSDSnow coefs....")
@@ -415,7 +384,7 @@ for(reg in regions){
   
   print("adding together all raster layers....")
   abundance_finalraster <- overlay(intercept, esa, allsoil_coefs, AllBio1Snow_coefs, AllBio15Snow_coefs,
-                                   AllpetsdSnow_coefs
+                                   AllpetsdSnow_coefs,
                                    allwaterretention_coefs, allclimate_coefs, 
                                    fun = f_together, 
                                    filename = file.path(savefolder, reg, "AbundanceFinalRaster.tif"))
