@@ -154,22 +154,22 @@ for(reg in regions){
   phClay <- overlay(ph, clay, fun = createInteractionCoef,
                     filename = file.path(savefolder, reg, "phClayabundance.tif"))
   phClay <- calc(phClay, fun = function(x){round(x * fixedeffs['scalePH:scaleCLYPPT'], digits = 2)},
-                 filename = file.path(savefolder, reg, "phClayabundance.tif"), overwrite = TRUE)
+                 filename = file.path(savefolder, reg, "phClayabundancecoef.tif"), overwrite = TRUE)
   
   phCec <- overlay(ph, cec, fun = createInteractionCoef,
                    filename = file.path(savefolder, reg, "phCecabundance.tif"))
   phCec <- calc(phCec, fun = function(x){round(x * fixedeffs['scalePH:scaleCECSOL'], digits = 2)},
-                filename = file.path(savefolder, reg, "phCecabundance.tif"), overwrite = TRUE)
+                filename = file.path(savefolder, reg, "phCecabundancecoef.tif"), overwrite = TRUE)
   
   clayCec <- overlay(clay, cec, fun = createInteractionCoef,
                      filename = file.path(savefolder, reg, "clayCecabundance.tif"))
   clayCec <- calc(clayCec, fun = function(x){round(x * fixedeffs['scaleCLYPPT:scaleCECSOL'], digits = 2)},
-                  filename = file.path(savefolder, reg, "clayCecabundance.tif"), overwrite = TRUE)
+                  filename = file.path(savefolder, reg, "clayCecabundancecoef.tif"), overwrite = TRUE)
   
   siltCec <- overlay(silt, cec, fun = createInteractionCoef,
                      filename = file.path(savefolder, reg, "siltCecabundance.tif"))
   siltCec <- calc(siltCec, fun = function(x){round(x * fixedeffs['scaleSLTPPT:scaleCECSOL'], digits = 2)},
-                  filename = file.path(savefolder, reg, "siltCecabundance.tif"), overwrite = TRUE)
+                  filename = file.path(savefolder, reg, "siltCecabundancecoef.tif"), overwrite = TRUE)
   
   cecOrgC <- overlay(cec, orgC, fun = createInteractionCoef,
                      filename = file.path(savefolder, reg, "cecCabundance.tif"))
@@ -409,7 +409,7 @@ for(reg in regions){
   ## Need to add this to something
   ######## Add them all together
   
-  f_together <- function(a, b, c, d, e, f, g, h,){
+  f_together <- function(a, b, c, d, e, f, g, h){
     round(a + b +c +d +e +f +g + h, digits = 2)
   }
   
