@@ -31,6 +31,10 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   
 }
 
+########################################################
+# 2.5 Regions for analysis
+########################################################
+regions <- c("africa","asia","europe","latin_america","north_america","west_asia")
 
 #################################################
 # 3. Load in models
@@ -124,10 +128,10 @@ for(reg in regions){
   snow3[snow3 == 3] <- round(fixedeffs['SnowMonths_cat3'], digits = 2)
   
   snow4[snow4 < 4 | snow4 > 4] <- NA
-  snow4[snow4 == 4] <- round(fixedeffs['SnowMonths_cat4'], digits = 2)
+  snow4[snow4 == 4] <- round(fixedeffs['SnowMonths_cat4plus'], digits = 2)
   
   f_together <- function(a, b, c, d){
-    round(a + b +c +d, digits = 2)
+    round(sum(c(a, b, c, d), na.rm = TRUE), digits = 2)
   }
   
   print("Adding together all Snow coefs....")
@@ -237,10 +241,10 @@ for(reg in regions){
   }
   
   print("adding together all raster layers....")
-  abundance_finalraster <- overlay(intercept, esa, AllSoil_coefs,
+  biomass_finalraster <- overlay(intercept, esa, AllSoil_coefs,
                                    AllWaterRetention_coefs, AllSnow_coefs, 
                                    fun = f_together, 
-                                   filename = file.path(savefolder, reg, "AbundanceFinalRaster.tif"))
+                                   filename = file.path(savefolder, reg, "BiomassFinalRaster.tif"))
   
   print("Done!")
 }
