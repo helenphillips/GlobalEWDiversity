@@ -1,7 +1,7 @@
 #!/bin/bash
  
 #$ -S /bin/bash
-#$ -N MapCoefficients
+#$ -N MapCoefficients_Richness
 
 #$ -o /work/$USER/$JOB_NAME-$JOB_ID.log
 #$ -j y
@@ -22,4 +22,4 @@ Models_dir=/data/idiv_sdiv/sworm/Models
 
 module load R
  
-Rscript /home/phillips/6_MapCoefficients.R $GLs_dir $Models_dir $output_dir
+Rscript /home/phillips/6.1_MapCoefficients_spRichness.R $GLs_dir $Models_dir $output_dir
