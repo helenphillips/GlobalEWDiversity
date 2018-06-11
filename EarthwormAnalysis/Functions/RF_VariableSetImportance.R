@@ -3,7 +3,6 @@
 ## Although in comments it says it is not quite right, this page confirms the correct approch
 ## https://stats.stackexchange.com/questions/311488/summing-feature-importance-in-scikit-learn-for-a-set-of-features
 
-rf.obj <- spR_rf
 var.share <- function(rf.obj, members) {
   count <- table(rf.obj$forest$bestvar)[-1]
   names(count) <- names(rf.obj$forest$ncat)
