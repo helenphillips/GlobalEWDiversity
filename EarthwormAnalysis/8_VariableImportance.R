@@ -76,7 +76,6 @@ load(file.path(models, "abundancemodel_full.rds"))
 
 summary(abundance_model)
 
-
 ESA <- "ESA"
 
 Climate <- c("bio10_1_scaled", "bio10_15_scaled" , "SnowMonths_cat" ,  
@@ -85,7 +84,7 @@ Climate <- c("bio10_1_scaled", "bio10_15_scaled" , "SnowMonths_cat" ,
 Soil <- c("scalePH", "scaleCLYPPT", "scaleCECSOL", 
   "scaleSLTPPT", "scaleORCDRC")
 
-WaterRetention <- c("scaleCLYPPT","scaleSLTPPT", "bio10_15_scaled", "ScalePETSD")
+WaterRetention <- c("scaleCLYPPT", "bio10_15_scaled", "ScalePETSD")
 
 groups <- list(
   ESA = ESA,
@@ -107,37 +106,38 @@ AbundmainEffects <- c("scalePH" , "scaleCLYPPT" ,"scaleSLTPPT" , "scaleCECSOL" ,
                  "scaleORCDRC" , "bio10_1_scaled" , "bio10_15_scaled" , "SnowMonths_cat" ,
                  "scaleAridity" , "ScalePETSD", "ESA")
 
-r <- randomForest(y = abundance$Sites_Abundancem2, x = abundance[,names(abundance) %in% mainEffects], 
+abundance_rf <- randomForest(y = abundance$logAbundance, x = abundance[,names(abundance) %in% AbundmainEffects], 
                   ntree=501, importance=TRUE, proximity = TRUE)
-varImpPlot(r, type=1) # mean decrease in accuracy
+varImpPlot(abundance_rf, type=1) # mean decrease in accuracy
 # "The accuracy one tests to see how worse the model performs without each variable,
 # so a high decrease in accuracy would be expected for very predictive variables. 
 # The Gini one (type 2) digs into the mathematics behind decision trees, but essentially 
 # measures how pure the nodes are at the end of the tree. Again it tests to see the 
 # result if each variable is taken out and a high score means the variable was important."
 # http://trevorstephens.com/post/73770963794/titanic-getting-started-with-r-part-5-random
-varImpPlot(r, type=2)
+varImpPlot(abundance_rf, type=2)
 
 ## Variable importance across a set
 ## USing GINI accuracy
-abundance_import <- group.importance(r, groups) 
+abundance_import <- group.importance(abundance_rf, groups) 
 
 ############
 # Richness
 
+
 richness_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL",  
-  "scaleORCDRC", "bio10_7_scaled", "bio10_15_scaled", "SnowMonths_cat",  
+  "scaleORCDRC", "bio10_4_scaled", "bio10_15_scaled", "SnowMonths_cat",  
   "scaleAridity", "ScalePET", "ESA")
 
 
 ESA <- "ESA"
 
-Climate <- c("bio10_7_scaled", "bio10_15_scaled", "SnowMonths_cat",  
+Climate <- c("bio10_4_scaled", "bio10_15_scaled", "SnowMonths_cat",  
              "scaleAridity", "ScalePET")
 
 Soil <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC")
 
-WaterRetention <- c("scaleCLYPPT","scaleSLTPPT", "bio10_15_scaled", "ScalePET")
+WaterRetention <- c("scaleCLYPPT","scaleSLTPPT", "bio10_15_scaled", "scaleAridity", "ScalePET")
 
 groups <- list(
   ESA = ESA,
@@ -154,16 +154,18 @@ richness_import <- group.importance(spR_rf, groups)
 
 ############################
 ## Biomass
-biomass_mainEffects <- c("scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "bio10_12_scaled",  
-  "bio10_15_scaled", "SnowMonths_cat", "ScalePET", "ScalePETSD", "ESA")
+
+
+biomass_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "scaleCECSOL", "bio10_12_scaled",  
+  "bio10_15_scaled", "SnowMonths_cat", "ESA")
 
 ESA <- "ESA"
 
-Climate <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", "ScalePET", "ScalePETSD")
+Climate <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat")
 
-Soil <- c("scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC")
+Soil <- c("scalePH","scaleORCDRC", "scaleCECSOL","scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC")
 
-WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", "ScalePETSD")
+WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled")
 
 groups <- list(
   ESA = ESA,
@@ -191,8 +193,6 @@ a[3,] <- as.vector(OrderImportance(biomass_import))
 rownames(a) <- c("SpeciesRichness", "Abundance", "Biomass")
 
 
-# plot(1:4, type="n", axes=F, xlab="", ylab="")
-image(t(a),col=grey(seq(1, 0, length = 256)), )
 
 
 library(reshape)
