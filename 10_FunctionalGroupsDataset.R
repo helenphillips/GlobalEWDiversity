@@ -122,51 +122,52 @@ spp_dat$Revised_fg[missing] <- "Unknown"
 #################################################
 
 spp_dat$species_Biomassm2 <- NA
-levels(spp_dat$Biomass_fromspeciesUnits)
-spp_dat$species_Biomassm2[which(spp_dat$Biomass_fromspeciesUnits == "g/m2")] <- 
-  spp_dat$Biomass_fromspecies[which(spp_dat$Biomass_fromspeciesUnits == "g/m2")]
+levels(spp_dat$WetBiomassUnits)
+
+spp_dat$species_Biomassm2[which(spp_dat$WetBiomassUnits == "g/m2")] <- 
+  spp_dat$WetBiomass[which(spp_dat$WetBiomassUnits == "g/m2")]
 
 # mg/m2 -> g/m2 = divide by 1000
-spp_dat$species_Biomassm2[which(spp_dat$Biomass_fromspeciesUnits == "mg/m2")] <- 
-  spp_dat$Biomass_fromspecies[which(spp_dat$Biomass_fromspeciesUnits == "mg/m2")] /1000
+spp_dat$species_Biomassm2[which(spp_dat$WetBiomassUnits == "mg/m2")] <- 
+  spp_dat$WetBiomass[which(spp_dat$WetBiomassUnits == "mg/m2")] /1000
 
 ## convert g to g/m2, divide by the sampled area (in m2)
-table(spp_dat$Sampled_Area_Unit[which(spp_dat$Biomass_fromspeciesUnits == "g")])
+table(spp_dat$Sampled_Area_Unit[which(spp_dat$WetBiomassUnits == "g")])
 
-spp_dat$species_Biomassm2[which(spp_dat$Biomass_fromspeciesUnits == "g" & spp_dat$Sampled_Area_Unit == "m2")] <-
-  spp_dat$Biomass_fromspecies[which(spp_dat$Biomass_fromspeciesUnits == "g" & spp_dat$Sampled_Area_Unit == "m2")] / spp_dat$Sampled_Area[which(spp_dat$Biomass_fromspeciesUnits == "g" & spp_dat$Sampled_Area_Unit == "m2")]
+spp_dat$species_Biomassm2[which(spp_dat$WetBiomassUnits == "g" & spp_dat$Sampled_Area_Unit == "m2")] <-
+  spp_dat$WetBiomass[which(spp_dat$WetBiomassUnits == "g" & spp_dat$Sampled_Area_Unit == "m2")] / spp_dat$Sampled_Area[which(spp_dat$WetBiomassUnits == "g" & spp_dat$Sampled_Area_Unit == "m2")]
 
 
 ## cm2 >- m2 = divide by 10000
-spp_dat$species_Biomassm2[which(spp_dat$Biomass_fromspeciesUnits == "g" & spp_dat$Sampled_Area_Unit == "cm2")] <-
-  spp_dat$Biomass_fromspecies[which(spp_dat$Biomass_fromspeciesUnits == "g" & spp_dat$Sampled_Area_Unit == "cm2")] / (spp_dat$Sampled_Area[which(spp_dat$Biomass_fromspeciesUnits == "g" & spp_dat$Sampled_Area_Unit == "cm2")] / 10000)
+spp_dat$species_Biomassm2[which(spp_dat$WetBiomassUnits == "g" & spp_dat$Sampled_Area_Unit == "cm2")] <-
+  spp_dat$WetBiomass[which(spp_dat$WetBiomassUnits == "g" & spp_dat$Sampled_Area_Unit == "cm2")] / (spp_dat$Sampled_Area[which(spp_dat$WetBiomassUnits == "g" & spp_dat$Sampled_Area_Unit == "cm2")] / 10000)
 
 summary(spp_dat$species_Biomassm2)
 summary(spp_dat$Biomass_fromspecies)
 ##########################################################
 ## Abundance values
 
-table(spp_dat$Individuals_fromspeciesUnits)
+table(spp_dat$Abundance_Unit)
 
 spp_dat$species_Abundancem2 <- NA
-spp_dat$species_Abundancem2[which(spp_dat$Individuals_fromspeciesUnits == "Individuals per m2")] <- spp_dat$Individuals_fromspecies[which(spp_dat$Individuals_fromspeciesUnits == "Individuals per m2")]
+spp_dat$species_Abundancem2[which(spp_dat$Abundance_Unit == "Individuals per m2")] <- spp_dat$Abundance[which(spp_dat$Abundance_Unit == "Individuals per m2")]
 ## individuals per m3 is basically the same per m2
-spp_dat$species_Abundancem2[which(spp_dat$Individuals_fromspeciesUnits == "Individuals per m3")] <- spp_dat$Individuals_fromspecies[which(spp_dat$Individuals_fromspeciesUnits == "Individuals per m3")]
+spp_dat$species_Abundancem2[which(spp_dat$Abundance_Unit == "Individuals per m3")] <- spp_dat$Abundance[which(spp_dat$Abundance_Unit == "Individuals per m3")]
 
 
 # number of individual when sampled area is in m2
-table(spp_dat$Sampled_Area_Unit[which(spp_dat$Individuals_fromspeciesUnits == "Number of individuals")])
+table(spp_dat$Sampled_Area_Unit[which(spp_dat$Abundance_Unit == "Number of individuals")])
 
-spp_dat$species_Abundancem2[which(spp_dat$Individuals_fromspeciesUnits == "Number of individuals" & spp_dat$Sampled_Area_Unit == "m2")] <-
-  spp_dat$Individuals_fromspecies[which(spp_dat$Individuals_fromspeciesUnits == "Number of individuals" & spp_dat$Sampled_Area_Unit == "m2")] / spp_dat$Sampled_Area[which(spp_dat$Individuals_fromspeciesUnits == "Number of individuals" & spp_dat$Sampled_Area_Unit == "m2")]
+spp_dat$species_Abundancem2[which(spp_dat$Abundance_Unit == "Number of individuals" & spp_dat$Sampled_Area_Unit == "m2")] <-
+  spp_dat$Abundance[which(spp_dat$Abundance_Unit == "Number of individuals" & spp_dat$Sampled_Area_Unit == "m2")] / spp_dat$Sampled_Area[which(spp_dat$Abundance_Unit == "Number of individuals" & spp_dat$Sampled_Area_Unit == "m2")]
 
 
 ## When in cm2
-spp_dat$species_Abundancem2[which(spp_dat$Individuals_fromspeciesUnits == "Number of individuals" & spp_dat$Sampled_Area_Unit == "cm2")] <-
-  spp_dat$Individuals_fromspecies[which(spp_dat$Individuals_fromspeciesUnits == "Number of individuals" & spp_dat$Sampled_Area_Unit == "cm2")] / (spp_dat$Sampled_Area[which(spp_dat$Individuals_fromspeciesUnits == "Number of individuals" & spp_dat$Sampled_Area_Unit == "cm2")] / 10000)
+spp_dat$species_Abundancem2[which(spp_dat$Abundance_Unit == "Number of individuals" & spp_dat$Sampled_Area_Unit == "cm2")] <-
+  spp_dat$Abundance[which(spp_dat$Abundance_Unit == "Number of individuals" & spp_dat$Sampled_Area_Unit == "cm2")] / (spp_dat$Sampled_Area[which(spp_dat$Abundance_Unit == "Number of individuals" & spp_dat$Sampled_Area_Unit == "cm2")] / 10000)
 
 # unique(sites$file[which(sites$Site_AbundanceUnits == "Number of individuals" & sites$Sampled_Area_Unit == "m3")])
-
+summary(spp_dat$species_Abundancem2)
 #################################################
 # 10. Create the dataframe
 #################################################
