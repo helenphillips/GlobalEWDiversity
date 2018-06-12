@@ -61,6 +61,7 @@ createInteractionCoef <- function(x, y){
 
 for(reg in regions){
   
+  print(reg)
   
   if(!dir.exists(file.path(savefolder, reg))){
     dir.create(file.path(savefolder, reg))
@@ -73,10 +74,12 @@ for(reg in regions){
   print("Creating biomass raster")
   print("Loading all rasters")
   
+  print(file.path(GLs_folder, reg))
+  
   bio12 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_12_BiomassCutScaled.tif"))
   bio15 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_BiomassCutScaled.tif"))
   
-  snow <- raster(file.path(GLs_folder, reg, "Snow_newValues"))
+  snow <- raster(file.path(GLs_folder, reg, "Snow_newValues.tif"))
   
   ph <- raster(file.path(GLs_folder, reg,"PHIHOX_BiomassCutScaled.tif"))
   clay <- raster(file.path(GLs_folder, reg, "CLYPPT_BiomassCutScaled.tif"))
@@ -130,12 +133,8 @@ for(reg in regions){
   snow4[snow4 < 4 | snow4 > 4] <- NA
   snow4[snow4 == 4] <- round(fixedeffs['SnowMonths_cat4plus'], digits = 2)
   
-  f_together <- function(a, b, c, d){
-    round(sum(c(a, b, c, d), na.rm = TRUE), digits = 2)
-  }
-  
-  print("Adding together all Snow coefs....")
-  AllSnow_coefs <- overlay(snow1, snow2, snow3, snow4, fun = f_together, 
+    print("Adding together all Snow coefs....")
+  AllSnow_coefs <- cover(snow1, snow2, snow3, snow4,
                                filename = file.path(savefolder, reg, "biomass_allSnowCoefs.tif"))
   rm(snow1, snow2, snow3, snow4)
   
