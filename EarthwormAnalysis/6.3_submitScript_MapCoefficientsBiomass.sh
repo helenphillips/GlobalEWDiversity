@@ -21,4 +21,4 @@ Models_dir=/data/idiv_sdiv/sworm/Models
 
 module load R
  
-Rscript /home/phillips/6.2_MapCoefficients_Biomass.R $GLs_dir $Models_dir $output_dir
+Rscript /home/phillips/6.3_MapCoefficients_Biomass.R $GLs_dir $Models_dir $output_dir
