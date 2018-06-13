@@ -135,7 +135,7 @@ for(reg in regions){
   
     print("Adding together all Snow coefs....")
   AllSnow_coefs <- cover(snow1, snow2, snow3, snow4,
-                               filename = file.path(savefolder, reg, "biomass_allSnowCoefs.tif"))
+                               filename = file.path(savefolder, reg, "biomass_allSnowCoefs.tif"), overwrite = TRUE)
   rm(snow1, snow2, snow3, snow4)
   
   ################## 
@@ -143,42 +143,46 @@ for(reg in regions){
   print("Soil....")
   
   phClay <- overlay(ph, clay, fun = createInteractionCoef,
-                    filename = file.path(savefolder, reg, "phClaybiomass.tif"))
+                    filename = file.path(savefolder, reg, "phClaybiomass.tif"), overwrite = TRUE)
   phClay <- calc(phClay, fun = function(x){round(x * fixedeffs['scalePH:scaleCLYPPT'], digits = 2)},
                  filename = file.path(savefolder, reg, "phClaybiomasscoef.tif"), overwrite = TRUE)
   
   phSilt <- overlay(ph, silt, fun = createInteractionCoef,
-                    filename = file.path(savefolder, reg, "phSiltbiomass.tif"))
+                    filename = file.path(savefolder, reg, "phSiltbiomass.tif"), overwrite = TRUE)
   phSilt <- calc(phSilt, fun = function(x){round(x * fixedeffs['scalePH:scaleSLTPPT'], digits = 2)},
                  filename = file.path(savefolder, reg, "phSiltbiomasscoef.tif"), overwrite = TRUE)
   
+  print("2 down...")
+  
   phorgC <- overlay(ph, orgC, fun = createInteractionCoef,
-                    filename = file.path(savefolder, reg, "phorgCbiomass.tif"))
+                    filename = file.path(savefolder, reg, "phorgCbiomass.tif"), overwrite = TRUE)
   phorgC <- calc(phorgC, fun = function(x){round(x * fixedeffs['scalePH:scaleORCDRC'], digits = 2)},
                  filename = file.path(savefolder, reg, "phorgCbiomasscoef.tif"), overwrite = TRUE)
   
   phCec <- overlay(ph, cec, fun = createInteractionCoef,
-                   filename = file.path(savefolder, reg, "phCecbiomass.tif"))
+                   filename = file.path(savefolder, reg, "phCecbiomass.tif"), overwrite = TRUE)
   phCec <- calc(phCec, fun = function(x){round(x * fixedeffs['scalePH:scaleCECSOL'], digits = 2)},
                 filename = file.path(savefolder, reg, "phCecbiomasscoef.tif"), overwrite = TRUE)
   
+  print("4 down...")
   clayOrgC <- overlay(clay, orgC, fun = createInteractionCoef,
-                   filename = file.path(savefolder, reg, "clayOrgCbiomass.tif"))
+                   filename = file.path(savefolder, reg, "clayOrgCbiomass.tif"), overwrite = TRUE)
   clayOrgC <- calc(clayOrgC, fun = function(x){round(x * fixedeffs['scaleCLYPPT:scaleORCDRC'], digits = 2)},
                 filename = file.path(savefolder, reg, "clayOrgcbiomasscoef.tif"), overwrite = TRUE)
   
   clayCec <- overlay(clay, cec, fun = createInteractionCoef,
-                      filename = file.path(savefolder, reg, "clayCecbiomass.tif"))
+                      filename = file.path(savefolder, reg, "clayCecbiomass.tif"), overwrite = TRUE)
   clayCec <- calc(clayCec, fun = function(x){round(x * fixedeffs['scaleCLYPPT:scaleCECSOL'], digits = 2)},
                    filename = file.path(savefolder, reg, "clayCecbiomasscoef.tif"), overwrite = TRUE)
   
+  print("6 down, 2 to go....")
   siltCec <- overlay(silt, cec, fun = createInteractionCoef,
-                     filename = file.path(savefolder, reg, "siltCecbiomass.tif"))
+                     filename = file.path(savefolder, reg, "siltCecbiomass.tif"), overwrite = TRUE)
   siltCec <- calc(siltCec, fun = function(x){round(x * fixedeffs['scaleSLTPPT:scaleCECSOL'], digits = 2)},
                   filename = file.path(savefolder, reg, "siltCecbiomasscoef.tif"), overwrite = TRUE)
   
   orgCCec <- overlay(orgC, cec, fun = createInteractionCoef,
-                     filename = file.path(savefolder, reg, "orgCCecbiomass.tif"))
+                     filename = file.path(savefolder, reg, "orgCCecbiomass.tif"), overwrite = TRUE)
   orgCCec <- calc(orgCCec, fun = function(x){round(x * fixedeffs['scaleORCDRC:scaleCECSOL'], digits = 2)},
                   filename = file.path(savefolder, reg, "orgCCecbiomasscoef.tif"), overwrite = TRUE)
   
@@ -188,7 +192,7 @@ for(reg in regions){
   
   print("Adding together all Soil coefs....")
   AllSoil_coefs <- overlay(phClay,phSilt, phorgC, phCec, clayOrgC,siltCec, clayCec, orgCCec,
-                               fun = f_together, filename = file.path(savefolder, reg, "biomass_allSoilCoefs.tif"))
+                               fun = f_together, filename = file.path(savefolder, reg, "biomass_allSoilCoefs.tif"), overwrite = TRUE)
   
   rm(phClay,phSilt, phorgC, phCec, clayOrgC,siltCec, clayCec, orgCCec)
   
@@ -199,17 +203,17 @@ for(reg in regions){
   
   
   clayBio12 <- overlay(clay, bio12, fun = createInteractionCoef,
-                     filename = file.path(savefolder, reg, "clayBio12biomass.tif"))
+                     filename = file.path(savefolder, reg, "clayBio12biomass.tif"), overwrite = TRUE)
   clayBio12 <- calc(clayBio12, fun = function(x){round(x * fixedeffs['scaleCLYPPT:bio10_12_scaled'], digits = 2)},
                   filename = file.path(savefolder, reg, "clayBio12biomasscoef.tif"), overwrite = TRUE)
   
   siltBio12 <- overlay(silt, bio12, fun = createInteractionCoef,
-                       filename = file.path(savefolder, reg, "clayBio12biomass.tif"))
+                       filename = file.path(savefolder, reg, "siltBio12biomass.tif"), overwrite = TRUE)
   siltBio12 <- calc(siltBio12, fun = function(x){round(x * fixedeffs['scaleSLTPPT:bio10_12_scaled'], digits = 2)},
                     filename = file.path(savefolder, reg, "siltBio12biomasscoef.tif"), overwrite = TRUE)
   
   clayBio15 <- overlay(clay, bio15, fun = createInteractionCoef,
-                       filename = file.path(savefolder, reg, "clayBio15biomass.tif"))
+                       filename = file.path(savefolder, reg, "clayBio15biomass.tif"), overwrite = TRUE)
   clayBio15 <- calc(clayBio15, fun = function(x){round(x * fixedeffs['scaleCLYPPT:bio10_15_scaled'], digits = 2)},
                     filename = file.path(savefolder, reg, "clayBio15biomasscoef.tif"), overwrite = TRUE)
   
@@ -219,7 +223,7 @@ for(reg in regions){
   
   print("Adding together all water retention coefs....")
   AllWaterRetention_coefs <- overlay(clayBio12,siltBio12, clayBio15,
-                           fun = f_together, filename = file.path(savefolder, reg, "biomass_allWaterRetentionCoefs.tif"))
+                           fun = f_together, filename = file.path(savefolder, reg, "biomass_allWaterRetentionCoefs.tif"), overwrite = TRUE)
   rm(clayBio12,siltBio12, clayBio15)
   #### Intercept
   ## Snow raster layer can become the intercept layer
@@ -243,7 +247,7 @@ for(reg in regions){
   biomass_finalraster <- overlay(intercept, esa, AllSoil_coefs,
                                    AllWaterRetention_coefs, AllSnow_coefs, 
                                    fun = f_together, 
-                                   filename = file.path(savefolder, reg, "BiomassFinalRaster.tif"))
+                                   filename = file.path(savefolder, reg, "BiomassFinalRaster.tif"), overwrite = TRUE)
   
   print("Done!")
 }
