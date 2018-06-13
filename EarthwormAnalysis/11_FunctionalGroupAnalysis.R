@@ -82,11 +82,16 @@ m_sites <- melt(sites, id.vars = idvars)
 #################################################
 # 6. Split into (currently) two diversity measures
 #################################################
-biomass <- m_sites[complete.cases(m_sites$logBiomass),] # 3689
-biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 3368
+biomass <- m_sites[grep("biomass", m_sites$variable),]
+biomass <- droplevels(biomass[which(!(is.na(biomass$value))),])
+nobiomass <- aggregate(biomass$value ~ biomass$Study_Name, FUN = var)
+nobiomass <- nobiomass[which(nobiomass[,2] == 0 | is.na(nobiomass[,2])),1]
+biomass <- droplevels(biomass[!(biomass$Study_Name %in% nobiomass),]) # 8817
 
-biomass <- biomass[grep("biomass", biomass$variable),]
-biomass <- biomass[complete.cases(biomass$value),]
+
+biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 7927
+
+#  biomass <- biomass[complete.cases(biomass$value),]
 
 biomass <- droplevels(biomass[!(is.na(biomass$bio10_15)),]) ## 3365
 biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 3364
@@ -95,10 +100,6 @@ biomass <- droplevels(biomass[!(is.na(biomass$SnowMonths_cat)),]) ##  3361
 biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  3357
 
 
-nobiomass <- aggregate(biomass$value ~ biomass$Study_Name, FUN = var)
-nobiomass <- nobiomass[which(nobiomass[,2] == 0),1]
-
-biomass <- droplevels(biomass[!(biomass$Study_Name %in% nobiomass),])
 
 table(biomass$ESA, biomass$variable)
 
@@ -147,18 +148,17 @@ corvif(data.frame(biomass$bio10_4,biomass$bio10_12,biomass$bio10_15,
 # Ok
 
 ############################### Abundance
+abundance <- m_sites[grep("abundance", m_sites$variable),]
+abundance <- droplevels(abundance[which(!(is.na(abundance$value))),])
+noabundance <- aggregate(abundance$value ~ abundance$Study_Name, FUN = var)
+noabundance <- noabundance[which(noabundance[,2] == 0 | is.na(noabundance[,2])),1]
+abundance <- droplevels(abundance[!(abundance$Study_Name %in% noabundance),]) # 25384
 
-
-abundance <- m_sites[complete.cases(m_sites$logAbundance),] # 7211
 abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #6759
 
-abundance <- abundance[grep("abundance", abundance$variable),]
-abundance <- abundance[complete.cases(abundance$value),]
 
-noabundance <- aggregate(abundance$value ~ abundance$Study_Name, FUN = var)
-noabundance <- noabundance[which(noabundance[,2] == 0),1]
 
-abundance <- droplevels(abundance[!(abundance$Study_Name %in% noabundance),]) # 25384
+
 
 # abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
 abundance <- droplevels(abundance[!(is.na(abundance$bio10_15)),]) ##   
@@ -221,13 +221,14 @@ corvif(data.frame(abundance$bio10_4,abundance$bio10_15,
 # 7. Biomass Modelling
 #################################################
 
-# corvif(data.frame(biomass$bio10_7,biomass$bio10_12,biomass$bio10_15, 
-#                  biomass$PETyr,
-#                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
+
+biomass$value[which(biomass$value < 0)] <- 0
+# For now
+
 biomass$logValue <- log(biomass$value + 1)
 hist(biomass$logValue)
 
-b1 <- lmer(logBiomass ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+b1 <- lmer(logValue ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
              (bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat)^2 + 
              scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
@@ -240,3 +241,31 @@ b1 <- lmer(logBiomass ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPP
              # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
              (1|file/Study_Name), data = biomass,
            control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
+save(biomass_model, file = file.path(models, "biomassmodel_functionalgroups.rds"))
+
+
+############### abundance
+abundance$logValue <- log(abundance$value + 1)
+hist(abundance$logValue)
+
+
+a1 <- lmer(logValue ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+             (bio10_4_scaled  + bio10_15_scaled + SnowMonths_cat +scaleAridity + ScalePET)^2 + 
+             scaleCLYPPT:bio10_4_scaled + scaleSLTPPT:bio10_4_scaled +
+             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+             scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
+             scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+             #  SNDPPT # Not included, as the other two dictate the third
+             
+             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+             
+             # HabitatCover + 
+             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+             (1|file/Study_Name), data = abundance,
+           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
+save(abundance_model, file = file.path(models, "abundancemodel_functionalgroups.rds"))
