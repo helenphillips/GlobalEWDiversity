@@ -11,11 +11,11 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 #################################################
 # 1. Loading libraries
 #################################################
-library(maptools)
-library(maps)
+
 library(lme4)
-library(car)
-library(DHARMa)
+library(randomForest)
+library(ggplot2)
+library(reshape)
 source("Functions/FormatData.R")
 source("Functions/lme4_ModellingFunctions.R")
 source("Functions/ModelSimplification.R")
@@ -30,7 +30,7 @@ source("Functions/RF_VariableSetImportance.R")
 
 data_in <- "4_Data"
 models <- "Models"
-
+figures <- "Figures"
 #################################################
 # 3. Load data and models
 #################################################
@@ -98,7 +98,7 @@ groups <- list(
 # https://stats.stackexchange.com/questions/201893/how-to-include-an-interaction-term-in-a-random-forest-model
 ## So maybe still comparable to the final regression??
 
-library(randomForest)
+
 
 ## Abundance
 
@@ -123,7 +123,7 @@ abundance_import <- group.importance(abundance_rf, groups)
 
 ############
 # Richness
-
+summary(richness_model)
 
 richness_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL",  
   "scaleORCDRC", "bio10_4_scaled", "bio10_15_scaled", "SnowMonths_cat",  
@@ -155,7 +155,7 @@ richness_import <- group.importance(spR_rf, groups)
 ############################
 ## Biomass
 
-
+summary(biomass_model)
 biomass_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "scaleCECSOL", "bio10_12_scaled",  
   "bio10_15_scaled", "SnowMonths_cat", "ESA")
 
@@ -194,13 +194,20 @@ rownames(a) <- c("SpeciesRichness", "Abundance", "Biomass")
 
 
 
-
-library(reshape)
 dat <- melt(a)
 
-library(ggplot2)
-p <- ggplot(data =  dat, aes(x = X2, y = X1)) +
+dat$X1 <- factor(dat$X1, levels = c("Biomass", "Abundance","SpeciesRichness"))
+dat$X2 <- factor(dat$X2, levels = c("ESA","Soil","Climate","WaterRetention"))
+
+
+jpeg(file = file.path(figures, "variableImportance.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+p <- ggplot(data =  dat, aes(x = X2, y = X1), ylab = "Test") +
   geom_tile(aes(fill = value), colour = "white") +
-  geom_text(aes(label = sprintf("%1.2f",value)), vjust = 1) +
-  scale_fill_gradient(low = "white", high = "grey28")
+  # geom_text(aes(label = sprintf("%1.2f",value)), vjust = 1) +
+ # scale_fill_gradient(low = "white", high = "grey28") +
+  scale_fill_continuous(low = "gray96", high = "grey28", guide = "legend", guide_legend(title = ""), 
+                        labels = c("Least Important", "", "", "Most Important")) + 
+  theme_classic() +
+  labs(dat = "Importance", x = "Variable Groups", y = "Biodiversity Model")
 p
+dev.off()
