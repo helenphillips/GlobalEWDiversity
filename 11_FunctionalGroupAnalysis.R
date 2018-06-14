@@ -244,7 +244,7 @@ b1 <- lmer(logValue ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT 
 
 biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
 save(biomass_model, file = file.path(models, "biomassmodel_functionalgroups.rds"))
-
+# load(file.path(models, "biomassmodel_functionalgroups.rds"))
 
 ############### abundance
 abundance$logValue <- log(abundance$value + 1)
@@ -269,3 +269,4 @@ a1 <- lmer(logValue ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT 
 
 abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
 save(abundance_model, file = file.path(models, "abundancemodel_functionalgroups.rds"))
+# load(file.path(models, "abundancemodel_functionalgroups.rds"))
