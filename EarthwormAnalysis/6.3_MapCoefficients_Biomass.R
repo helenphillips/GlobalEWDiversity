@@ -21,11 +21,12 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   GLs_folder <- args[1] # GLs_dir
   models <- args[2] # models_dir
   savefolder <- args[3] # output_dir
-  
+  reg <- args[4] ## Which continent
   
   print(GLs_folder)
   print(models) 
   print(savefolder)
+  print(reg)
   
   rasterOptions(tmpdir = "/work/phillips", chunksize = 524288, maxmemory = 134217728)
   
@@ -34,7 +35,6 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 ########################################################
 # 2.5 Regions for analysis
 ########################################################
-regions <- c("africa","asia","europe","latin_america","north_america","west_asia")
 
 #################################################
 # 3. Load in models
@@ -55,14 +55,7 @@ createInteractionCoef <- function(x, y){
   round(x * y, digits = 2)
 }
 
-#################################################
-# START LOOP
-#################################################
 
-for(reg in regions){
-  
-  print(reg)
-  
   if(!dir.exists(file.path(savefolder, reg))){
     dir.create(file.path(savefolder, reg))
   }
@@ -80,6 +73,8 @@ for(reg in regions){
   bio15 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_BiomassCutScaled.tif"))
   
   snow <- raster(file.path(GLs_folder, reg, "Snow_newValues.tif"))
+  snow <- projectRaster(snow, crs=crs(bio15))
+  
   
   ph <- raster(file.path(GLs_folder, reg,"PHIHOX_BiomassCutScaled.tif"))
   clay <- raster(file.path(GLs_folder, reg, "CLYPPT_BiomassCutScaled.tif"))
@@ -250,4 +245,3 @@ for(reg in regions){
                                    filename = file.path(savefolder, reg, "BiomassFinalRaster.tif"), overwrite = TRUE)
   
   print("Done!")
-}
