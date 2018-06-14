@@ -79,8 +79,8 @@ createInteractionCoef <- function(x, y){
   pet <- raster(file.path(GLs_folder,reg, "PETyr_RichnessScaled.tif"))
 
   ph <- raster(file.path(GLs_folder,reg,"PHIHOX_RichnessCutScaled.tif"))
-  clay <- raster(file.path(soil_GLs,reg,"CLYPPT_RichnessCutScaled.tif"))
-  silt <- raster(file.path(soil_GLs,reg,"SLTPPT_RichnessCutScaled.tif"))
+  clay <- raster(file.path(GLs_folder,reg,"CLYPPT_RichnessCutScaled.tif"))
+  silt <- raster(file.path(GLs_folder,reg,"SLTPPT_RichnessCutScaled.tif"))
   cec <- raster(file.path(GLs_folder,reg,"CECSOL_RichnessCutScaled.tif"))
   orgC <- raster(file.path(GLs_folder,reg,"ORCDRC_RichnessCutScaled.tif"))
 
