@@ -1,5 +1,7 @@
 ColourPicker <- function(variable){
   
+  
+  
   if(any(levels(variable) %in% c("Broadleaf deciduous forest", "Herbaceous"))){
     colos <- c(rep(NA, length(levels(variable))))
     
