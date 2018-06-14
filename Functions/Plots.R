@@ -303,7 +303,8 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
     tokeep <- c()
     for(l in levels(newdata[,ndEff2])){
       tmp <- data[data[which(names(data) == Effect2)] == l,]
-      keep <- intersect(which(newdata[,ndEff2] == l), which(newdata[,ndEff1] %in% levels(droplevels(tmp$LU_Mgmt))))
+      keep <- intersect(which(newdata[,ndEff2] == l), 
+                        which(newdata[,ndEff1] %in% levels(droplevels(tmp[,which(names(data) == Effect1)]))))
       
       tokeep <- c(tokeep, keep)
       
@@ -322,11 +323,11 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
     newdata <- newdata[order,]
     
     plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
-         xlim = c(0, nrow(newdata)),  ylab = ylabel, xlab = xlabel)
+         xlim = c(0, nrow(newdata)),  ylab = ylabel, xlab = xlabel, xaxt='n')
     
     errbar(1:nrow(newdata), newdata[,r], newdata$upper, newdata$lower,
            add = TRUE, col = newdata$Colour, errbar.col = newdata$Colour, cex = 1.5)
-    text(1:nrow(newdata), rep(0, nrow(newdata)), labels = newdata$intensity) 
+    text(1:nrow(newdata), rep(0, nrow(newdata))) 
     # legend(legend.position, legend = levels(newdata[,ndEff1]), col = unique(newdata$Colour[order]), lwd = 2, bty = "n")
   }
   
