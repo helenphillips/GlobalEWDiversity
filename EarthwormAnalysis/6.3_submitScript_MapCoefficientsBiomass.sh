@@ -18,7 +18,8 @@ output_dir=/work/$USER/$JOB_NAME/$JOB_ID
 mkdir -p $output_dir
 GLs_dir=/data/idiv_sdiv/sworm/ProcessGLs
 Models_dir=/data/idiv_sdiv/sworm/Models
+region="$@"
 
 module load R
  
-Rscript /home/phillips/6.3_MapCoefficients_Biomass.R $GLs_dir $Models_dir $output_dir
+Rscript /home/phillips/6.3_MapCoefficients_Biomass.R $GLs_dir $Models_dir $output_dir $region
