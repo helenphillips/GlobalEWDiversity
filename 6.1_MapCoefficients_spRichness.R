@@ -109,7 +109,7 @@ createInteractionCoef <- function(x, y){
   esa[esa > 10] <- NA
   
   print("Saving ESA layer")
-  esa <- writeRaster(esa,  filename=file.path(savefolder, "ESA_richnesscoefs.tif"), format="GTiff", overwrite=TRUE)
+  esa <- writeRaster(esa,  filename=file.path(savefolder, reg, "ESA_richnesscoefs.tif"), format="GTiff", overwrite=TRUE)
   #esa <- raster(file.path(GLs_folder, "ESA_coefs.tif"))
 
   print("Calculating interacting coefficients") 
