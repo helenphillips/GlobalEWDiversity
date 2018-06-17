@@ -74,7 +74,6 @@ createInteractionCoef <- function(x, y){
   bio15 <- raster(file.path(GLs_folder,reg, "CHELSA_bio10_15_RichnessCutScaled.tif"))
 
   snow <- raster(file.path(GLs_folder,reg, "Snow_newValues.tif"))
-  snow <- projectRaster(snow, crs=crs(bio15))
   aridity <- raster(file.path(GLs_folder,reg, "Aridity_RichnessScaled.tif"))
   pet <- raster(file.path(GLs_folder,reg, "PETyr_RichnessScaled.tif"))
 
@@ -246,9 +245,9 @@ createInteractionCoef <- function(x, y){
   
   
   print("Adding together all bio4Snow coefs....")
-  Allbio4Snow_coefs <- cover(bio4snow1, bio4snow2, bio4snow3, bio4snow4, 
+  Allbio4Snow_coefs <- cover(bio4snow0, bio4snow1, bio4snow2, bio4snow3, bio4snow4, 
                                 filename = file.path(savefolder, reg, "richness_allbio4nowCoefs.tif"), overwrite=TRUE)
-  rm(bio4snow1, bio4snow2, bio4snow3, bio4snow4)
+  rm(bio4snow0, bio4snow1, bio4snow2, bio4snow3, bio4snow4)
   
   
   ## Bio15 and Snow Months
@@ -288,9 +287,9 @@ createInteractionCoef <- function(x, y){
                     filename = file.path(savefolder, reg, "bio15snow4richnesscoef.tif"), overwrite = TRUE) 
   print("Adding together all bio15Snow coefs....")
 
-  Allbio15Snow_coefs <- cover(bio15snow1, bio15snow2, bio15snow3, bio15snow4,
+  Allbio15Snow_coefs <- cover(bio15snow0, bio15snow1, bio15snow2, bio15snow3, bio15snow4,
                                filename = file.path(savefolder, reg, "richness_allbio15SnowCoefs.tif"), overwrite=TRUE)
-  rm(bio4snow1, bio4snow2, bio4snow3, bio4snow4)
+  rm(bio15snow0, bio15snow1, bio15snow2, bio15snow3, bio15snow4)
   
   
   ######################################
