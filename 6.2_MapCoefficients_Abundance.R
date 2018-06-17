@@ -72,7 +72,6 @@ createInteractionCoef <- function(x, y){
   bio15 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_AbundanceCutScaled.tif"))
   
   snow <- raster(file.path(GLs_folder, reg, "Snow_newValues.tif"))
-  snow <- projectRaster(snow, crs=crs(bio15))
   aridity <- raster(file.path(GLs_folder, reg, "Aridity_AbundanceScaled.tif"))
   petsd <- raster(file.path(GLs_folder, reg, "PETSD_AbundanceScaled.tif"))
   
@@ -222,9 +221,9 @@ createInteractionCoef <- function(x, y){
   
 
   print("Adding together all bio1Snow coefs....")
-  AllBio1Snow_coefs <- cover(bio1snow1, bio1snow2, bio1snow3, bio1snow4, 
+  AllBio1Snow_coefs <- cover(bio1snow0, bio1snow1, bio1snow2, bio1snow3, bio1snow4, 
                                filename = file.path(savefolder, reg, "abundance_allBio1SnowCoefs.tif"), overwrite = TRUE)
-  rm(bio1snow1, bio1snow2, bio1snow3, bio1snow4)
+  rm(bio1snow0, bio1snow1, bio1snow2, bio1snow3, bio1snow4)
   
   ## Bio15 and Snow Months
   ## Snowmonth 0
@@ -262,9 +261,9 @@ createInteractionCoef <- function(x, y){
                      filename = file.path(savefolder, reg, "bio15snow4abundancecoef.tif"), overwrite = TRUE) 
   
   print("Adding together all bio15Snow coefs....")
-  AllBio15Snow_coefs <- cover(bio15snow1, bio15snow2, bio15snow3, bio15snow4,
+  AllBio15Snow_coefs <- cover(bio15snow0, bio15snow1, bio15snow2, bio15snow3, bio15snow4,
                                 filename = file.path(savefolder, reg, "abundance_allBio15SnowCoefs.tif"), overwrite = TRUE)
-  rm(bio15snow1, bio15snow2, bio15snow3, bio15snow4)
+  rm(bio15snow0, bio15snow1, bio15snow2, bio15snow3, bio15snow4)
   
   ## SCalePETSD with snowmonths
   ## Snowmonth 0
@@ -302,9 +301,9 @@ createInteractionCoef <- function(x, y){
                      filename = file.path(savefolder, reg, "snow4petsd_abundancecoef.tif"), overwrite = TRUE) 
   
   print("Adding together all petSDSnow coefs....")
-  AllpetsdSnow_coefs <- cover(petsdsnow1, petsdsnow2, petsdsnow3, petsdsnow4,
+  AllpetsdSnow_coefs <- cover(petsdsnow0, petsdsnow1, petsdsnow2, petsdsnow3, petsdsnow4,
                                 filename = file.path(savefolder, reg, "abundance_allpetSDSnowCoefs.tif"), overwrite = TRUE)
-  rm(petsdsnow1, petsdsnow2, petsdsnow3, petsdsnow4)
+  rm(petsdsnow0, petsdsnow1, petsdsnow2, petsdsnow3, petsdsnow4)
   
   
   

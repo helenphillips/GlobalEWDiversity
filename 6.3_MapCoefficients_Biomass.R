@@ -73,9 +73,7 @@ createInteractionCoef <- function(x, y){
   bio15 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_BiomassCutScaled.tif"))
   
   snow <- raster(file.path(GLs_folder, reg, "Snow_newValues.tif"))
-  snow <- projectRaster(snow, crs=crs(bio15))
-  
-  
+
   ph <- raster(file.path(GLs_folder, reg,"PHIHOX_BiomassCutScaled.tif"))
   clay <- raster(file.path(GLs_folder, reg, "CLYPPT_BiomassCutScaled.tif"))
   silt <- raster(file.path(GLs_folder, reg, "SLTPPT_BiomassCutScaled.tif"))
