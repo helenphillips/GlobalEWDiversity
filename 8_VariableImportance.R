@@ -211,3 +211,60 @@ p <- ggplot(data =  dat, aes(x = X2, y = X1), ylab = "Test") +
   labs(dat = "Importance", x = "Variable Groups", y = "Biodiversity Model")
 p
 dev.off()
+
+
+
+################################################
+## DIFFERENT GROUPINGS
+################################################
+
+# ABUNDANCE
+
+
+ESA <- "ESA"
+Temperature <- c("bio10_1_scaled", "scaleAridity" ,  
+               "ScalePETSD")
+Precip <- c("bio10_15_scaled" , "SnowMonths_cat", "scaleAridity")
+Soil <- c("scalePH", "scaleCLYPPT", "scaleCECSOL", 
+          "scaleSLTPPT", "scaleORCDRC")
+WaterRetention <- c("scaleCLYPPT", "bio10_15_scaled", "ScalePETSD")
+
+groups <- list(
+  ESA = ESA,
+  Temperature = Temperature,
+  Precip = Precip,
+  Soil = Soil,
+  WaterRetention = WaterRetention
+)
+abundance_import_split <- group.importance(abundance_rf, groups) 
+
+# RICHNESS
+ESA <- "ESA"
+Temperature <- c("bio10_4_scaled", "scaleAridity", "ScalePET")
+Precip <- c("bio10_15_scaled", "SnowMonths_cat", "scaleAridity")
+Soil <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC")
+WaterRetention <- c("scaleCLYPPT","scaleSLTPPT", "bio10_15_scaled", "scaleAridity", "ScalePET")
+
+groups <- list(
+  ESA = ESA,
+  Temperature = Temperature,
+  Precip = Precip, 
+  Soil = Soil,
+  WaterRetention = WaterRetention
+)
+richness_import_split <- group.importance(spR_rf, groups) 
+
+# BIOMASS
+
+ESA <- "ESA"
+Precip <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat")
+Soil <- c("scalePH","scaleORCDRC", "scaleCECSOL","scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC")
+WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled")
+
+groups <- list(
+  ESA = ESA,
+  Precip = Precip,
+  Soil = Soil,
+  WaterRetention = WaterRetention
+)
+biomass_import_split <- group.importance(bioM_rf, groups) 
