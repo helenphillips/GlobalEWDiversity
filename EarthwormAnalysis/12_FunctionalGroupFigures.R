@@ -189,3 +189,34 @@ if(length(biomassCols) != length(levels(newdata$ESA))){
   axis(1, at = c(2, 5, 8, 11, 14, 17, 20, 23, 26), labelsNew, padj=0.5) 
   legend("topleft", legend = c("Epigeics", "Endogeics", "Anecics"), col = "Black", pch = c(16, 17, 15),  lwd = 2, bty = "n", cex = 2)
 dev.off()  
+
+
+
+###############################################
+## TRIANGULAR PLOT
+##############################################
+# MADE UP DATA
+
+library(ade4)
+
+labelsESA <- as.factor(c("Broadleaf deciduous forest",
+               "Broadleaf evergreen forest", "Needleleaf evergreen forest",
+               "Mixed forest","Herbaceous with spare tree/shrub",
+               "Shrub","Herbaceous","Production - Herbaceous","Production - Plantation") )
+
+Cols <- ColourPicker(labelsESA)
+# This is not in the right order!!
+
+df <- data.frame(epigeic = runif(9, 1, 3), endogeics = runif(9, 1, 3),anecics =runif(9, 1, 3))
+df$total <- rowSums(df[,1:3])
+df$col <- paste0("#", Cols)
+row.names(df) <- labelsESA
+t <- triangle.plot(df[,1:3])
+points(t, col = df$col, cex = df$total, pch = 19)
+# legend for colours
+legend("topright", legend=labelsESA, fill = df$col, cex = 0.8, bty = "n")
+# Legend for point size
+pts <- seq(floor(min(df[,4])), ceiling(max(df[,4])), length.out = 3)
+pts <- round(pts)
+legend("bottomleft", legend= pts, fill = "black",pt.cex = pts, cex = 0.8, 
+       bty = "n", pch = 19, y.intersp = 2.5, x.intersp =3)
