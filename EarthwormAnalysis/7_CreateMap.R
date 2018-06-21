@@ -10,10 +10,13 @@ figures <- "Figures"
 
 ## Create map
 library(raster)
+library(RColorBrewer)
+
+
 # spR_finalraster <- raster(file.path(soil_GLs, "spRFinalRaster.tif"))
 spR_finalraster <- raster("I:\\sDiv-postdocs-work\\Phillips\\sWorm\\SpatialAnalysis\\ProcessedLayers\\April2018\\spRFinalRasterminusESA.tif")
 
-library(RColorBrewer)
+
 
 # summary(spR_finalraster)
 # 0.26, 2.19  (min, max)
@@ -51,9 +54,24 @@ rm(sr)
 gc()
 
 
+####### Biomass
 
+# regions <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
 
-##############################################################################################3
+results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Biomass"
+
+ regions <- c("asia", "europe", "latin_america", "north_america", "west_asia")
+
+ r <- raster(file.path(results, "africa", "BiomassFinalRaster.tif"))
+ image(r, ylim = c(-90, 90), xlim = c(-180, 180))
+ 
+for(reg in regions){
+
+  r <- raster(file.path(results, reg, "BiomassFinalRaster.tif"))
+  plot(r, add = TRUE)  
+}
+
+##############################################################################################
 all_data <-"3_Data"
 files <- list.files(file.path(all_data))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
@@ -111,53 +129,3 @@ mtext("8", at = 455, cex = 1)
 dev.off()
 
 
-
-
-
-####### Total Abundance Plot #######
-ta <-readGDAL(paste(dir,"tabundance",sep=""))
-
-
-pdf("C://Helens//CountrysideBiogeography//Results//Figures//TAfrequency.pdf")
-par(mfrow=c(1, 2))
-hist(ta$band1, xlab = "% Change", main="")
-mtext("(a)", at = -50)
-hist(ta$band1, xlab = "% Change", main="", ylim = c(0, 1500))
-mtext("(b)", at = -50)
-dev.off()
-
-
-## Determining where to break the data
-hist(ta$band1, xlab = "% Change", main="", ylim = c(0, 1e+07), xlim=c(-100, 0))
-hist(ta$band1, xlab = "% Change", main="", ylim = c(0, 1e+03), xlim=c(0, 600))
-
-
-
-blubrks <- c(seq( 1,100, length.out = 100), max(ta$band1, na.rm = TRUE))
-blues <- brewer.pal(9, "Blues")
-b.cols <- colorRampPalette(blues, space = "rgb")
-
-
-redbrks <- c(min(ta$band1, na.rm = TRUE), seq(-20, -1, length.out = 100)) # This now groups everything below -20 into one bin. I think. 
-reds <- rev(brewer.pal(9, "Reds"))
-r.cols <- colorRampPalette(reds, space = "rgb")
-
-png(paste(outDir,"TotalAbundance.png",sep=""),width=17.5,height=8.75,units="cm",res=1200)
-nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
-layout.show(nf)
-par(mar=c(0.1,0.1,0.1,0.1))
-image(ta, col=b.cols(length(blubrks)-1), breaks=blubrks, xaxt="n", yaxt="n", ylab="", xlab="")
-image(ta, col=r.cols(length(redbrks)-1), add = TRUE, breaks=redbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-#hist(1:10, axes = FALSE)
-par(mar=c(1,13,1,13))
-blu_scale <- c(b.cols(length(blubrks)-1), rep(b.cols(length(blubrks)-1)[100], times = 75)) # 200 total
-red_scale <-c(rep(r.cols(length(redbrks)-1)[1], times = 75), r.cols(length(redbrks)-1))
-
-white <- rep("#FFFFFF", times = 2)
-
-barplot(rep(1, 352), col = c(red_scale, white, blu_scale), border =c(red_scale, white, blu_scale), axes = FALSE )
-mtext("-20%", at = 85, cex = 0.5)
-mtext("100%", at = 330, cex = 0.5)
-mtext("0%", at = 215, cex = 0.5)
-
-dev.off()
