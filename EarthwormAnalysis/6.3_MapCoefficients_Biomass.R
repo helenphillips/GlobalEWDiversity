@@ -82,6 +82,8 @@ createInteractionCoef <- function(x, y){
   
   esa <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))
   
+  zeroLayer <- bio12
+  zeroLayer[!is.na(zeroLayer)] <- 0
   
   fixedeffs <- summary(biomass_model)$coefficients[,1]
   
@@ -127,7 +129,7 @@ createInteractionCoef <- function(x, y){
   snow4[snow4 == 4] <- round(fixedeffs['SnowMonths_cat4plus'], digits = 2)
   
     print("Adding together all Snow coefs....")
-  AllSnow_coefs <- cover(snow1, snow2, snow3, snow4,
+  AllSnow_coefs <- cover(zeroLayer, snow1, snow2, snow3, snow4,
                                filename = file.path(savefolder, reg, "biomass_allSnowCoefs.tif"), overwrite = TRUE)
   rm(snow1, snow2, snow3, snow4)
   
