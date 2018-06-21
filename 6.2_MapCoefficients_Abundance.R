@@ -364,7 +364,7 @@ createInteractionCoef <- function(x, y){
   intercept <- writeRaster(intercept, filename=file.path(savefolder, reg, "intercept_abundancecoefs.tif"), format="GTiff", overwrite=TRUE)
   
   #### Remove all raster
-  rm(bio1, bio15, aridity, petsd, ph, clay, silt, cec, org)
+  rm(bio1, bio15, aridity, petsd, ph, clay, silt, cec, orgC)
   
   ## Need to add this to something
   ######## Add them all together
