@@ -106,6 +106,8 @@ table(biomass$ESA, biomass$variable)
 biomass_notinclude <- c("Cropland/Other vegetation mosaic")
 biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##   7772
 
+fg_biomass <- biomass
+
 biomass$scalePH <- as.vector(scale(biomass$phFinal))
 biomass$scaleCLYPPT <- scale(biomass$ClayFinal)
 biomass$scaleSLTPPT <- scale(biomass$SiltFinal)
@@ -270,3 +272,83 @@ a1 <- lmer(logValue ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT 
 abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
 save(abundance_model, file = file.path(models, "abundancemodel_functionalgroups.rds"))
 # load(file.path(models, "abundancemodel_functionalgroups.rds"))
+
+
+#################################################
+# SPLIT BY FUNCTIONAL GROUP
+#################################################
+
+epi_biomass <- fg_biomass[grep("Epi", fg_biomass$variable),]
+epi_biomass$scalePH <- as.vector(scale(epi_biomass$phFinal))
+epi_biomass$scaleCLYPPT <- scale(epi_biomass$ClayFinal)
+epi_biomass$scaleSLTPPT <- scale(epi_biomass$SiltFinal)
+epi_biomass$scaleCECSOL <- scale(epi_biomass$CECSOL)
+epi_biomass$scaleORCDRC <- scale(epi_biomass$OCFinal)
+
+epi_biomass$bio10_1_scaled <- scale(epi_biomass$bio10_1)
+epi_biomass$bio10_4_scaled <- scale(epi_biomass$bio10_4)
+epi_biomass$bio10_7_scaled <- scale(epi_biomass$bio10_7)
+epi_biomass$bio10_12_scaled <- scale(epi_biomass$bio10_12)
+epi_biomass$bio10_15_scaled <- scale(epi_biomass$bio10_15)
+
+
+epi_biomass$scaleAridity <- scale(epi_biomass$Aridity)
+epi_biomass$ScalePET <- scale(epi_biomass$PETyr)
+epi_biomass$ScalePETSD <- scale(epi_biomass$PET_SD)
+## Save the data
+write.csv(epi_biomass, file = file.path(data_out, paste("EpiFGBiomass_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
+
+corvif(data.frame(epi_biomass$bio10_1,epi_biomass$bio10_4,epi_biomass$bio10_7,epi_biomass$bio10_12,epi_biomass$bio10_15, 
+                  epi_biomass$Aridity, epi_biomass$PETyr, epi_biomass$PET_SD,
+                  epi_biomass$phFinal, epi_biomass$ClayFinal, epi_biomass$SiltFinal, epi_biomass$OCFinal, epi_biomass$CECSOL))
+# Remove 7
+corvif(data.frame(epi_biomass$bio10_1,epi_biomass$bio10_4,epi_biomass$bio10_12,epi_biomass$bio10_15, 
+                  epi_biomass$Aridity, epi_biomass$PETyr, epi_biomass$PET_SD,
+                  epi_biomass$phFinal, epi_biomass$ClayFinal, epi_biomass$SiltFinal, epi_biomass$OCFinal, epi_biomass$CECSOL))
+
+# Remove 1
+corvif(data.frame(epi_biomass$bio10_4,epi_biomass$bio10_12,epi_biomass$bio10_15, 
+                  epi_biomass$Aridity, epi_biomass$PETyr, epi_biomass$PET_SD,
+                  epi_biomass$phFinal, epi_biomass$ClayFinal, epi_biomass$SiltFinal, epi_biomass$OCFinal, epi_biomass$CECSOL))
+# Remove pet
+corvif(data.frame(epi_biomass$bio10_4,epi_biomass$bio10_12,epi_biomass$bio10_15, 
+                  epi_biomass$Aridity, epi_biomass$PET_SD,
+                  epi_biomass$phFinal, epi_biomass$ClayFinal, epi_biomass$SiltFinal, epi_biomass$OCFinal, epi_biomass$CECSOL))
+# Remove aridity
+corvif(data.frame(epi_biomass$bio10_4,epi_biomass$bio10_12,epi_biomass$bio10_15, 
+                  epi_biomass$PET_SD,
+                  epi_biomass$phFinal, epi_biomass$ClayFinal, epi_biomass$SiltFinal, epi_biomass$OCFinal, epi_biomass$CECSOL))
+# All ok
+
+
+
+
+epi_biomass$value[which(epi_biomass$value < 0)] <- 0
+# For now
+
+epi_biomass$logValue <- log(epi_biomass$value + 1)
+hist(epi_biomass$logValue)
+
+epi_b1 <- lmer(logValue ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+             (bio10_4_scaled + bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat + ScalePETSD)^2 + 
+             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+            scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD +
+             #  SNDPPT # Not included, as the other two dictate the third
+             
+             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+             
+             # HabitatCover + 
+             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+             (1|file/Study_Name), data = epi_biomass,
+           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+epi_biomass_model <- modelSimplificationAIC(model = epi_b1, data = epi_biomass, optimizer = "bobyqa", Iters = 2e5)
+save(epi_biomass_model, file = file.path(models, "biomassmodel_epifunctionalgroups.rds"))
+
+
+
+endo_biomass <- fg_biomass[grep("Endo", fg_biomass$variable),]
+ane_biomass <- fg_biomass[grep("Ane", fg_biomass$variable),]
