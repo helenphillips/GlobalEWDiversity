@@ -54,7 +54,7 @@ length(unique(sites$file)) ## 196 papers
 length(unique(sites$Study_Name)) ##  250 studies
 
 length(unique(sites$Country))## 64 Countries
-
+nrow(sites) # 7805 
 #################################################
 # 5. Create Map
 #################################################
