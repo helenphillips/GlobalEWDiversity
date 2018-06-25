@@ -11,7 +11,10 @@ figures <- "Figures"
 ## Create map
 library(raster)
 library(RColorBrewer)
-
+library(maps)
+library(mapdata)
+library(maptools)
+library(sp)
 
 # spR_finalraster <- raster(file.path(soil_GLs, "spRFinalRaster.tif"))
 spR_finalraster <- raster("I:\\sDiv-postdocs-work\\Phillips\\sWorm\\SpatialAnalysis\\ProcessedLayers\\April2018\\spRFinalRasterminusESA.tif")
@@ -62,14 +65,60 @@ results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\B
 
  regions <- c("asia", "europe", "latin_america", "north_america", "west_asia")
 
- r <- raster(file.path(results, "africa", "BiomassFinalRaster.tif"))
- image(r, ylim = c(-90, 90), xlim = c(-180, 180))
+ africa <- raster(file.path(results, "africa", "BiomassFinalRaster.tif"))
+ asia <-  raster(file.path(results, "asia", "BiomassFinalRaster.tif"))
+ europe <- raster(file.path(results, "europe", "BiomassFinalRaster.tif"))
+ latin_america <- raster(file.path(results, "latin_america", "BiomassFinalRaster.tif"))
+ north_america <- raster(file.path(results, "north_america", "BiomassFinalRaster.tif"))
+ west_asia <- raster(file.path(results, "west_asia", "BiomassFinalRaster.tif"))
  
-for(reg in regions){
+minV <-min(c(minValue(africa),
+minValue(asia),
+minValue(europe),
+minValue(latin_america),
+minValue(north_america),
+minValue(west_asia)))
+ 
+maxV <-max(c(maxValue(africa),
+             maxValue(asia),
+             maxValue(europe),
+             maxValue(latin_america),
+             maxValue(north_america),
+             maxValue(west_asia)))
 
-  r <- raster(file.path(results, reg, "BiomassFinalRaster.tif"))
-  plot(r, add = TRUE)  
+colbrks <-  c(minV, seq(1, 4, length.out = 198), maxV)
+  
+  # seq(minV, maxV, length.out = 200)
+actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
+            '#EFF121', '#F5952D', '#E93131', '#D70131', '#D70131')
+r.cols <- colorRampPalette(actual, space = "rgb")
+
+install.packages("viridis") 
+library(viridis)
+
+r.cols <- magma(199)
+
+png(file.path(figures, "Biomass.png"),width=17.5,height=8.75,units="cm",res=1200)
+
+bkg <- raster(file.path(results, "africa", "clayBio15biomasscoef.tif"))
+image(bkg, ylim = c(-90, 90), xlim = c(-180, 180), col = "gray90", xaxt="n", yaxt="n", ylab="", xlab="")
+image(africa, col=r.cols(length(colbrks)-1), add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
+
+
+for(reg in regions){
+   
+  bkg <- raster(file.path(results, reg, "clayBio15biomasscoef.tif"))
+  image(bkg, add = TRUE, col = "gray90") 
+  #r <- raster(file.path(results, reg, "BiomassFinalRaster.tif"))
+  #image(r, add = TRUE)  
 }
+
+image(asia, col=r.cols(length(colbrks)-1), add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
+image(europe, col=r.cols(length(colbrks)-1), add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
+image(latin_america, col=r.cols(length(colbrks)-1), add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
+image(north_america, col=r.cols(length(colbrks)-1), add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
+image(west_asia, col=r.cols(length(colbrks)-1), add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
+dev.off()
 
 ##############################################################################################
 all_data <-"3_Data"
