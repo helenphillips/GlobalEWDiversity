@@ -16,6 +16,8 @@ library(lme4)
 library(randomForest)
 library(ggplot2)
 library(reshape)
+library(viridis)
+
 source("Functions/FormatData.R")
 source("Functions/lme4_ModellingFunctions.R")
 source("Functions/ModelSimplification.R")
@@ -268,3 +270,43 @@ groups <- list(
   WaterRetention = WaterRetention
 )
 biomass_import_split <- group.importance(bioM_rf, groups) 
+
+
+
+abundance_import_split
+abundance_order <- c(1, 5, 4, 2, 3)
+richness_import_split
+richness_order <- c(4, 5, 2, 1, 3)
+biomass_import_split
+biomass_order <- c(4,NA, 5,2,3)
+
+
+a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
+colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
+a[1,] <- richness_order
+a[2,] <- abundance_order
+a[3,] <- biomass_order
+## 4 is most important, 1 is least important
+rownames(a) <- c("SpeciesRichness", "Abundance", "Biomass")
+
+
+
+dat <- melt(a)
+
+dat$X1 <- factor(dat$X1, levels = c("Biomass", "Abundance","SpeciesRichness"))
+dat$X2 <- factor(dat$X2, levels = c("ESA","Soil","Precipitation", "Temperature","Water Retention"))
+
+
+jpeg(file = file.path(figures, "variableImportance_splitGroups.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+p <- ggplot(data =  dat, aes(x = X2, y = X1), ylab = "Test") +
+  geom_tile(aes(fill = value), colour = "white") +
+  # geom_text(aes(label = sprintf("%1.2f",value)), vjust = 1) +
+  # scale_fill_gradient(low = "white", high = "grey28") +
+  # scale_fill_viridis(option="viridis", discrete=TRUE) +
+  scale_fill_continuous(low = "#180F3E", high = "#FD9567", guide = "legend", guide_legend(title = ""), 
+                       labels = c("Least Important", "","", "", "Most Important")) + 
+  theme_classic() +
+  labs(dat = "Importance", x = "Variable Groups", y = "Biodiversity Model")
+p
+dev.off()
+
