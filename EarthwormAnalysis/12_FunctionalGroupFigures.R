@@ -200,23 +200,42 @@ dev.off()
 library(ade4)
 
 labelsESA <- as.factor(c("Broadleaf deciduous forest",
-               "Broadleaf evergreen forest", "Needleleaf evergreen forest",
+              "Needleleaf evergreen forest",
                "Mixed forest","Herbaceous with spare tree/shrub",
                "Shrub","Herbaceous","Production - Herbaceous","Production - Plantation") )
 
-Cols <- ColourPicker(labelsESA)
+Cols <- biomassCols
+# Cols <- ColourPicker(labelsESA)
 # This is not in the right order!!
 
-df <- data.frame(epigeic = runif(9, 1, 3), endogeics = runif(9, 1, 3),anecics =runif(9, 1, 3))
-df$total <- rowSums(df[,1:3])
+ df <- data.frame(epigeic = newdata$logValue[grep("Epi", newdata$variable)], 
+                  endogeics = newdata$logValue[grep("Endo", newdata$variable)],
+                  anecics = newdata$logValue[grep("Ane", newdata$variable)])
+
+
 df$col <- paste0("#", Cols)
 row.names(df) <- labelsESA
+
+df[,1:3] <- exp(df[,1:3]) - 1
+
+# Some less than zero
+df[which(df[,1] < 0), 1] <- 0
+df[which(df[,2] < 0), 2] <- 0
+df[which(df[,3] < 0), 3] <- 0
+
+df$total <- rowSums(df[,1:3])
+
+jpeg(file = file.path(figures, "BiomassFGTriangle.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+
 t <- triangle.plot(df[,1:3])
-points(t, col = df$col, cex = df$total, pch = 19)
+points(t, col = df$col, cex = df$total/5, pch = 19)
+# Legend for point size
+pts <- seq(floor(min(df[,4])), ceiling(max(df[,4])), length.out = 4)
+pts <- round(pts)
+legend(-1.5,1, legend= pts, fill = "black",pt.cex = pts/5, cex = 0.8, 
+       bty = "n", pch = rep(19, times = 4), y.intersp = 2.5, x.intersp =3)
+mtext("Total Biomass (g/m2)", 3, 1.2, adj=0.08)
+
 # legend for colours
 legend("topright", legend=labelsESA, fill = df$col, cex = 0.8, bty = "n")
-# Legend for point size
-pts <- seq(floor(min(df[,4])), ceiling(max(df[,4])), length.out = 3)
-pts <- round(pts)
-legend("bottomleft", legend= pts, fill = "black",pt.cex = pts, cex = 0.8, 
-       bty = "n", pch = 19, y.intersp = 2.5, x.intersp =3)
+dev.off()
