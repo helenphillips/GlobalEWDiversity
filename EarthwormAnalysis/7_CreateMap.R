@@ -40,6 +40,14 @@ north_america <- exp(north_america) - 1
 west_asia <- raster(file.path(results, "west_asia", resultRaster))
 west_asia <- exp(west_asia) - 1
 
+hist(africa)
+hist(asia)
+hist(europe)
+hist(latin_america)
+hist(north_america)
+hist(west_asia)
+
+
 minV <-min(c(minValue(africa),
              minValue(asia),
              minValue(europe),
@@ -54,7 +62,7 @@ maxV <-max(c(maxValue(africa),
              maxValue(north_america),
              maxValue(west_asia)))
 
-colbrks <-  c(minV, seq(2, 50, length.out = 198), maxV)
+colbrks <-  c(minV, seq(0.5, 4, length.out = 198), maxV)
 
 # seq(minV, maxV, length.out = 200)
 # actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
@@ -94,8 +102,8 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-# mtext("2g/m2", at = 40, cex = 1)
-# mtext("50g/m2", at = 480, cex = 1)
+mtext("1", at = 75, cex = 1)
+mtext("4", at = 430, cex = 1)
 dev.off()
 
 
