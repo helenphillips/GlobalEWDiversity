@@ -10,6 +10,8 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 source("Functions/FormatData.R")
 
 library(dplyr)
+library(reshape2)
+library(plyr)
 ########################################################
 # 2. Create folder if it doesn't exist to save data into
 ########################################################
@@ -193,12 +195,26 @@ Summary.div <- spp_dat %>% # Start by defining the original dataframe, AND THEN.
 summary.div <- as.data.frame(Summary.div)
 str(summary.div)
 
+
+#######################################################
+## SPECIES RICHNESS
+########################################################
+
+juvs <- which(spp_dat$LifeStage == "Juvenile")
+notSpecies <- which(is.na(spp_dat$Revised) & is.na(spp_dat$MorphospeciesID))
+
+notSp <- union(juvs, notSpecies)
+spR <- spp_dat[-notSp,]
+
+t <- ddply(spR, c("newID", "Revised_fg"), summarise, nrows = length(Revised_fg))
+t2 <- dcast(t, newID ~ Revised_fg, value.var = "nrows")
+names(t2)[2:6] <- c("Ane_richness", "Endo_richness", "EpiEndo_richness", "Epi_richness", "Unknown_richness")
 ##########################################################
 ## Match with site level dataset
 ##########################################################
 
 sites_fg <- merge(sites, summary.div, by.x = "newID", by.y = "newID", all.x = TRUE)
-
+sites_fg <- merge(sites_fg, t2, by.x = "newID", by.y = "newID", all.x = TRUE)
 ##########################################################
 ## Save the data
 ##########################################################
