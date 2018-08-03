@@ -18,6 +18,7 @@ library(car)
 library(DHARMa)
 library(reshape)
 source("Functions/FormatData.R")
+source("Functions/CorvifVariablePicker.R")
 source("Functions/lme4_ModellingFunctions.R")
 source("Functions/ModelSimplification.R")
 source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
@@ -80,7 +81,7 @@ idvars <- names(sites)[-(111:ncol(sites))]
 m_sites <- melt(sites, id.vars = idvars)
 
 #################################################
-# 6. Split into (currently) two diversity measures
+# 6. Split into three diversity measures
 #################################################
 biomass <- m_sites[grep("biomass", m_sites$variable),]
 biomass <- droplevels(biomass[which(!(is.na(biomass$value))),])
@@ -127,7 +128,7 @@ biomass$ScalePETSD <- scale(biomass$PET_SD)
 ## Save the data
 write.csv(biomass, file = file.path(data_out, paste("sitesFGBiomass_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
-
+# findVariables(biomass, VIFThreshold = 3)
 corvif(data.frame(biomass$bio10_1,biomass$bio10_4,biomass$bio10_7,biomass$bio10_12,biomass$bio10_15, 
                   biomass$Aridity, biomass$PETyr, biomass$PET_SD,
                   biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
@@ -177,6 +178,7 @@ abundance_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Sparse ve
 
 abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  25107
 
+fg_abundance <- abundance
 
 abundance$scalePH <- as.vector(scale(abundance$phFinal))
 abundance$scaleCLYPPT <- scale(abundance$ClayFinal)
@@ -273,12 +275,104 @@ abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimize
 save(abundance_model, file = file.path(models, "abundancemodel_functionalgroups.rds"))
 # load(file.path(models, "abundancemodel_functionalgroups.rds"))
 
+############## Richness
+richness <- m_sites[grep("richness", m_sites$variable),]
+richness <- droplevels(richness[which(!(is.na(richness$value))),])
+norichness <- aggregate(richness$value ~ richness$Study_Name, FUN = mean) # often no variation, so use mean
+norichness <- norichness[which(norichness[,2] == 0 | is.na(norichness[,2])),1]
+richness <- droplevels(richness[!(richness$Study_Name %in% norichness),]) # 9481
+
+
+richness <- droplevels(richness[richness$ESA != "Unknown",]) # 8749
+
+#  biomass <- biomass[complete.cases(biomass$value),]
+
+richness <- droplevels(richness[!(is.na(richness$bio10_15)),]) ## 
+richness <- droplevels(richness[!(is.na(richness$OCFinal)),]) ## 
+richness <- droplevels(richness[!(is.na(richness$phFinal)),]) ## 
+richness <- droplevels(richness[!(is.na(richness$SnowMonths_cat)),]) ##  
+richness <- droplevels(richness[!(is.na(richness$Aridity)),]) ##  8505
+
+
+
+table(richness$ESA, richness$variable)
+
+richness_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Sparse vegetation",
+                        "Cropland/Other vegetation mosaic", "Bare area (consolidated", "Wetland/Herbaceous", "Water bodies")
+richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##   8426
+
+fg_richness <- richness
+
+richness$scalePH <- as.vector(scale(richness$phFinal))
+richness$scaleCLYPPT <- scale(richness$ClayFinal)
+richness$scaleSLTPPT <- scale(richness$SiltFinal)
+richness$scaleCECSOL <- scale(richness$CECSOL)
+richness$scaleORCDRC <- scale(richness$OCFinal)
+
+richness$bio10_1_scaled <- scale(richness$bio10_1)
+richness$bio10_4_scaled <- scale(richness$bio10_4)
+richness$bio10_7_scaled <- scale(richness$bio10_7)
+richness$bio10_12_scaled <- scale(richness$bio10_12)
+richness$bio10_15_scaled <- scale(richness$bio10_15)
+
+
+richness$scaleAridity <- scale(richness$Aridity)
+richness$ScalePET <- scale(richness$PETyr)
+richness$ScalePETSD <- scale(richness$PET_SD)
+## Save the data
+write.csv(richness, file = file.path(data_out, paste("sitesFGRichness_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
+corvif(data.frame(richness$bio10_1,richness$bio10_4,richness$bio10_7,richness$bio10_12,richness$bio10_15, 
+                  richness$Aridity, richness$PETyr, richness$PET_SD,
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
+# Remove 7
+corvif(data.frame(richness$bio10_1,richness$bio10_4,richness$bio10_12,richness$bio10_15, 
+                  richness$Aridity, richness$PETyr, richness$PET_SD,
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
+# Remove 1
+corvif(data.frame(richness$bio10_4,richness$bio10_12,richness$bio10_15, 
+                  richness$Aridity, richness$PETyr, richness$PET_SD,
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
+# Remove 12
+corvif(data.frame(richness$bio10_4,richness$bio10_15, 
+                  richness$Aridity, richness$PETyr, richness$PET_SD,
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
+# Remove petsd
+corvif(data.frame(richness$bio10_4,richness$bio10_15, 
+                  richness$Aridity, richness$PETyr,
+                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
+# All ok
+
+##### Modelling
+
+r1 <- glmer(value ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+             (bio10_4_scaled  + bio10_15_scaled + SnowMonths_cat +scaleAridity + ScalePET)^2 + 
+             scaleCLYPPT:bio10_4_scaled + scaleSLTPPT:bio10_4_scaled +
+             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+             scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
+             scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+             #  SNDPPT # Not included, as the other two dictate the third
+             
+             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+             
+             # HabitatCover + 
+             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+             (1|file/Study_Name), data = richness, family="poisson",
+           control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+richness_model <- modelSimplificationAIC(model = r1, data = richness, optimizer = "bobyqa", Iters = 2e5)
+save(richness_model, file = file.path(models, "richnessmodel_functionalgroups.rds"))
+# load(file.path(models, "abundancemodel_functionalgroups.rds"))
+
 
 #################################################
 # SPLIT BY FUNCTIONAL GROUP
 #################################################
 
 epi_biomass <- fg_biomass[grep("Epi", fg_biomass$variable),]
+epi_biomass <- scaleVariables(epi_biomass)
+
 epi_biomass$scalePH <- as.vector(scale(epi_biomass$phFinal))
 epi_biomass$scaleCLYPPT <- scale(epi_biomass$ClayFinal)
 epi_biomass$scaleSLTPPT <- scale(epi_biomass$SiltFinal)
@@ -349,6 +443,98 @@ epi_biomass_model <- modelSimplificationAIC(model = epi_b1, data = epi_biomass, 
 save(epi_biomass_model, file = file.path(models, "biomassmodel_epifunctionalgroups.rds"))
 
 
-
+##############
 endo_biomass <- fg_biomass[grep("Endo", fg_biomass$variable),]
+endo_biomass <- scaleVariables(endo_biomass) # Function from FormatData.R
+  
+vars <- endo_biomass[,c(grep("scale", names(endo_biomass), ignore.case = TRUE))]
+v <- findVariables(df = vars, VIFThreshold = 3)
+
+# [1] "ScalePETSD"      "scalePH"         "scaleCLYPPT"     "scaleSLTPPT"    
+# [5] "scaleCECSOL"     "scaleORCDRC"     "bio10_4_scaled"  "bio10_12_scaled"
+# [9] "bio10_15_scaled"
+endo_biomass$logValue <- log(endo_biomass$value + 1)
+
+endo_b1 <- lmer(logValue ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+                 (bio10_4_scaled + bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat + ScalePETSD)^2 + 
+                 scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+                 scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                 scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD +
+                 #  SNDPPT # Not included, as the other two dictate the third
+                 
+                 # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+                 
+                 # HabitatCover + 
+                 #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+                 # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+                 (1|file/Study_Name), data = endo_biomass,
+               control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+endo_biomass_model <- modelSimplificationAIC(model = endo_b1, data = endo_biomass, optimizer = "bobyqa", Iters = 2e5)
+save(endo_biomass_model, file = file.path(models, "biomassmodel_endofunctionalgroups.rds"))
+
+
+############
 ane_biomass <- fg_biomass[grep("Ane", fg_biomass$variable),]
+vars <- ane_biomass[,df_variables(ane_biomass)]
+
+ane_biomass <- scaleVariables(ane_biomass)
+
+v <- findVariables(df = vars, VIFThreshold = 3)
+
+# [1] "ScalePETSD"      "scalePH"         "scaleCLYPPT"     "scaleSLTPPT"    
+# [5] "scaleCECSOL"     "scaleORCDRC"     "bio10_4_scaled"  "bio10_12_scaled"
+# [9] "bio10_15_scaled"
+ane_biomass$logValue <- log(ane_biomass$value + 1)
+
+ane_b1 <- lmer(logValue ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+                  (bio10_4_scaled + bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat + ScalePETSD)^2 + 
+                  scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+                  scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                  scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD +
+                  #  SNDPPT # Not included, as the other two dictate the third
+                  
+                  # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+                  
+                  # HabitatCover + 
+                  #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+                  # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+                  (1|file/Study_Name), data = ane_biomass,
+                control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+ane_biomass_model <- modelSimplificationAIC(model = ane_b1, data = ane_biomass, optimizer = "bobyqa", Iters = 2e5)
+save(ane_biomass_model, file = file.path(models, "biomassmodel_anefunctionalgroups.rds"))
+
+########################################################3
+## ABUNDANCE
+#######################################################
+
+
+endo_abundance <- fg_abundance[grep("Endo", fg_abundance$variable),]
+vars <- endo_abundance[,df_variables(endo_abundance)]
+
+endo_abundance <- scaleVariables(endo_abundance)
+
+v <- findVariables(df = vars, VIFThreshold = 3)
+
+
+endo_abundance$logValue <- log(endo_abundance$value + 1)
+
+endo_b1 <- lmer(logValue ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+                  (bio10_4_scaled + bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat + ScalePETSD)^2 + 
+                  scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+                  scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                  scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD +
+                  #  SNDPPT # Not included, as the other two dictate the third
+                  
+                  # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+                  
+                  # HabitatCover + 
+                  #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+                  # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+                  (1|file/Study_Name), data = endo_biomass,
+                control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+endo_biomass_model <- modelSimplificationAIC(model = endo_b1, data = endo_biomass, optimizer = "bobyqa", Iters = 2e5)
+save(endo_biomass_model, file = file.path(models, "biomassmodel_endofunctionalgroups.rds"))
+
