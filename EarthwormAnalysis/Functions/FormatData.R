@@ -143,3 +143,28 @@ SiteLevels <- function(sites){
   
   return(sites)
 }
+
+
+scaleVariables <- function(data){
+  
+  print("Scaling the following variables: pH, Clay, Silt, CEC, OrganicC, bio1, bio4, bio7, bio12, bio15, aridity, PET and PETSD")
+  
+  data$scalePH <- as.vector(scale(data$phFinal))
+  data$scaleCLYPPT <- scale(data$ClayFinal)
+  data$scaleSLTPPT <- scale(data$SiltFinal)
+  data$scaleCECSOL <- scale(data$CECSOL)
+  data$scaleORCDRC <- scale(data$OCFinal)
+  
+  data$bio10_1_scaled <- scale(data$bio10_1)
+  data$bio10_4_scaled <- scale(data$bio10_4)
+  data$bio10_7_scaled <- scale(data$bio10_7)
+  data$bio10_12_scaled <- scale(data$bio10_12)
+  data$bio10_15_scaled <- scale(data$bio10_15)
+  
+  data$scaleAridity <- scale(data$Aridity)
+  data$ScalePET <- scale(data$PETyr)
+  data$ScalePETSD <- scale(data$PET_SD)
+  
+  return(data)
+  
+}
