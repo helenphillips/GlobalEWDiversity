@@ -109,45 +109,21 @@ biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##   777
 
 fg_biomass <- biomass
 
-biomass$scalePH <- as.vector(scale(biomass$phFinal))
-biomass$scaleCLYPPT <- scale(biomass$ClayFinal)
-biomass$scaleSLTPPT <- scale(biomass$SiltFinal)
-biomass$scaleCECSOL <- scale(biomass$CECSOL)
-biomass$scaleORCDRC <- scale(biomass$OCFinal)
+# Scale variables
+biomass <- scaleVariables(biomass)
 
-biomass$bio10_1_scaled <- scale(biomass$bio10_1)
-biomass$bio10_4_scaled <- scale(biomass$bio10_4)
-biomass$bio10_7_scaled <- scale(biomass$bio10_7)
-biomass$bio10_12_scaled <- scale(biomass$bio10_12)
-biomass$bio10_15_scaled <- scale(biomass$bio10_15)
-
-
-biomass$scaleAridity <- scale(biomass$Aridity)
-biomass$ScalePET <- scale(biomass$PETyr)
-biomass$ScalePETSD <- scale(biomass$PET_SD)
 ## Save the data
 write.csv(biomass, file = file.path(data_out, paste("sitesFGBiomass_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
 # findVariables(biomass, VIFThreshold = 3)
-corvif(data.frame(biomass$bio10_1,biomass$bio10_4,biomass$bio10_7,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$Aridity, biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
+ind <- df_variables(biomass)
+dat <- biomass[,c(ind)]
+cor <- findVariables(dat, VIFThreshold = 3)
+
 # Remove bio 7
-corvif(data.frame(biomass$bio10_1,biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$Aridity, biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
 # REmove 1
-corvif(data.frame(biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$Aridity, biomass$PETyr, biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
 # Remove petyr
-corvif(data.frame(biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$Aridity,biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
 # Remove Aridity
-corvif(data.frame(biomass$bio10_4,biomass$bio10_12,biomass$bio10_15, 
-                  biomass$PET_SD,
-                  biomass$phFinal, biomass$ClayFinal, biomass$SiltFinal, biomass$OCFinal, biomass$CECSOL))
 # Ok
 
 ############################### Abundance
@@ -158,9 +134,6 @@ noabundance <- noabundance[which(noabundance[,2] == 0 | is.na(noabundance[,2])),
 abundance <- droplevels(abundance[!(abundance$Study_Name %in% noabundance),]) # 25384
 
 abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #6759
-
-
-
 
 
 # abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
@@ -180,43 +153,22 @@ abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) 
 
 fg_abundance <- abundance
 
-abundance$scalePH <- as.vector(scale(abundance$phFinal))
-abundance$scaleCLYPPT <- scale(abundance$ClayFinal)
-abundance$scaleSLTPPT <- scale(abundance$SiltFinal)
-abundance$scaleCECSOL <- scale(abundance$CECSOL)
-abundance$scaleORCDRC <- scale(abundance$OCFinal)
+# Scale variables
+abundance <- scaleVariables(abundance)
 
-abundance$bio10_1_scaled <- scale(abundance$bio10_1)
-abundance$bio10_4_scaled <- scale(abundance$bio10_4)
-abundance$bio10_7_scaled <- scale(abundance$bio10_7)
-abundance$bio10_12_scaled <- scale(abundance$bio10_12)
-abundance$bio10_15_scaled <- scale(abundance$bio10_15)
 
-abundance$scaleAridity <- scale(abundance$Aridity)
-abundance$ScalePET <- scale(abundance$PETyr)
-abundance$ScalePETSD <- scale(abundance$PET_SD)
 
 write.csv(abundance, file = file.path(data_out, paste("sitesFGAbundance_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
-corvif(data.frame(abundance$bio10_1,abundance$bio10_4,abundance$bio10_7,abundance$bio10_12,abundance$bio10_15, 
-                  abundance$Aridity, abundance$PETyr, abundance$PET_SD,
-                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal, abundance$CECSOL))
+# findVariables(biomass, VIFThreshold = 3)
+ind <- df_variables(abundance)
+dat <- abundance[,c(ind)]
+cor <- findVariables(dat, VIFThreshold = 3)
+
 # Remove bio 7
-corvif(data.frame(abundance$bio10_1,abundance$bio10_4,abundance$bio10_12,abundance$bio10_15, 
-                  abundance$Aridity, abundance$PETyr, abundance$PET_SD,
-                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal, abundance$CECSOL))
 # Remove 1
-corvif(data.frame(abundance$bio10_4,abundance$bio10_12,abundance$bio10_15, 
-                  abundance$Aridity, abundance$PETyr, abundance$PET_SD,
-                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal, abundance$CECSOL))
 # Remove 12
-corvif(data.frame(abundance$bio10_4,abundance$bio10_15, 
-                  abundance$Aridity, abundance$PETyr, abundance$PET_SD,
-                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal, abundance$CECSOL))
 # Remove pet_sd
-corvif(data.frame(abundance$bio10_4,abundance$bio10_15, 
-                  abundance$Aridity, abundance$PETyr,
-                  abundance$phFinal, abundance$ClayFinal, abundance$SiltFinal, abundance$OCFinal, abundance$CECSOL))
 ## All ok
 
 
