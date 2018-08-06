@@ -1,7 +1,7 @@
 df_variables <- function(data){
 toMatch <- c("phFinal",
 "ClayFinal", "SiltFinal",
-"CECSOL", "OCFinal",
+"^CECSOL$", "OCFinal",
 
 "^bio10_1$", "^bio10_4$",
 "^bio10_7$", "^bio10_12$",
