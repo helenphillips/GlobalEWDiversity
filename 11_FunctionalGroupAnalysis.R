@@ -255,44 +255,23 @@ richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##  
 
 fg_richness <- richness
 
-richness$scalePH <- as.vector(scale(richness$phFinal))
-richness$scaleCLYPPT <- scale(richness$ClayFinal)
-richness$scaleSLTPPT <- scale(richness$SiltFinal)
-richness$scaleCECSOL <- scale(richness$CECSOL)
-richness$scaleORCDRC <- scale(richness$OCFinal)
-
-richness$bio10_1_scaled <- scale(richness$bio10_1)
-richness$bio10_4_scaled <- scale(richness$bio10_4)
-richness$bio10_7_scaled <- scale(richness$bio10_7)
-richness$bio10_12_scaled <- scale(richness$bio10_12)
-richness$bio10_15_scaled <- scale(richness$bio10_15)
+# Scale variables
+richness <- scaleVariables(richness)
 
 
-richness$scaleAridity <- scale(richness$Aridity)
-richness$ScalePET <- scale(richness$PETyr)
-richness$ScalePETSD <- scale(richness$PET_SD)
 ## Save the data
 write.csv(richness, file = file.path(data_out, paste("sitesFGRichness_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
-corvif(data.frame(richness$bio10_1,richness$bio10_4,richness$bio10_7,richness$bio10_12,richness$bio10_15, 
-                  richness$Aridity, richness$PETyr, richness$PET_SD,
-                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
+
+# findVariables(biomass, VIFThreshold = 3)
+ind <- df_variables(richness)
+dat <- richness[,c(ind)]
+cor <- findVariables(dat, VIFThreshold = 3)
+
 # Remove 7
-corvif(data.frame(richness$bio10_1,richness$bio10_4,richness$bio10_12,richness$bio10_15, 
-                  richness$Aridity, richness$PETyr, richness$PET_SD,
-                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
 # Remove 1
-corvif(data.frame(richness$bio10_4,richness$bio10_12,richness$bio10_15, 
-                  richness$Aridity, richness$PETyr, richness$PET_SD,
-                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
 # Remove 12
-corvif(data.frame(richness$bio10_4,richness$bio10_15, 
-                  richness$Aridity, richness$PETyr, richness$PET_SD,
-                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
 # Remove petsd
-corvif(data.frame(richness$bio10_4,richness$bio10_15, 
-                  richness$Aridity, richness$PETyr,
-                  richness$phFinal, richness$ClayFinal, richness$SiltFinal, richness$OCFinal, richness$CECSOL))
 # All ok
 
 ##### Modelling
@@ -325,49 +304,15 @@ save(richness_model, file = file.path(models, "richnessmodel_functionalgroups.rd
 epi_biomass <- fg_biomass[grep("Epi", fg_biomass$variable),]
 epi_biomass <- scaleVariables(epi_biomass)
 
-epi_biomass$scalePH <- as.vector(scale(epi_biomass$phFinal))
-epi_biomass$scaleCLYPPT <- scale(epi_biomass$ClayFinal)
-epi_biomass$scaleSLTPPT <- scale(epi_biomass$SiltFinal)
-epi_biomass$scaleCECSOL <- scale(epi_biomass$CECSOL)
-epi_biomass$scaleORCDRC <- scale(epi_biomass$OCFinal)
-
-epi_biomass$bio10_1_scaled <- scale(epi_biomass$bio10_1)
-epi_biomass$bio10_4_scaled <- scale(epi_biomass$bio10_4)
-epi_biomass$bio10_7_scaled <- scale(epi_biomass$bio10_7)
-epi_biomass$bio10_12_scaled <- scale(epi_biomass$bio10_12)
-epi_biomass$bio10_15_scaled <- scale(epi_biomass$bio10_15)
-
-
-epi_biomass$scaleAridity <- scale(epi_biomass$Aridity)
-epi_biomass$ScalePET <- scale(epi_biomass$PETyr)
-epi_biomass$ScalePETSD <- scale(epi_biomass$PET_SD)
-## Save the data
-write.csv(epi_biomass, file = file.path(data_out, paste("EpiFGBiomass_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
-
-
-corvif(data.frame(epi_biomass$bio10_1,epi_biomass$bio10_4,epi_biomass$bio10_7,epi_biomass$bio10_12,epi_biomass$bio10_15, 
-                  epi_biomass$Aridity, epi_biomass$PETyr, epi_biomass$PET_SD,
-                  epi_biomass$phFinal, epi_biomass$ClayFinal, epi_biomass$SiltFinal, epi_biomass$OCFinal, epi_biomass$CECSOL))
+# findVariables(biomass, VIFThreshold = 3)
+ind <- df_variables(epi_biomass)
+dat <- epi_biomass[,c(ind)]
+cor <- findVariables(dat, VIFThreshold = 3)
 # Remove 7
-corvif(data.frame(epi_biomass$bio10_1,epi_biomass$bio10_4,epi_biomass$bio10_12,epi_biomass$bio10_15, 
-                  epi_biomass$Aridity, epi_biomass$PETyr, epi_biomass$PET_SD,
-                  epi_biomass$phFinal, epi_biomass$ClayFinal, epi_biomass$SiltFinal, epi_biomass$OCFinal, epi_biomass$CECSOL))
-
 # Remove 1
-corvif(data.frame(epi_biomass$bio10_4,epi_biomass$bio10_12,epi_biomass$bio10_15, 
-                  epi_biomass$Aridity, epi_biomass$PETyr, epi_biomass$PET_SD,
-                  epi_biomass$phFinal, epi_biomass$ClayFinal, epi_biomass$SiltFinal, epi_biomass$OCFinal, epi_biomass$CECSOL))
 # Remove pet
-corvif(data.frame(epi_biomass$bio10_4,epi_biomass$bio10_12,epi_biomass$bio10_15, 
-                  epi_biomass$Aridity, epi_biomass$PET_SD,
-                  epi_biomass$phFinal, epi_biomass$ClayFinal, epi_biomass$SiltFinal, epi_biomass$OCFinal, epi_biomass$CECSOL))
 # Remove aridity
-corvif(data.frame(epi_biomass$bio10_4,epi_biomass$bio10_12,epi_biomass$bio10_15, 
-                  epi_biomass$PET_SD,
-                  epi_biomass$phFinal, epi_biomass$ClayFinal, epi_biomass$SiltFinal, epi_biomass$OCFinal, epi_biomass$CECSOL))
 # All ok
-
-
 
 
 epi_biomass$value[which(epi_biomass$value < 0)] <- 0
