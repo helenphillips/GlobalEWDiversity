@@ -275,25 +275,19 @@ cor <- findVariables(dat, VIFThreshold = 3)
 # All ok
 
 ##### Modelling
+## This is now done in a separate script on the cluster
 
-r1 <- glmer(value ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
-             (bio10_4_scaled  + bio10_15_scaled + SnowMonths_cat +scaleAridity + ScalePET)^2 + 
-             scaleCLYPPT:bio10_4_scaled + scaleSLTPPT:bio10_4_scaled +
-             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-             scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
-             scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
-             #  SNDPPT # Not included, as the other two dictate the third
-             
-             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
-             
-             # HabitatCover + 
-             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
-             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
-             (1|file/Study_Name), data = richness, family="poisson",
-           control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-
-richness_model <- modelSimplificationAIC(model = r1, data = richness, optimizer = "bobyqa", Iters = 2e5)
-save(richness_model, file = file.path(models, "richnessmodel_functionalgroups.rds"))
+# r1 <- glmer(value ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+#              (bio10_4_scaled  + bio10_15_scaled + SnowMonths_cat +scaleAridity + ScalePET)^2 + 
+#              scaleCLYPPT:bio10_4_scaled + scaleSLTPPT:bio10_4_scaled +
+#              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+#              scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
+#              scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+#              (1|file/Study_Name), data = richness, family="poisson",
+#            control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+# 
+# richness_model <- modelSimplificationAIC(model = r1, data = richness, optimizer = "bobyqa", Iters = 2e5)
+# save(richness_model, file = file.path(models, "richnessmodel_functionalgroups.rds"))
 # load(file.path(models, "abundancemodel_functionalgroups.rds"))
 
 
@@ -405,8 +399,36 @@ save(ane_biomass_model, file = file.path(models, "biomassmodel_anefunctionalgrou
 ########################################################3
 ## ABUNDANCE
 #######################################################
+#epi 
+epi_abundance <- fg_abundance[grep("Epi", fg_abundance$variable),]
+vars <- epi_abundance[,df_variables(epi_abundance)]
+
+epi_abundance <- scaleVariables(epi_abundance)
+
+v <- findVariables(df = vars, VIFThreshold = 3)
 
 
+epi_abundance$logValue <- log(epi_abundance$value + 1)
+
+epi_a1 <- lmer(logValue ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+                  (bio10_4_scaled + bio10_15_scaled + SnowMonths_cat + ScalePET + scaleAridity)^2 + 
+                  scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                  scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+                 scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
+                  #  SNDPPT # Not included, as the other two dictate the third
+                  
+                  # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+                  
+                  # HabitatCover + 
+                  #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+                  # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+                  (1|file/Study_Name), data = epi_abundance,
+                control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+epi_abundance_model <- modelSimplificationAIC(model = epi_a1, data = epi_abundance, optimizer = "bobyqa", Iters = 2e5)
+save(epi_abundance_model, file = file.path(models, "abundancemodel_epifunctionalgroups.rds"))
+
+## Endo
 endo_abundance <- fg_abundance[grep("Endo", fg_abundance$variable),]
 vars <- endo_abundance[,df_variables(endo_abundance)]
 
@@ -417,11 +439,11 @@ v <- findVariables(df = vars, VIFThreshold = 3)
 
 endo_abundance$logValue <- log(endo_abundance$value + 1)
 
-endo_b1 <- lmer(logValue ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
-                  (bio10_4_scaled + bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat + ScalePETSD)^2 + 
-                  scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+endo_a1 <- lmer(logValue ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+                  (bio10_4_scaled + bio10_15_scaled + SnowMonths_cat + ScalePET + scaleAridity)^2 + 
+                  scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
                   scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-                  scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD +
+                  scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
                   #  SNDPPT # Not included, as the other two dictate the third
                   
                   # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
@@ -429,9 +451,44 @@ endo_b1 <- lmer(logValue ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleO
                   # HabitatCover + 
                   #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
                   # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
-                  (1|file/Study_Name), data = endo_biomass,
+                  (1|file/Study_Name), data = endo_abundance,
                 control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
-endo_biomass_model <- modelSimplificationAIC(model = endo_b1, data = endo_biomass, optimizer = "bobyqa", Iters = 2e5)
-save(endo_biomass_model, file = file.path(models, "biomassmodel_endofunctionalgroups.rds"))
+endo_abundance_model <- modelSimplificationAIC(model = endo_a1, data = endo_abundance, optimizer = "bobyqa", Iters = 2e5)
+save(endo_abundance_model, file = file.path(models, "abundancemodel_endofunctionalgroups.rds"))
 
+## ane
+ane_abundance <- fg_abundance[grep("Ane", fg_abundance$variable),]
+vars <- ane_abundance[,df_variables(ane_abundance)]
+
+ane_abundance <- scaleVariables(ane_abundance)
+
+v <- findVariables(df = vars, VIFThreshold = 3)
+
+
+ane_abundance$logValue <- log(ane_abundance$value + 1)
+
+ane_a1 <- lmer(logValue ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+                  (bio10_4_scaled + bio10_15_scaled + SnowMonths_cat + ScalePET + scaleAridity)^2 + 
+                  scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
+                  scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                  scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+                  #  SNDPPT # Not included, as the other two dictate the third
+                  
+                  # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
+                  
+                  # HabitatCover + 
+                  #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
+                  # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+                  (1|file/Study_Name), data = ane_abundance,
+                control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+ane_abundance_model <- modelSimplificationAIC(model = ane_a1, data = ane_abundance, optimizer = "bobyqa", Iters = 2e5)
+save(ane_abundance_model, file = file.path(models, "abundancemodel_anefunctionalgroups.rds"))
+
+
+########################################################3
+## RICHNESS
+#######################################################
+
+# This is all done in a separate scrips on the cluster
