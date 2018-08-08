@@ -492,3 +492,27 @@ save(ane_abundance_model, file = file.path(models, "abundancemodel_anefunctional
 #######################################################
 
 # This is all done in a separate scrips on the cluster
+epi_richness <- fg_richness[grep("Epi", fg_richness$variable),]
+vars <- epi_richness[,df_variables(epi_richness)]
+v <- findVariables(df = vars, VIFThreshold = 3)
+# remove 7
+# remove 1
+# remove aridity
+# remove 4
+
+endo_richness <- fg_richness[grep("Endo", fg_richness$variable),]
+vars <- endo_richness[,df_variables(endo_richness)]
+v <- findVariables(df = vars, VIFThreshold = 3)
+# remove 7
+# remove 1
+# remove 12
+# remove petsd
+
+ane_richness <- fg_richness[grep("Ane", fg_richness$variable),]
+vars <- ane_richness[,df_variables(ane_richness)]
+v <- findVariables(df = vars, VIFThreshold = 3)
+# remove 7
+# remove petyr
+# remove aridity
+# remove 4
+
