@@ -248,7 +248,7 @@ nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
 
-bkg <- raster(file.path(results, "africa", "clayBio15biomasscoef.tif"))
+bkg <- raster(file.path(results, "africa", "clayBio15abundancecoef.tif"))
 image(bkg, ylim = c(-90, 90), xlim = c(-180, 180), col = "gray90", xaxt="n", yaxt="n", ylab="", xlab="")
 image(africa, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 
