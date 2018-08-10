@@ -370,3 +370,24 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
   
   
 }
+
+
+
+#########################################################################
+## VARIABLE IMPORTANCE PLOTS
+#########################################################################
+
+VariableImportancePlot <- function(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Functional Group Model"){
+
+# jpeg(file = file.path(figures, "variableImportance_AbundanceFGs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+p <- ggplot(data =  dat, aes(x = X2, y = X1), ylab = "Test") +
+  geom_tile(aes(fill = value), colour = "white") +
+  # geom_text(aes(label = sprintf("%1.2f",value)), vjust = 1) +
+  # scale_fill_gradient(low = "white", high = "grey28") +
+  # scale_fill_viridis(option="viridis", discrete=TRUE) +
+  scale_fill_continuous(low = lowColour, high = highColour, guide = "legend", guide_legend(title = ""), 
+                        labels = c("Least Important", "","", "", "Most Important")) + 
+  theme_classic() +
+  labs(dat = "Importance", x = "Variable Groups", y = yLab)
+  return(p)
+}
