@@ -165,7 +165,7 @@ ESA <- "ESA"
 
 Climate <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat")
 
-Soil <- c("scalePH","scaleORCDRC", "scaleCECSOL","scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC")
+Soil <- c("scalePH","scaleORCDRC", "scaleCECSOL","scaleCLYPPT", "scaleSLTPPT")
 
 WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled")
 
@@ -260,7 +260,7 @@ richness_import_split <- group.importance(spR_rf, groups)
 
 ESA <- "ESA"
 Precip <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat")
-Soil <- c("scalePH","scaleORCDRC", "scaleCECSOL","scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC")
+Soil <- c("scalePH","scaleORCDRC", "scaleCECSOL","scaleCLYPPT", "scaleSLTPPT")
 WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled")
 
 groups <- list(
