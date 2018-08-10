@@ -231,7 +231,7 @@ maxV <-max(c(maxValue(africa),
              maxValue(north_america),
              maxValue(west_asia)))
 
-colbrks <-  c(minV, seq(2, 50, length.out = 198), maxV)
+colbrks <-  c(minV, seq(20, 100, length.out = 198), maxV)
 
 # seq(minV, maxV, length.out = 200)
 # actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
@@ -255,7 +255,7 @@ image(africa, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="
 
 for(reg in regions){
   
-  bkg <- raster(file.path(results, reg, "clayBio15biomasscoef.tif"))
+  bkg <- raster(file.path(results, reg, "clayBio15abundancecoef.tif"))
   image(bkg, add = TRUE, col = "gray90") 
   #r <- raster(file.path(results, reg, "BiomassFinalRaster.tif"))
   #image(r, add = TRUE)  
@@ -271,8 +271,8 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-# mtext("2g/m2", at = 40, cex = 1)
-# mtext("50g/m2", at = 480, cex = 1)
+mtext("20 ind/m2", at = 40, cex = 1)
+mtext("100 ind/m2", at = 480, cex = 1)
 dev.off()
 
 ##############################################################################################
