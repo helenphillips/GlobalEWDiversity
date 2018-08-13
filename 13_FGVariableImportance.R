@@ -46,9 +46,6 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 richness <- read.csv(file.path(data_in, loadin))
 
-load(file.path(models, "richnessmodel_epifunctionalgroups.rds"))
-load(file.path(models, "richnessmodel_endofunctionalgroups.rds"))
-load(file.path(models, "richnessmodel_anefunctionalgroups.rds"))
 
 ## Abundance 
 files <- list.files(file.path(data_in))
@@ -60,9 +57,6 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 abundance <- read.csv(file.path(data_in, loadin))
 
-load(file.path(models, "abundancemodel_epifunctionalgroups.rds"))
-load(file.path(models, "abundancemodel_endofunctionalgroups.rds"))
-load(file.path(models, "abundancemodel_anefunctionalgroups.rds"))
 
 ## Biomass 
 files <- list.files(file.path(data_in))
@@ -74,28 +68,42 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 biomass <- read.csv(file.path(data_in, loadin))
 
-load(file.path(models, "biomassmodel_epifunctionalgroups.rds"))
-load(file.path(models, "biomassmodel_endofunctionalgroups.rds"))
-load(file.path(models, "biomassmodel_anefunctionalgroups.rds"))
+############################################################
+# Load in main models
+###########################################################
+# Using the variables from these
+load(file.path(models, "richnessmodel_full.rds"))
+load(file.path(models, "biomassmodel_full.rds"))
+load(file.path(models, "abundancemodel_full.rds"))
+
 
 ###############################################################
 ##  BIOMASS - with split groups
 ###############################################################
+# logBiomass ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleORCDRC +  
+# scaleCECSOL + bio10_12_scaled + bio10_15_scaled + scalePH:scaleCLYPPT +  
+#  scalePH:scaleSLTPPT + scalePH:scaleORCDRC + scalePH:scaleCECSOL +  
+#  scaleCLYPPT:scaleORCDRC + scaleCLYPPT:scaleCECSOL + scaleSLTPPT:scaleCECSOL +  
+#  scaleORCDRC:scaleCECSOL + scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +  
+#  scaleCLYPPT:bio10_15_scaled + ESA + SnowMonths_cat
+
 
 # BIOMASS
-# epi
+biomass_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "scaleCECSOL",
+                         "bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", "ESA")
+
 ESA <- "ESA"
-epi_Temperature <- c("bio10_4_scaled", "ScalePETSD")
-epi_Precip <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat")
-epi_Soil <- c("scalePH","scaleORCDRC","scaleCLYPPT", "scaleSLTPPT")
-epi_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled", "ScalePETSD")
+# biomass_Temperature <- c("bio10_4_scaled", "ScalePETSD")
+biomass_Precip <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat")
+biomass_Soil <- c("scalePH","scaleORCDRC","scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL")
+biomass_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled")
 
 groups <- list(
   ESA = ESA,
-  epi_Temperature = epi_Temperature,
-  epi_Precip = epi_Precip,
-  epi_Soil = epi_Soil,
-  epi_WaterRetention = epi_WaterRetention
+  # biomass_Temperature = biomass_Temperature,
+  biomass_Precip = biomass_Precip,
+  biomass_Soil = biomass_Soil,
+  biomass_WaterRetention = biomass_WaterRetention
 )
 
 
@@ -104,11 +112,7 @@ epi_biomass <- scaleVariables(epi_biomass)
 epi_biomass$value[which(epi_biomass$value < 0)] <- 0
 epi_biomass$logValue <- log(epi_biomass$value + 1)
 
-epi_biomass_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "bio10_4_scaled", "bio10_12_scaled",  
-                         "bio10_15_scaled", "SnowMonths_cat", "ScalePETSD", "ESA")
-
-
-epi_bioM_rf <- randomForest(y = epi_biomass$logValue, x = epi_biomass[,names(epi_biomass) %in% epi_biomass_mainEffects], 
+epi_bioM_rf <- randomForest(y = epi_biomass$logValue, x = epi_biomass[,names(epi_biomass) %in% biomass_mainEffects], 
                         ntree=501, importance=TRUE, proximity = TRUE)
 varImpPlot(epi_bioM_rf, type=1)
 varImpPlot(epi_bioM_rf, type=2)
@@ -116,30 +120,12 @@ varImpPlot(epi_bioM_rf, type=2)
 epi_biomass_import_split <- group.importance(epi_bioM_rf, groups = groups) 
 
 # endo
-endo_Temperature <- c("bio10_4_scaled", "ScalePETSD")
-endo_Precip <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat")
-endo_Soil <- c("scalePH","scaleORCDRC","scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL")
-endo_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled", "ScalePETSD")
-
-groups <- list(
-  ESA = ESA,
-  endo_Temperature = endo_Temperature,
-  endo_Precip = endo_Precip,
-  endo_Soil = endo_Soil,
-  endo_WaterRetention = endo_WaterRetention
-)
-
-
 endo_biomass <- biomass[grep("Endo", biomass$variable),]
 endo_biomass <- scaleVariables(endo_biomass)
 endo_biomass$value[which(endo_biomass$value < 0)] <- 0
 endo_biomass$logValue <- log(endo_biomass$value + 1)
 
-endo_biomass_mainEffects <- c("scalePH", "scaleCECSOL", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "bio10_4_scaled", "bio10_12_scaled",  
-                             "bio10_15_scaled", "SnowMonths_cat", "ScalePETSD", "ESA")
-
-
-endo_bioM_rf <- randomForest(y = endo_biomass$logValue, x = endo_biomass[,names(endo_biomass) %in% endo_biomass_mainEffects], 
+endo_bioM_rf <- randomForest(y = endo_biomass$logValue, x = endo_biomass[,names(endo_biomass) %in% biomass_mainEffects], 
                             ntree=501, importance=TRUE, proximity = TRUE)
 varImpPlot(endo_bioM_rf, type=1)
 varImpPlot(endo_bioM_rf, type=2)
@@ -147,32 +133,12 @@ varImpPlot(endo_bioM_rf, type=2)
 endo_biomass_import_split <- group.importance(endo_bioM_rf, groups = groups) 
 
 ## Anecics
-
-# endo
-ane_Temperature <- c("bio10_4_scaled", "ScalePETSD")
-ane_Precip <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat")
-ane_Soil <- c("scalePH","scaleORCDRC","scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL")
-ane_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled", "ScalePETSD")
-
-groups <- list(
-  ESA = ESA,
-  ane_Temperature = ane_Temperature,
-  ane_Precip = ane_Precip,
-  ane_Soil = ane_Soil,
-  ane_WaterRetention = ane_WaterRetention
-)
-
-
 ane_biomass <- biomass[grep("Ane", biomass$variable),]
 ane_biomass <- scaleVariables(ane_biomass)
 ane_biomass$value[which(ane_biomass$value < 0)] <- 0
 ane_biomass$logValue <- log(ane_biomass$value + 1)
 
-ane_biomass_mainEffects <- c("scalePH", "scaleCECSOL", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "bio10_4_scaled", "bio10_12_scaled",  
-                              "bio10_15_scaled", "SnowMonths_cat", "ScalePETSD", "ESA")
-
-
-ane_bioM_rf <- randomForest(y = ane_biomass$logValue, x = ane_biomass[,names(ane_biomass) %in% ane_biomass_mainEffects], 
+ane_bioM_rf <- randomForest(y = ane_biomass$logValue, x = ane_biomass[,names(ane_biomass) %in% biomass_mainEffects], 
                              ntree=501, importance=TRUE, proximity = TRUE)
 varImpPlot(ane_bioM_rf, type=1)
 varImpPlot(ane_bioM_rf, type=2)
@@ -184,13 +150,13 @@ ane_biomass_import_split <- group.importance(ane_bioM_rf, groups = groups)
 # Biomass figure
 ############
 ## 5 is most important, 1 is least important
-
+# NA is 1 
 epi_biomass_import_split
-epi_biomass_order <- c(1, 5, 4, 2, 3)
+epi_biomass_order <- c(2, NA, 5, 3, 4)
 endo_biomass_import_split
-endo_biomass_order <- c(5,4,2,1,3)
+endo_biomass_order <- c(5,NA,4,2,3)
 ane_biomass_import_split
-ane_biomass_order <- c(5, 4, 2, 3, 1)
+ane_biomass_order <- c(5, NA, 3, 4, 2)
 
 a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
 colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
@@ -213,18 +179,32 @@ dev.off()
 ##  ABUNDANCE - with split groups
 ###############################################################
 # epi
+# logAbundance ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL +  
+#  scaleORCDRC + bio10_1_scaled + bio10_15_scaled + SnowMonths_cat +  
+#  scaleAridity + ScalePETSD + scalePH:scaleCLYPPT + scalePH:scaleCECSOL +  
+#  scaleCLYPPT:scaleCECSOL + scaleSLTPPT:scaleCECSOL + scaleCECSOL:scaleORCDRC +  
+#  bio10_1_scaled:bio10_15_scaled + bio10_1_scaled:SnowMonths_cat +  
+#  bio10_1_scaled:scaleAridity + bio10_1_scaled:ScalePETSD +  
+#  bio10_15_scaled:SnowMonths_cat + SnowMonths_cat:ScalePETSD +  
+#  scaleCLYPPT:bio10_15_scaled + scaleCLYPPT:ScalePETSD + ESA +  
+
+abundance_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "scaleCECSOL", 
+                           "bio10_1_scaled", "bio10_15_scaled", "SnowMonths_cat", "scaleAridity", 
+                           "ScalePETSD", "ESA")
+
+
 ESA <- "ESA"
-epi_Temperature <- c("bio10_4_scaled", "ScalePET")
-epi_Precip <- c("bio10_15_scaled", "SnowMonths_cat", "scaleAridity")
-epi_Soil <- c("scalePH","scaleORCDRC","scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL")
-epi_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_15_scaled", "ScalePET", "scaleAridity")
+abundance_Temperature <- c("bio10_1_scaled", "ScalePETSD")
+abundance_Precip <- c("bio10_15_scaled", "SnowMonths_cat", "scaleAridity")
+abundance_Soil <- c("scalePH","scaleORCDRC","scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL")
+abundance_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_15_scaled", "ScalePETSD", "scaleAridity")
 
 groups <- list(
   ESA = ESA,
-  epi_Temperature = epi_Temperature,
-  epi_Precip = epi_Precip,
-  epi_Soil = epi_Soil,
-  epi_WaterRetention = epi_WaterRetention
+  abundance_Temperature = abundance_Temperature,
+  abundance_Precip = abundance_Precip,
+  abundance_Soil = abundance_Soil,
+  abundance_WaterRetention = abundance_WaterRetention
 )
 
 
@@ -232,11 +212,7 @@ epi_abundance <- abundance[grep("Epi", abundance$variable),]
 epi_abundance <- scaleVariables(epi_abundance)
 epi_abundance$logValue <- log(epi_abundance$value + 1)
 
-epi_abundance_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "scaleCECSOL", "bio10_4_scaled", 
-                             "bio10_15_scaled", "SnowMonths_cat", "scaleAridity", "ScalePET", "ESA")
-
-
-epi_abund_rf <- randomForest(y = epi_abundance$logValue, x = epi_abundance[,names(epi_abundance) %in% epi_abundance_mainEffects], 
+epi_abund_rf <- randomForest(y = epi_abundance$logValue, x = epi_abundance[,names(epi_abundance) %in% abundance_mainEffects], 
                             ntree=501, importance=TRUE, proximity = TRUE)
 varImpPlot(epi_abund_rf, type=1)
 varImpPlot(epi_abund_rf, type=2)
@@ -244,30 +220,12 @@ varImpPlot(epi_abund_rf, type=2)
 epi_abundance_import_split <- group.importance(epi_abund_rf, groups = groups) 
 
 # endo
-endo_Temperature <- c("bio10_4_scaled", "ScalePET")
-endo_Precip <- c("bio10_15_scaled", "SnowMonths_cat", "scaleAridity")
-endo_Soil <- c("scalePH","scaleORCDRC","scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL")
-endo_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "scaleAridity", "bio10_15_scaled", "ScalePET")
-
-groups <- list(
-  ESA = ESA,
-  endo_Temperature = endo_Temperature,
-  endo_Precip = endo_Precip,
-  endo_Soil = endo_Soil,
-  endo_WaterRetention = endo_WaterRetention
-)
-
-
 endo_abundance <- abundance[grep("Endo", abundance$variable),]
 endo_abundance <- scaleVariables(endo_abundance)
 endo_abundance$value[which(endo_abundance$value < 0)] <- 0
 endo_abundance$logValue <- log(endo_abundance$value + 1)
 
-endo_abundance_mainEffects <- c("scalePH", "scaleCECSOL", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "bio10_4_scaled", "bio10_15_scaled",  
-                              "SnowMonths_cat", "ScalePET", "scaleAridity", "ESA")
-
-
-endo_abund_rf <- randomForest(y = endo_abundance$logValue, x = endo_abundance[,names(endo_abundance) %in% endo_abundance_mainEffects], 
+endo_abund_rf <- randomForest(y = endo_abundance$logValue, x = endo_abundance[,names(endo_abundance) %in% abundance_mainEffects], 
                              ntree=501, importance=TRUE, proximity = TRUE)
 varImpPlot(endo_abund_rf, type=1)
 varImpPlot(endo_abund_rf, type=2)
@@ -275,30 +233,12 @@ varImpPlot(endo_abund_rf, type=2)
 endo_abundance_import_split <- group.importance(endo_abund_rf, groups = groups) 
 
 # ane
-ane_Temperature <- c("bio10_4_scaled", "ScalePET")
-ane_Precip <- c("bio10_15_scaled", "SnowMonths_cat", "scaleAridity")
-ane_Soil <- c("scalePH","scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL")
-ane_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "scaleAridity", "bio10_15_scaled", "ScalePET")
-
-groups <- list(
-  ESA = ESA,
-  ane_Temperature = ane_Temperature,
-  ane_Precip = ane_Precip,
-  ane_Soil = ane_Soil,
-  ane_WaterRetention = ane_WaterRetention
-)
-
-
 ane_abundance <- abundance[grep("Ane", abundance$variable),]
 ane_abundance <- scaleVariables(ane_abundance)
 ane_abundance$value[which(ane_abundance$value < 0)] <- 0
 ane_abundance$logValue <- log(ane_abundance$value + 1)
 
-ane_abundance_mainEffects <- c("scalePH", "scaleCECSOL", "scaleCLYPPT", "scaleSLTPPT", "bio10_4_scaled", "bio10_15_scaled",  
-                                "SnowMonths_cat", "ScalePET", "scaleAridity", "ESA")
-
-
-ane_abund_rf <- randomForest(y = ane_abundance$logValue, x = ane_abundance[,names(ane_abundance) %in% ane_abundance_mainEffects], 
+ane_abund_rf <- randomForest(y = ane_abundance$logValue, x = ane_abundance[,names(ane_abundance) %in% abundance_mainEffects], 
                               ntree=501, importance=TRUE, proximity = TRUE)
 varImpPlot(ane_abund_rf, type=1)
 varImpPlot(ane_abund_rf, type=2)
@@ -315,7 +255,7 @@ epi_abundance_order <- c(1, 5, 2, 4, 3)
 endo_abundance_import_split
 endo_abundance_order <- c(5,4,1,3,2)
 ane_abundance_import_split
-ane_abundance_order <- c(1,5,2,4,3)
+ane_abundance_order <- c(1,5,4,3, 2)
 
 a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
 colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
@@ -337,30 +277,39 @@ dev.off()
 ###############################################################
 ##  SPECIES RICHNESS - with split groups
 ###############################################################
+
+# SpeciesRichness ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL +  
+#  scaleORCDRC + bio10_4_scaled + bio10_15_scaled + SnowMonths_cat +  
+#  scaleAridity + ScalePET + scalePH:scaleCECSOL + scalePH:scaleORCDRC +  
+#  scaleCLYPPT:scaleCECSOL + scaleSLTPPT:scaleORCDRC + scaleCECSOL:scaleORCDRC +  
+#  bio10_4_scaled:bio10_15_scaled + bio10_4_scaled:SnowMonths_cat +  
+#  bio10_15_scaled:SnowMonths_cat + bio10_15_scaled:scaleAridity +  
+#  bio10_15_scaled:ScalePET + scaleCLYPPT:bio10_15_scaled +  
+#  scaleSLTPPT:ScalePET + scaleSLTPPT:scaleAridity + ESA + 
+
 # epi
+
 ESA <- "ESA"
-epi_Temperature <- c("ScalePET", "ScalePETSD")
-epi_Precip <- c("bio10_12_scaled", "SnowMonths_cat")
-epi_Soil <- c("scalePH","scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL")
-epi_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "ScalePET", "ScalePETSD")
+richness_Temperature <- c("bio10_4_scaled", "ScalePET")
+richness_Precip <- c("bio10_15_scaled", "SnowMonths_cat", "scaleAridity")
+richness_Soil <- c("scalePH","scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC")
+richness_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_15_scaled", "ScalePET", "scaleAridity")
 
 groups <- list(
   ESA = ESA,
-  epi_Temperature = epi_Temperature,
-  epi_Precip = epi_Precip,
-  epi_Soil = epi_Soil,
-  epi_WaterRetention = epi_WaterRetention
+  richness_Temperature = richness_Temperature,
+  richness_Precip = richness_Precip,
+  richness_Soil = richness_Soil,
+  richness_WaterRetention = richness_WaterRetention
 )
+
+richness_mainEffects <- c(ESA, richness_Temperature, richness_Precip, richness_Soil)
 
 
 epi_richness <- richness[grep("Epi", richness$variable),]
 epi_richness <- scaleVariables(epi_richness)
 
-epi_richness_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL",  
-                               "bio10_12_scaled", "SnowMonths_cat", "ScalePET","ScalePETSD", "ESA")
-
-
-epi_richness_rf <- randomForest(y = epi_richness$value, x = epi_richness[,names(epi_richness) %in% epi_richness_mainEffects], 
+epi_richness_rf <- randomForest(y = epi_richness$value, x = epi_richness[,names(epi_richness) %in% richness_mainEffects], 
                              ntree=501, importance=TRUE, proximity = TRUE)
 varImpPlot(epi_richness_rf, type=1)
 varImpPlot(epi_richness_rf, type=2)
@@ -368,27 +317,10 @@ varImpPlot(epi_richness_rf, type=2)
 epi_richness_import_split <- group.importance(epi_richness_rf, groups = groups) 
 
 # endo
-endo_Temperature <- c("bio10_4_scaled")
-endo_Precip <- c("bio10_15_scaled")
-endo_Soil <- c("scalePH", "scaleSLTPPT", "scaleCECSOL")
-endo_WaterRetention <- c("scaleSLTPPT", "bio10_15_scaled")
-
-groups <- list(
-  # ESA = ESA,
-  endo_Temperature = endo_Temperature,
-  endo_Precip = endo_Precip,
-  endo_Soil = endo_Soil,
-  endo_WaterRetention = endo_WaterRetention
-)
-
-
 endo_richness <- richness[grep("Endo", richness$variable),]
 endo_richness <- scaleVariables(endo_richness)
 
-endo_richness_mainEffects <- c("scalePH", "scaleCECSOL", "scaleSLTPPT",  "bio10_4_scaled", "bio10_15_scaled")
-
-
-endo_richness_rf <- randomForest(y = endo_richness$value, x = endo_richness[,names(endo_richness) %in% endo_richness_mainEffects], 
+endo_richness_rf <- randomForest(y = endo_richness$value, x = endo_richness[,names(endo_richness) %in% richness_mainEffects], 
                               ntree=501, importance=TRUE, proximity = TRUE)
 varImpPlot(endo_richness_rf, type=1)
 varImpPlot(endo_richness_rf, type=2)
@@ -396,28 +328,10 @@ varImpPlot(endo_richness_rf, type=2)
 endo_richness_import_split <- group.importance(endo_richness_rf, groups = groups) 
 
 # ane
-ane_Temperature <- c("bio10_1_scaled")
-ane_Precip <- c("bio10_12_scaled", "SnowMonths_cat")
-ane_Soil <- c("scalePH","scaleSLTPPT")
-ane_WaterRetention <- c("scaleSLTPPT", "bio10_12_scaled")
-
-groups <- list(
-  # ESA = ESA,
-  ane_Temperature = ane_Temperature,
-  ane_Precip = ane_Precip,
-  ane_Soil = ane_Soil,
-  ane_WaterRetention = ane_WaterRetention
-)
-
-
 ane_richness <- richness[grep("Ane", richness$variable),]
 ane_richness <- scaleVariables(ane_richness)
 
-ane_richness_mainEffects <- c("scalePH", "scaleSLTPPT", "bio10_1_scaled", "bio10_12_scaled",  
-                               "SnowMonths_cat")
-
-
-ane_richness_rf <- randomForest(y = ane_richness$value, x = ane_richness[,names(ane_richness) %in% ane_richness_mainEffects], 
+ane_richness_rf <- randomForest(y = ane_richness$value, x = ane_richness[,names(ane_richness) %in% richness_mainEffects], 
                              ntree=501, importance=TRUE, proximity = TRUE)
 varImpPlot(ane_richness_rf, type=1)
 varImpPlot(ane_richness_rf, type=2)
@@ -431,11 +345,11 @@ ane_richness_import_split <- group.importance(ane_richness_rf, groups = groups)
 # ESA, Temperature, Precip, Soil, WaterRetention
 
 epi_richness_import_split
-epi_richness_order <- c(1, 5, 2, 4, 3)
+epi_richness_order <- c(1, 4, 2, 5, 3)
 endo_richness_import_split
-endo_richness_order <- c(NA, 5,2,4,3)
+endo_richness_order <- c(1, 5,2,4,3)
 ane_richness_import_split
-ane_richness_order <- c(NA,5,3,2,4)
+ane_richness_order <- c(1,5,4,2,3)
 
 a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
 colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
