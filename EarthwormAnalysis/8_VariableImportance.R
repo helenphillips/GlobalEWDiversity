@@ -297,8 +297,6 @@ dat$X1 <- factor(dat$X1, levels = c("Biomass", "Abundance","SpeciesRichness"))
 dat$X2 <- factor(dat$X2, levels = c("ESA","Soil","Precipitation", "Temperature","Water Retention"))
 
 
-brewer.pal(9,"Purples")
-
 jpeg(file = file.path(figures, "variableImportance_splitGroups.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 p <- ggplot(data =  dat, aes(x = X2, y = X1), ylab = "Test") +
   geom_tile(aes(fill = value), colour = "white") +
