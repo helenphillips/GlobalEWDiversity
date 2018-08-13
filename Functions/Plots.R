@@ -379,10 +379,14 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
 
 VariableImportancePlot <- function(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Functional Group Model"){
 
+  lengthLabels <- sum(!(is.na(unique(dat$value))))
+  labels <- rep("", length = lengthLabels)
+  labels[1] <- "Least Important"
+  labels[length(labels)] <- "Most Important"
   p <- ggplot(data =  dat, aes(x = X2, y = X1), ylab = "Test") +
     geom_tile(aes(fill = value), colour = "white") +
     scale_fill_continuous(low = lowColour, high = highColour, guide = "legend", guide_legend(title = ""), 
-                        labels = c("Least Important", "","", "", "Most Important")) + 
+                        labels = labels) + 
     theme_classic() +
     labs(dat = "Importance", x = "Variable Groups", y = yLab)
   return(p)
