@@ -24,6 +24,7 @@ source("Functions/lme4_ModellingFunctions.R")
 source("Functions/ModelSimplification.R")
 source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
 source("Functions/RF_VariableSetImportance.R")
+source("Functions/Plots.R")
 
 #################################################
 # 2. Variables
@@ -145,6 +146,40 @@ varImpPlot(endo_bioM_rf, type=2)
 
 endo_biomass_import_split <- group.importance(endo_bioM_rf, groups = groups) 
 
+## Anecics
+
+# endo
+ane_Temperature <- c("bio10_4_scaled", "ScalePETSD")
+ane_Precip <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat")
+ane_Soil <- c("scalePH","scaleORCDRC","scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL")
+ane_WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_scaled", "ScalePETSD")
+
+groups <- list(
+  ESA = ESA,
+  ane_Temperature = ane_Temperature,
+  ane_Precip = ane_Precip,
+  ane_Soil = ane_Soil,
+  ane_WaterRetention = ane_WaterRetention
+)
+
+
+ane_biomass <- biomass[grep("Ane", biomass$variable),]
+ane_biomass <- scaleVariables(ane_biomass)
+ane_biomass$value[which(ane_biomass$value < 0)] <- 0
+ane_biomass$logValue <- log(ane_biomass$value + 1)
+
+ane_biomass_mainEffects <- c("scalePH", "scaleCECSOL", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "bio10_4_scaled", "bio10_12_scaled",  
+                              "bio10_15_scaled", "SnowMonths_cat", "ScalePETSD", "ESA")
+
+
+ane_bioM_rf <- randomForest(y = ane_biomass$logValue, x = ane_biomass[,names(ane_biomass) %in% ane_biomass_mainEffects], 
+                             ntree=501, importance=TRUE, proximity = TRUE)
+varImpPlot(ane_bioM_rf, type=1)
+varImpPlot(ane_bioM_rf, type=2)
+
+ane_biomass_import_split <- group.importance(ane_bioM_rf, groups = groups) 
+
+
 ############
 # Biomass figure
 ############
@@ -154,8 +189,8 @@ epi_biomass_import_split
 epi_biomass_order <- c(1, 5, 4, 2, 3)
 endo_biomass_import_split
 endo_biomass_order <- c(5,4,2,1,3)
-
-ane_biomass_order <- c(NA, NA, NA, NA, NA)
+ane_biomass_import_split
+ane_biomass_order <- c(5, 4, 2, 3, 1)
 
 a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
 colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
