@@ -1,0 +1,165 @@
+########################################################
+# 0. Set Working Directory
+########################################################
+
+if(Sys.info()["nodename"] == "IDIVNB193"){
+  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+}
+
+
+
+#################################################
+# 1. Loading libraries
+#################################################
+library(maptools)
+library(maps)
+library(lme4)
+library(car)
+
+source("Functions/FormatData.R")
+source(file.path("Functions", "Plots.R"))
+# source("Functions/lme4_ModellingFunctions.R")
+# source("Functions/ModelSimplification.R")
+# source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
+
+#################################################
+# 2 Create folders
+#################################################
+
+figures <- "Figures"
+
+if(!dir.exists("14_Data")){
+  dir.create("14_Data")
+}
+data_out <- "14_Data"
+
+#################################################
+# 3. Loading in data
+#################################################
+data_in <- "10_Data"
+files_spp <- list.files(file.path(data_in))
+files_spp <- files_spp[grep("SpecieswithFunctionalGroups_", files_spp)]
+file_dates <- sapply(strsplit(files_spp, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+
+file_dates <- as.Date(file_dates)
+date <- max(file_dates, na.rm = TRUE)
+loadin <- files_spp[grep(date, files_spp)]
+
+
+spp <- read.csv(file.path(data_in, loadin))
+rm(files_spp)
+
+data_in <- "4_Data"
+files_sites <- list.files(file.path(data_in))
+files_sites <- files_sites[grep("sitesRichness_", files_sites)]
+file_dates <- sapply(strsplit(files_sites, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+
+file_dates <- as.Date(file_dates)
+date <- max(file_dates, na.rm = TRUE)
+loadin <- files_sites[grep(date, files_sites)]
+
+sites <- read.csv(file.path(data_in, loadin))
+
+rm(files_sites)
+rm(date)
+rm(loadin)
+
+#################################################
+# 4. Quick and dirty plot
+#################################################
+
+plot(sites$Latitude__decimal_degrees, sites$SpeciesRichness)
+
+
+#################################################
+# 5. Model with polynomial
+#################################################
+
+sites$polyLatitude <- poly(sites$Latitude__decimal_degrees, 2)
+
+ldg1 <- glmer(SpeciesRichness ~  polyLatitude +
+              (1|file/Study_Name), data = sites, family = poisson,
+            control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+
+plotSingle(model= ldg1, 
+           modelFixedEffs = c("polyLatitude"),
+           Effect1 = "polyLatitude", 
+           responseVar = "SpeciesRichness", seMultiplier = 1, data = sites,
+           legend.position, ylabel = "Species Richness", xlabel = "", otherContEffectsFun = "median")
+
+
+
+#################################################
+# 6. LDG by bands
+#################################################
+# summary(spp$Latitude__decimal_degrees)
+
+# Want the sites that we used in the modelling
+spp <- spp[spp$Study_site %in% unique(sites$Study_site),]
+
+
+brks <- seq(-45, 70, by = 5)
+spp$band <- cut(spp$Latitude__decimal_degrees, breaks = brks, labels = NULL)
+
+bandDat <- data.frame(matrix(rep(NA, times = 5 * length(levels(spp$band))), 
+                      ncol = 5, nrow  = length(levels(spp$band))))
+
+names(bandDat) <- c("band", "Number of Binomials", "Number of Morphospecies", "number of genus", "number of sites")
+
+for(i in 1:length(levels(spp$band))){
+  bnd <- spp[spp$band == levels(spp$band)[i],] 
+  print(levels(spp$band)[i])
+  
+  # Which band
+  bandDat[i, 1] <- levels(spp$band)[i]
+  # Sampling effort
+  bandDat[i, 5] <- length(unique(bnd$Study_site))
+  
+  if(nrow(bnd) == 0){
+    bandDat[i, c(2:4)] <- 0
+    }else{
+  
+    # Number of species binomials
+    bandDat[i, 2] <- length(unique(bnd$Revised))
+  
+  
+    # Number of morphospecies
+    mrphs <- bnd[!(is.na(bnd$MorphospeciesID)),]
+    if(nrow(mrphs) > 0){
+     bandDat[i, 3] <- length(unique(paste(mrphs$Genus, mrphs$MorphospeciesID)))
+    }else{ bandDat[i, 3] <- 0}
+  
+    # Number of genus not considered anywhere else
+    gns <- bnd[is.na(bnd$SpeciesBinomial),] 
+    gns <- gns[is.na(gns$MorphospeciesID),] 
+    uni <- as.character(unique(gns$Genus))
+    if(length(uni) > 0){
+      for(g in 1:length(uni)){
+       matches <- grep(uni[g], bnd$Revised)
+        if(length(matches) > 0){
+          uni[g] <- 0
+        } else {uni[g] <- 1}
+      }
+      uni <- as.numeric(uni)
+      bandDat[i, 4] <- sum(uni)
+    } else {bandDat[i, 4] <- 0}
+  }
+}
+
+
+bandDat$total <- rowSums(bandDat[,2:4])
+
+jpeg(file = file.path(figures, "LDG_regional.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+
+par(mar = c(4, 4, 1, 5))
+b <- barplot(bandDat$total, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+barplot(bandDat$total, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+par(new=TRUE)
+plot(b[,1],bandDat[,5],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
+axis(4,at=seq(0,1200,100), las = 2)
+axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
+mtext("Number of sites", side = 4, line = 3)
+dev.off()     
