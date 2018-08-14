@@ -74,7 +74,7 @@ loadin_spp <- files[grep(date, files)]
 
 sites <- read.csv(file.path(data_in_sites, loadin))
 spp <- read.csv(file.path(data_in_spp, loadinfg))
-spp_dat <- read.csv(file.path(data_in_spp2, loadin_spp))
+spp_dat <- read.csv(file.path(data_in_spp2, loadin_spp)) # 20726
 
 #################################################
 # 5. Tidy up categories in spp
@@ -170,6 +170,14 @@ spp_dat$species_Abundancem2[which(spp_dat$Abundance_Unit == "Number of individua
 
 # unique(sites$file[which(sites$Site_AbundanceUnits == "Number of individuals" & sites$Sampled_Area_Unit == "m3")])
 summary(spp_dat$species_Abundancem2)
+
+
+#################################################
+# 9.5 Save this dataset
+#################################################
+
+write.csv(spp_dat, file = file.path(data_out, paste("SpecieswithFunctionalGroups_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
 #################################################
 # 10. Create the dataframe
 #################################################
