@@ -79,9 +79,9 @@ plot(sites$Latitude__decimal_degrees, sites$SpeciesRichness)
 
 sites$polyLatitude <- poly(sites$Latitude__decimal_degrees, 2)
 
-ldg1 <- glmer(SpeciesRichness ~  polyLatitude +
-              (1|file/Study_Name), data = sites, family = poisson,
-            control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+ldg1 <- glm(SpeciesRichness ~  polyLatitude + ExtractionMethod
+              , data = sites, family = poisson)
+            
 
 
 plotSingle(model= ldg1, 
