@@ -28,12 +28,36 @@ source("Functions/FormatData.R")
 data_in <-"4_Data"
 
 files <- list.files(file.path(data_in))
+files <- files[grep("Richness", files)]
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
 file_dates <- as.Date(file_dates)
 date <- max(file_dates, na.rm = TRUE)
 # loadin <- files[grep(date, files)]
+richness <- read.csv(file.path(data_in, paste("sitesRichness_",date,".csv", sep = "")))
+
+
+files <- list.files(file.path(data_in))
+files <- files[grep("Biomass", files)]
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+
+file_dates <- as.Date(file_dates)
+date <- max(file_dates, na.rm = TRUE)
+# loadin <- files[grep(date, files)]
+biomass <- read.csv(file.path(data_in, paste("sitesBiomass_",date,".csv", sep = "")))
+
+files <- list.files(file.path(data_in))
+files <- files[grep("Abundance", files)]
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+
+file_dates <- as.Date(file_dates)
+date <- max(file_dates, na.rm = TRUE)
+# loadin <- files[grep(date, files)]
+abundance <- read.csv(file.path(data_in, paste("sitesAbundance_",date,".csv", sep = "")))
+
 
 if(!dir.exists("Figures")){
   dir.create("Figures")
@@ -44,9 +68,6 @@ figures <- "Figures"
 # 3. Load in data
 #################################################
 
-richness <- read.csv(file.path(data_in, paste("sitesRichness_",date,".csv", sep = "")))
-biomass <- read.csv(file.path(data_in, paste("sitesBiomass_",date,".csv", sep = "")))
-abundance <- read.csv(file.path(data_in, paste("sitesAbundance_",date,".csv", sep = "")))
 
 richness <- droplevels(SiteLevels(richness))
 biomass <- droplevels(SiteLevels(biomass))
@@ -412,7 +433,7 @@ dev.off()
 ##################################################
 ## MAP
 ##################################################
-all_data <-"3_Data"
+all_data <-"3.5_Data"
 
 files <- list.files(file.path(all_data))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
@@ -432,6 +453,9 @@ all_studies <- unique(all_studies)
 
 all_studies <- all_data[all_data$Study_Name %in% all_studies,]
 
+
+##  Saving for Carlos
+write.csv(all_studies, file = file.path(data_in, "DataUsed_forCarlos.csv"), row.names = FALSE)
 coord<-aggregate(cbind(all_studies$Longitude__Decimal_Degrees, all_studies$Latitude__decimal_degrees), list(all_studies$Study_Name), mean)
 
 coord$X<-coord$Group.1
