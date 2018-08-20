@@ -34,7 +34,7 @@ fg1 <- glmer(FGRichness ~  ESA + (scalePH  +
 print("First model done. Now for the simplification process...")
 
 
-fgrichness_model <- modelSimplificationAIC(model = fg1, data = sites, optimizer = "bobyqa", Iters = 2e5)
+fgrichness_model <- modelSimplificationAIC(model = fg1, data = fg_richness, optimizer = "bobyqa", Iters = 2e5)
 save(fgrichness_model, file = file.path(data_out, "fgrichnessmodel.rds"))
 
 print("Done!")
