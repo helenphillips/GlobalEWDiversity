@@ -186,8 +186,8 @@ biomass_import <- group.importance(bioM_rf, groups)
 ## PLOTS
 #######################################
 
-a <- matrix(rep(NA, length = 4*3), nrow = 3, ncol = 4)
-colnames(a) <- names(groups)
+d <- a <- matrix(rep(NA, length = 4*3), nrow = 3, ncol = 4)
+colnames(d) <- colnames(a) <- names(groups)
 a[1,] <- as.vector(OrderImportance(richness_import))
 a[2,] <- as.vector(OrderImportance(abundance_import))
 a[3,] <- as.vector(OrderImportance(biomass_import))
@@ -280,16 +280,23 @@ richness_order <- c(4, 5, 2, 1, 3)
 biomass_import_split
 biomass_order <- c(4,NA, 5,2,3)
 
+abundance_import_delta <- c(abundance_import_split - max(abundance_import_split, na.rm = TRUE))
+richness_import_delta <- c(richness_import_split - max(richness_import_split, na.rm = TRUE))
+biomass_import_delta <- c(biomass_import_split - max(biomass_import_split, na.rm = TRUE))
+biomass_import_delta <- c(biomass_import_delta[1], NA, biomass_import_delta[2:4])
 
-a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
-colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
+d <- a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
+colnames(d) <- colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
 a[1,] <- richness_order
 a[2,] <- abundance_order
 a[3,] <- biomass_order
 ## 4 is most important, 1 is least important
-rownames(a) <- c("SpeciesRichness", "Abundance", "Biomass")
+rownames(d) <- rownames(a) <- c("SpeciesRichness", "Abundance", "Biomass")
 
 
+d[1,] <- richness_import_delta
+d[2,] <- abundance_import_delta
+d[3,] <- biomass_import_delta
 
 dat <- melt(a)
 
@@ -298,15 +305,7 @@ dat$X2 <- factor(dat$X2, levels = c("ESA","Soil","Precipitation", "Temperature",
 
 
 jpeg(file = file.path(figures, "variableImportance_splitGroups.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-p <- ggplot(data =  dat, aes(x = X2, y = X1), ylab = "Test") +
-  geom_tile(aes(fill = value), colour = "white") +
-  # geom_text(aes(label = sprintf("%1.2f",value)), vjust = 1) +
-  # scale_fill_gradient(low = "white", high = "grey28") +
-  # scale_fill_viridis(option="viridis", discrete=TRUE) +
-  scale_fill_continuous(low = "#BCBDDC", high = "#25004b", guide = "legend", guide_legend(title = ""), 
-                       labels = c("Least Important", "","", "", "Most Important")) + 
-  theme_classic() +
-  labs(dat = "Importance", x = "Variable Groups", y = "Biodiversity Model")
+p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Functional Group Model", deltas = d)
 p
 dev.off()
 
