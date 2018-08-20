@@ -153,17 +153,30 @@ ane_biomass_import_split <- group.importance(ane_bioM_rf, groups = groups)
 # NA is 1 
 epi_biomass_import_split
 epi_biomass_order <- c(2, NA, 5, 3, 4)
+epi_biomass_delta <- c(epi_biomass_import_split - max(epi_biomass_import_split, na.rm = TRUE))
+epi_biomass_delta <- c(epi_biomass_delta[1], NA, epi_biomass_delta[2:4])
 endo_biomass_import_split
 endo_biomass_order <- c(5,NA,4,2,3)
+endo_biomass_delta <- c(endo_biomass_import_split - max(endo_biomass_import_split, na.rm = TRUE))
+endo_biomass_delta <- c(endo_biomass_delta[1], NA, endo_biomass_delta[2:4])
+
 ane_biomass_import_split
 ane_biomass_order <- c(5, NA, 3, 4, 2)
+ane_biomass_delta <- c(ane_biomass_import_split - max(ane_biomass_import_split, na.rm = TRUE))
+ane_biomass_delta <- c(ane_biomass_delta[1], NA, ane_biomass_delta[2:4])
 
-a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
-colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
+
+d <- a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
+colnames(d) <- colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
 a[1,] <- epi_biomass_order
 a[2,] <- endo_biomass_order
 a[3,] <- ane_biomass_order
-rownames(a) <- c("Epigeics", "Endogeics", "Anecics")
+rownames(d) <- rownames(a) <- c("Epigeics", "Endogeics", "Anecics")
+
+d[1,] <- epi_biomass_delta
+d[2,] <- endo_biomass_delta 
+d[3,] <- ane_biomass_delta
+
 
 dat <- melt(a)
 
@@ -365,7 +378,7 @@ dat$X2 <- factor(dat$X2, levels = c("ESA","Soil","Precipitation", "Temperature",
 
 
 jpeg(file = file.path(figures, "variableImportance_RichnessFGs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Functional Group Model")
+p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Functional Group Model", deltas = d)
 p
 dev.off()
 
