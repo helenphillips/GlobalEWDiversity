@@ -377,17 +377,29 @@ plotInteraction <- function(model, modelFixedEffs, Effect1, Effect2, responseVar
 ## VARIABLE IMPORTANCE PLOTS
 #########################################################################
 
-VariableImportancePlot <- function(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Functional Group Model"){
-
+VariableImportancePlot <- function(dat, lowColour = "#BCBDDC", highColour = "#25004b", 
+                                   yLab = "Functional Group Model", deltas = d){
+  
+  # Label length is different if NAs
   lengthLabels <- sum(!(is.na(unique(dat$value))))
   labels <- rep("", length = lengthLabels)
   labels[1] <- "Least Important"
   labels[length(labels)] <- "Most Important"
-  p <- ggplot(data =  dat, aes(x = X2, y = X1), ylab = "Test") +
+  
+  d <- round(d, digits = 2)
+  
+  p <- 
+    ggplot(data =  dat, aes(x = X2, y = X1), ylab = "Test") +
     geom_tile(aes(fill = value), colour = "white") +
     scale_fill_continuous(low = lowColour, high = highColour, guide = "legend", guide_legend(title = ""), 
                         labels = labels) + 
     theme_classic() +
-    labs(dat = "Importance", x = "Variable Groups", y = yLab)
+    labs(dat = "Importance", x = "Variable Groups", y = yLab) +
+    
+    ## Adding in delta's
+    annotate("text", x = c(1,2,3,4,5), y=1, label = c(d[3,'ESA'], d[3,'Soil'], d[3,'Precipitation'], d[3,'Temperature'], d[3,'Water Retention'])) +
+    annotate("text", x = c(1,2,3,4,5), y=2, label = c(d[2,'ESA'], d[2,'Soil'], d[2,'Precipitation'], d[2,'Temperature'], d[2,'Water Retention'])) +
+    annotate("text", x = c(1,2,3,4,5), y=3, label = c(d[1,'ESA'], d[1,'Soil'], d[1,'Precipitation'], d[1,'Temperature'], d[1,'Water Retention']))
+    
   return(p)
 }
