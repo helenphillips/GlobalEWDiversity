@@ -153,15 +153,15 @@ ane_biomass_import_split <- group.importance(ane_bioM_rf, groups = groups)
 # NA is 1 
 epi_biomass_import_split
 epi_biomass_order <- c(2, NA, 5, 3, 4)
-epi_biomass_delta <- c(epi_biomass_import_split - max(epi_biomass_import_split, na.rm = TRUE))
-epi_biomass_delta <- c(epi_biomass_delta[1], NA, epi_biomass_delta[2:4])
 endo_biomass_import_split
 endo_biomass_order <- c(5,NA,4,2,3)
-endo_biomass_delta <- c(endo_biomass_import_split - max(endo_biomass_import_split, na.rm = TRUE))
-endo_biomass_delta <- c(endo_biomass_delta[1], NA, endo_biomass_delta[2:4])
-
 ane_biomass_import_split
 ane_biomass_order <- c(5, NA, 3, 4, 2)
+
+epi_biomass_delta <- c(epi_biomass_import_split - max(epi_biomass_import_split, na.rm = TRUE))
+epi_biomass_delta <- c(epi_biomass_delta[1], NA, epi_biomass_delta[2:4])
+endo_biomass_delta <- c(endo_biomass_import_split - max(endo_biomass_import_split, na.rm = TRUE))
+endo_biomass_delta <- c(endo_biomass_delta[1], NA, endo_biomass_delta[2:4])
 ane_biomass_delta <- c(ane_biomass_import_split - max(ane_biomass_import_split, na.rm = TRUE))
 ane_biomass_delta <- c(ane_biomass_delta[1], NA, ane_biomass_delta[2:4])
 
@@ -184,7 +184,7 @@ dat$X1 <- factor(dat$X1, levels = c("Anecics", "Endogeics","Epigeics"))
 dat$X2 <- factor(dat$X2, levels = c("ESA","Soil","Precipitation", "Temperature","Water Retention"))
 
 jpeg(file = file.path(figures, "variableImportance_BiomassFGs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Functional Group Model")
+p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Functional Group Model", deltas = d)
 p
 dev.off()
 
@@ -270,12 +270,22 @@ endo_abundance_order <- c(5,4,1,3,2)
 ane_abundance_import_split
 ane_abundance_order <- c(1,5,4,3, 2)
 
-a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
-colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
+
+epi_abundance_delta <- c(epi_abundance_import_split - max(epi_abundance_import_split, na.rm = TRUE))
+endo_abundance_delta <- c(endo_abundance_import_split - max(endo_abundance_import_split, na.rm = TRUE))
+ane_abundance_delta <- c(ane_abundance_import_split - max(ane_abundance_import_split, na.rm = TRUE))
+
+
+d <- a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
+colnames(d) <- colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
 a[1,] <- epi_abundance_order
 a[2,] <- endo_abundance_order
 a[3,] <- ane_abundance_order
-rownames(a) <- c("Epigeics", "Endogeics", "Anecics")
+rownames(d) <- rownames(a) <- c("Epigeics", "Endogeics", "Anecics")
+
+d[1,] <- epi_abundance_delta
+d[2,] <- endo_abundance_delta 
+d[3,] <- ane_abundance_delta
 
 dat <- melt(a)
 
@@ -283,7 +293,7 @@ dat$X1 <- factor(dat$X1, levels = c("Anecics", "Endogeics","Epigeics"))
 dat$X2 <- factor(dat$X2, levels = c("ESA","Soil","Precipitation", "Temperature","Water Retention"))
 
 jpeg(file = file.path(figures, "variableImportance_AbundanceFGs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Functional Group Model")
+p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Functional Group Model", deltas = d)
 p
 dev.off()
 
@@ -364,12 +374,21 @@ endo_richness_order <- c(1, 5,2,4,3)
 ane_richness_import_split
 ane_richness_order <- c(1,5,4,2,3)
 
-a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
-colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
+epi_richness_delta <- c(epi_richness_import_split - max(epi_richness_import_split, na.rm = TRUE))
+endo_richness_delta <- c(endo_richness_import_split - max(endo_richness_import_split, na.rm = TRUE))
+ane_richness_delta <- c(ane_richness_import_split - max(ane_richness_import_split, na.rm = TRUE))
+
+
+d <- a <- matrix(rep(NA, length = 5*3), nrow = 3, ncol = 5)
+colnames(d) <- colnames(a) <- c("ESA", "Temperature", "Precipitation", "Soil", "Water Retention")
 a[1,] <- epi_richness_order
 a[2,] <- endo_richness_order
 a[3,] <- ane_richness_order
-rownames(a) <- c("Epigeics", "Endogeics", "Anecics")
+rownames(d) <- rownames(a) <- c("Epigeics", "Endogeics", "Anecics")
+
+d[1,] <- epi_richness_delta
+d[2,] <- endo_richness_delta 
+d[3,] <- ane_richness_delta
 
 dat <- melt(a)
 
