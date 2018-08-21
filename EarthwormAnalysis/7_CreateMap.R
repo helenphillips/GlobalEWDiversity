@@ -104,6 +104,7 @@ scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(
 barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 mtext("1", at = 75, cex = 1)
 mtext("4", at = 430, cex = 1)
+mtext("Number of species", at = 250, cex = 0.5)
 dev.off()
 
 
