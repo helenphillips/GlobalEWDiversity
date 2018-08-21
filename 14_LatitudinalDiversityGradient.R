@@ -79,19 +79,41 @@ plot(sites$Latitude__decimal_degrees, sites$SpeciesRichness)
 
 sites$polyLatitude <- poly(sites$Latitude__decimal_degrees, 2)
 
-ldg1 <- glm(SpeciesRichness ~  polyLatitude + ExtractionMethod
+ldg1 <- glm(SpeciesRichness ~  polyLatitude * ExtractionMethod
               , data = sites, family = poisson)
-            
+# AIC - 17595.94
+ldg2 <- glm(SpeciesRichness ~  polyLatitude + ExtractionMethod
+            , data = sites, family = poisson)
+# AIC - 17777.55
 
 
-plotSingle(model= ldg1, 
-           modelFixedEffs = c("polyLatitude"),
-           Effect1 = "polyLatitude", 
-           responseVar = "SpeciesRichness", seMultiplier = 1, data = sites,
-           legend.position, ylabel = "Species Richness", xlabel = "", otherContEffectsFun = "median")
+ldg <- glm(SpeciesRichness ~  poly(Latitude__decimal_degrees, 2) * ExtractionMethod
+            , data = sites, family = poisson)
+vars <- list()
+vars[[1]] <- unique(sites$ExtractionMethod)[2:length(unique(sites$ExtractionMethod))]
+vars[[2]] <- seq(min(sites$Latitude__decimal_degrees), max(sites$Latitude__decimal_degrees), by = 0.1)
+newdata <- expand.grid(vars)
+names(newdata) <- c("ExtractionMethod", "Latitude__decimal_degrees")
+newdata$predicted <- predict(ldg, newdata,type="response")
 
+handsorting <- newdata[newdata$ExtractionMethod == "Hand sorting",]
+handsorting <- handsorting[handsorting$Latitude__decimal_degrees > min(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Hand sorting"], na.rm = TRUE),]
+handsorting <- handsorting[handsorting$Latitude__decimal_degrees < max(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Hand sorting"], na.rm = TRUE),]
 
+mustard <- newdata[newdata$ExtractionMethod == "Liquid extraction (e.g. Mustard)",]
+mustard <- mustard[mustard$Latitude__decimal_degrees > min(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Liquid extraction (e.g. Mustard)"], na.rm = TRUE),]
+mustard <- mustard[mustard$Latitude__decimal_degrees < max(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Liquid extraction (e.g. Mustard)"], na.rm = TRUE),]
 
+handsortingandmustard <- newdata[newdata$ExtractionMethod == "Hand sorting + Liquid extraction (e.g. Mustard)",]
+handsortingandmustard <- handsortingandmustard[handsortingandmustard$Latitude__decimal_degrees > min(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Hand sorting + Liquid extraction (e.g. Mustard)"], na.rm = TRUE),]
+handsortingandmustard <- handsortingandmustard[handsortingandmustard$Latitude__decimal_degrees < max(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Hand sorting + Liquid extraction (e.g. Mustard)"], na.rm = TRUE),]
+
+jpeg(file = file.path(figures, "LDG_local.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+plot(handsorting$Latitude__decimal_degrees, handsorting$predicted, pch = 16, xlab = "Latitude", ylab = "Species Richness", type = "l", ylim = c(0,  3.5))
+lines(mustard$Latitude__decimal_degrees, mustard$predicted, col = "red")
+lines(handsortingandmustard$Latitude__decimal_degrees, handsortingandmustard$predicted, col = "blue")
+legend("topleft", legend= c("Handsorting", "Mustard", "Both"), col = c("black", "red", "blue"), lwd = 1, bty = "n")
+dev.off()
 #################################################
 # 6. LDG by bands
 #################################################
