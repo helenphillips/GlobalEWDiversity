@@ -86,7 +86,7 @@ Climate <- c("bio10_1_scaled", "bio10_15_scaled" , "SnowMonths_cat" ,
 Soil <- c("scalePH", "scaleCLYPPT", "scaleCECSOL", 
   "scaleSLTPPT", "scaleORCDRC")
 
-WaterRetention <- c("scaleCLYPPT", "bio10_15_scaled", "ScalePETSD")
+WaterRetention <- c("scaleCLYPPT", "bio10_15_scaled", "scaleAridity", "ScalePETSD")
 
 groups <- list(
   ESA = ESA,
@@ -224,12 +224,12 @@ dev.off()
 
 
 ESA <- "ESA"
-Temperature <- c("bio10_1_scaled", "scaleAridity" ,  
+Temperature <- c("bio10_1_scaled",  
                "ScalePETSD")
 Precip <- c("bio10_15_scaled" , "SnowMonths_cat", "scaleAridity")
 Soil <- c("scalePH", "scaleCLYPPT", "scaleCECSOL", 
           "scaleSLTPPT", "scaleORCDRC")
-WaterRetention <- c("scaleCLYPPT", "bio10_15_scaled", "ScalePETSD")
+WaterRetention <- c("scaleCLYPPT", "bio10_15_scaled", "ScalePETSD", "scaleAridity")
 
 groups <- list(
   ESA = ESA,
@@ -242,7 +242,7 @@ abundance_import_split <- group.importance(abundance_rf, groups)
 
 # RICHNESS
 ESA <- "ESA"
-Temperature <- c("bio10_4_scaled", "scaleAridity", "ScalePET")
+Temperature <- c("bio10_4_scaled", "ScalePET")
 Precip <- c("bio10_15_scaled", "SnowMonths_cat", "scaleAridity")
 Soil <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC")
 WaterRetention <- c("scaleCLYPPT","scaleSLTPPT", "bio10_15_scaled", "scaleAridity", "ScalePET")
