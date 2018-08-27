@@ -394,12 +394,12 @@ VariableImportancePlot <- function(dat, lowColour = "#BCBDDC", highColour = "#25
     scale_fill_continuous(low = lowColour, high = highColour, guide = "legend", guide_legend(title = ""), 
                         labels = labels) + 
     theme_classic() +
-    labs(dat = "Importance", x = "Variable Groups", y = yLab) +
+    labs(dat = "Importance", x = "Variable Groups", y = yLab)
     
     ## Adding in delta's
-    annotate("text", x = c(1,2,3,4,5), y=1, label = c(d[3,'ESA'], d[3,'Soil'], d[3,'Precipitation'], d[3,'Temperature'], d[3,'Water Retention'])) +
-    annotate("text", x = c(1,2,3,4,5), y=2, label = c(d[2,'ESA'], d[2,'Soil'], d[2,'Precipitation'], d[2,'Temperature'], d[2,'Water Retention'])) +
-    annotate("text", x = c(1,2,3,4,5), y=3, label = c(d[1,'ESA'], d[1,'Soil'], d[1,'Precipitation'], d[1,'Temperature'], d[1,'Water Retention']))
-    
+    #for(delts in 1:nrow(d)){
+    #  rw <- nrow(d) - delts + 1
+    #  annotate("text", x = c(1,2,3,4,5), y=delts, label = c(d[rw,'ESA'], d[rw,'Soil'], d[rw,'Precipitation'], d[rw,'Temperature'], d[rw,'Water Retention'])) +
+    # }
   return(p)
 }
