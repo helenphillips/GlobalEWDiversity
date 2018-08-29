@@ -67,14 +67,18 @@ createInteractionCoef <- function(x, y){
   print("Creating Functional group richness raster")
   print("Loading all rasters")
   
+  print(file.path(GLs_folder, reg))
   
+  print("Chelsa data")
   bio4 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_4_FGRichnessCutScaled.tif"))
   bio15 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_FGRichnessCutScaled.tif"))
   
+  print("Other climate data")
   snow <- raster(file.path(GLs_folder, reg, "Snow_newValues.tif"))
   aridity <- raster(file.path(GLs_folder, reg, "Aridity_FGRichnessScaled.tif"))
-  pet <- raster(file.path(GLs_folder, reg, "PETSD_FGRichnessScaled.tif"))
+  pet <- raster(file.path(GLs_folder, reg, "PETyr_FGRichnessScaled.tif"))
   
+  print("Soil data")
   silt <- raster(file.path(GLs_folder, reg, "SLTPPT_FGRichnessCutScaled.tif"))
   orgC <- raster(file.path(GLs_folder, reg, "ORCDRC_FGRichnessCutScaled.tif"))
 
@@ -162,7 +166,7 @@ createInteractionCoef <- function(x, y){
   rm(bio15snow0, bio15snow1, bio15snow2, bio15snow3, bio15snow4)
   
  
-  
+  print("Interacting climate variables....")
   
   bio4bio15 <- overlay(bio4, bio15, fun = createInteractionCoef, 
                        filename = file.path(savefolder, reg, "bio4bio15fgrichness.tif"), overwrite = TRUE)
