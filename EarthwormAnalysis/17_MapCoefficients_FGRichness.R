@@ -74,7 +74,7 @@ createInteractionCoef <- function(x, y){
   bio15 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_FGRichnessCutScaled.tif"))
   
   print("Other climate data")
-  snow <- raster(file.path(GLs_folder, reg, "Snow_newValues.tif"))
+  snow <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
   aridity <- raster(file.path(GLs_folder, reg, "Aridity_FGRichnessScaled.tif"))
   pet <- raster(file.path(GLs_folder, reg, "PETyr_FGRichnessScaled.tif"))
   
@@ -175,7 +175,7 @@ createInteractionCoef <- function(x, y){
   
   bio15arid <- overlay(bio15, aridity, fun = createInteractionCoef, 
                       filename = file.path(savefolder, reg, "aridbio15abundance.tif"), overwrite = TRUE)
-  bio15arid <- calc(bio1arid, fun = function(x){round(x * fixedeffs['bio10_15_scaled:scaleAridity'], digits = 2)}, 
+  bio15arid <- calc(bio15arid, fun = function(x){round(x * fixedeffs['bio10_15_scaled:scaleAridity'], digits = 2)}, 
                    filename = file.path(savefolder, reg, "bio15aridfgrichnesscoef.tif"), overwrite = TRUE) 
   
   bio15pet <- overlay(bio15, pet, fun = createInteractionCoef, 
