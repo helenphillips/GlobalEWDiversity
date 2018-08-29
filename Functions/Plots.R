@@ -396,6 +396,8 @@ VariableImportancePlot <- function(dat, lowColour = "#BCBDDC", highColour = "#25
     theme_classic() +
     labs(dat = "Importance", x = "Variable Groups", y = yLab)
     
+  # na.value   Colour to use for missing values
+  
     ## Adding in delta's
     #for(delts in 1:nrow(d)){
     #  rw <- nrow(d) - delts + 1
