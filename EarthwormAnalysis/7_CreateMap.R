@@ -28,17 +28,17 @@ regions <- c("asia", "europe", "latin_america", "north_america", "west_asia")
 resultRaster <- "spRFinalRaster.tif"
 
 africa <- raster(file.path(results, "africa", resultRaster))
-africa <- exp(africa) - 1
+africa <- exp(africa)
 asia <-  raster(file.path(results, "asia", resultRaster))
-asia <- exp(asia) - 1
+asia <- exp(asia)
 europe <- raster(file.path(results, "europe", resultRaster))
-europe <- exp(europe) - 1
+europe <- exp(europe) 
 latin_america <- raster(file.path(results, "latin_america", resultRaster))
-latin_america <- exp(latin_america) - 1
+latin_america <- exp(latin_america) 
 north_america <- raster(file.path(results, "north_america", resultRaster))
-north_america <- exp(north_america) - 1
+north_america <- exp(north_america) 
 west_asia <- raster(file.path(results, "west_asia", resultRaster))
-west_asia <- exp(west_asia) - 1
+west_asia <- exp(west_asia)
 
 hist(africa)
 hist(asia)
@@ -62,7 +62,7 @@ maxV <-max(c(maxValue(africa),
              maxValue(north_america),
              maxValue(west_asia)))
 
-colbrks <-  c(minV, seq(0.5, 4, length.out = 198), maxV)
+colbrks <-  c(minV, seq(1, 4, length.out = 198), maxV)
 
 # seq(minV, maxV, length.out = 200)
 # actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
