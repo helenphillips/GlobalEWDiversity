@@ -29,16 +29,8 @@ data_out <- "10_Data"
 
 data_in_spp <-"9_Data"
 files <- list.files(file.path(data_in_spp))
-files <- files[grep("UniqueSpeciestoSend_", files)]
-## Change this when I get a file back from the EW experts
-
-file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
-file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-
-file_dates <- as.Date(file_dates)
-date <- max(file_dates, na.rm = TRUE)
-loadin <- files[grep(date, files)]
-loadinfg <- loadin[grep("UniqueSpeciestoSend_", loadin)]
+## This is a file I made manually, by combining data from George and Maria (also in this folder)
+loadinfg <- "Unique_Species_toSend2018-06-05_MJIB+GB.csv"
 
 ## Site data
 
@@ -184,20 +176,20 @@ write.csv(spp_dat, file = file.path(data_out, paste("SpecieswithFunctionalGroups
 
 spp_dat$newID <- paste(spp_dat$file.x, spp_dat$Study_Name, spp_dat$Site_Name.x)
 sites$newID <- paste(sites$file, sites$Study_Name, sites$Site_Name)
-
+detach(package:plyr) 
 Summary.div <- spp_dat %>% # Start by defining the original dataframe, AND THEN...
   group_by(newID) %>% # Define the grouping variable, AND THEN...
-  summarise( # Now you define your summary variables with a name and a function...
-    Epi_biomass = sum(species_Biomassm2[Revised_fg == "Epigeic"]),
-    Endo_biomass = sum(species_Biomassm2[Revised_fg == "Endogeic"]),
-    Ane_biomass = sum(species_Biomassm2[Revised_fg == "Anecic"]),
-    EpiEndo_biomass = sum(species_Biomassm2[Revised_fg == "Epi-Endogeic"]),
-    Unknown_biomass = sum(species_Biomassm2[Revised_fg == "Unknown"]),
-    Epi_abundance = sum(species_Abundancem2[Revised_fg == "Epigeic"]),
-    Endo_abundance = sum(species_Abundancem2[Revised_fg == "Endogeic"]),
-    Ane_abundance = sum(species_Abundancem2[Revised_fg == "Anecic"]),
-    EpiEndo_abundance = sum(species_Abundancem2[Revised_fg == "Epi-Endogeic"]),
-    Unknown_abundance = sum(species_Abundancem2[Revised_fg == "Unknown"])
+  summarize( # Now you define your summary variables with a name and a function...
+    Epi_biomass = sum(species_Biomassm2[which(Revised_fg == "Epigeic")], na.rm = TRUE),
+    Endo_biomass = sum(species_Biomassm2[which(Revised_fg == "Endogeic")], na.rm = TRUE),
+    Ane_biomass = sum(species_Biomassm2[which(Revised_fg == "Anecic")], na.rm = TRUE),
+    EpiEndo_biomass = sum(species_Biomassm2[which(Revised_fg == "Epi-Endogeic")], na.rm = TRUE),
+    Unknown_biomass = sum(species_Biomassm2[which(Revised_fg == "Unknown")], na.rm = TRUE),
+    Epi_abundance = sum(species_Abundancem2[which(Revised_fg == "Epigeic")], na.rm = TRUE),
+    Endo_abundance = sum(species_Abundancem2[which(Revised_fg == "Endogeic")], na.rm = TRUE),
+    Ane_abundance = sum(species_Abundancem2[which(Revised_fg == "Anecic")], na.rm = TRUE),
+    EpiEndo_abundance = sum(species_Abundancem2[which(Revised_fg == "Epi-Endogeic")], na.rm = TRUE),
+    Unknown_abundance = sum(species_Abundancem2[which(Revised_fg == "Unknown")], na.rm = TRUE)
   )
 
 summary.div <- as.data.frame(Summary.div)
@@ -213,10 +205,26 @@ notSpecies <- which(is.na(spp_dat$Revised) & is.na(spp_dat$MorphospeciesID))
 
 notSp <- union(juvs, notSpecies)
 spR <- spp_dat[-notSp,]
-
+library(plyr)
 t <- ddply(spR, c("newID", "Revised_fg"), summarise, nrows = length(Revised_fg))
 t2 <- dcast(t, newID ~ Revised_fg, value.var = "nrows")
 names(t2)[2:6] <- c("Ane_richness", "Endo_richness", "EpiEndo_richness", "Epi_richness", "Unknown_richness")
+
+###################
+## Calculate the functional group richness as well
+###################
+
+t3 <- t2
+t3$Unknown_richness <- NULL
+t3$Ane_richness <- ifelse(is.na(t2$Ane_richness), 0, 1)
+t3$Endo_richness <- ifelse(is.na(t2$Endo_richness), 0, 1)
+t3$EpiEndo_richness <- ifelse(is.na(t2$EpiEndo_richness), 0, 1)
+t3$Epi_richness <- ifelse(is.na(t2$Epi_richness), 0, 1)
+
+t3$FGRichness <- rowSums(t3[,2:5])
+t3 <- t3[,c('newID', 'FGRichness')]
+t2 <- merge(t2, t3, by = "newID")
+
 ##########################################################
 ## Match with site level dataset
 ##########################################################
