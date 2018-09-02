@@ -65,20 +65,26 @@ fg_richness <- read.csv(file = file.path(folder, paste("sites+FGRichness_", date
 
 print("Calculating FG richness layers")
 
-
+scaleGL(layername = "PHIHOX", data = fg_richness, load =  file.path(processed_dir, "PHIHOX_weighted.tif"),
+        save = file.path(savefolder, 'PHIHOX_FGRichnessCutScaled.tif'))
 scaleGL(layername = "ORCDRC", data = fg_richness, load =  file.path(processed_dir, "ORCDRC_weighted.tif"),
         save = file.path(savefolder, 'ORCDRC_FGRichnessCutScaled.tif'))
 scaleGL(layername = "SLTPPT", data = fg_richness, load =  file.path(processed_dir, "SLTPPT_weighted.tif"),
         save = file.path(savefolder, 'SLTPPT_FGRichnessCutScaled.tif'))
-scaleGL(layername = 'bio10_4', data = fg_richness, load = file.path(processed_dir, 'CHELSA_bio10_4.tif'),
-        save = file.path(savefolder, 'CHELSA_bio10_4_FGRichnessCutScaled.tif'))
+scaleGL(layername = "CLYPPT", data = fg_richness, load =  file.path(processed_dir, "CLYPPT_weighted.tif"),
+        save = file.path(savefolder, 'CLYPPT_FGRichnessCutScaled.tif'))
+scaleGL(layername = "CECSOL", data = fg_richness, load =  file.path(processed_dir, "CECSOL_weighted.tif"),
+      save = file.path(savefolder, 'CECSOL_FGRichnessCutScaled.tif'))
+
+scaleGL(layername = 'bio10_1', data = fg_richness, load = file.path(processed_dir, 'CHELSA_bio10_1.tif'),
+        save = file.path(savefolder, 'CHELSA_bio10_1_FGRichnessCutScaled.tif'))
 scaleGL(layername = 'bio10_15', data = fg_richness, load = file.path(processed_dir, 'CHELSA_bio10_15.tif'),
         save = file.path(savefolder, 'CHELSA_bio10_15_FGRichnessCutScaled.tif'))
  
 scaleGL(layername = 'Aridity', data = fg_richness, load = file.path(processed_dir, 'ai_yr_TIF.tif'),
          save = file.path(savefolder, 'Aridity_FGRichnessScaled.tif'))
-scaleGL(layername = 'PETyr', data = fg_richness, load = file.path(processed_dir, 'pet_he_yr_TIF.tif'),
-         save = file.path(savefolder, 'PETyr_FGRichnessScaled.tif'))
+scaleGL(layername = 'PET_SD', data = fg_richness, load = file.path(processed_dir, 'pet_he_SD.tif'),
+         save = file.path(savefolder, 'PETSD_FGRichnessScaled.tif'))
 
 
 print("Done!")
