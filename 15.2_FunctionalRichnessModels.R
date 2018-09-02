@@ -23,8 +23,8 @@ print("Doing the first model")
 
 fg1 <- glmer(FGRichness ~  ESA + (scalePH  + 
                                     scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-               (bio10_4_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                  ScalePET)^2 + 
+               (bio10_1_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                  ScalePETSD)^2 + 
                scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
                scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
                scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
