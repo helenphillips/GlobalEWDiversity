@@ -78,6 +78,12 @@ scaleGL(layername = "CECSOL", data = fg_richness, load =  file.path(processed_di
 
 scaleGL(layername = 'bio10_1', data = fg_richness, load = file.path(processed_dir, 'CHELSA_bio10_1.tif'),
         save = file.path(savefolder, 'CHELSA_bio10_1_FGRichnessCutScaled.tif'))
+scaleGL(layername = 'bio10_4', data = fg_richness, load = file.path(processed_dir, 'CHELSA_bio10_4.tif'),
+        save = file.path(savefolder, 'CHELSA_bio10_4_FGRichnessCutScaled.tif'))
+scaleGL(layername = 'bio10_7', data = fg_richness, load = file.path(processed_dir, 'CHELSA_bio10_7.tif'),
+        save = file.path(savefolder, 'CHELSA_bio10_7_FGRichnessCutScaled.tif'))
+scaleGL(layername = 'bio10_12', data = fg_richness, load = file.path(processed_dir, 'CHELSA_bio10_12.tif'),
+        save = file.path(savefolder, 'CHELSA_bio10_12_FGRichnessCutScaled.tif'))
 scaleGL(layername = 'bio10_15', data = fg_richness, load = file.path(processed_dir, 'CHELSA_bio10_15.tif'),
         save = file.path(savefolder, 'CHELSA_bio10_15_FGRichnessCutScaled.tif'))
  
@@ -85,7 +91,8 @@ scaleGL(layername = 'Aridity', data = fg_richness, load = file.path(processed_di
          save = file.path(savefolder, 'Aridity_FGRichnessScaled.tif'))
 scaleGL(layername = 'PET_SD', data = fg_richness, load = file.path(processed_dir, 'pet_he_SD.tif'),
          save = file.path(savefolder, 'PETSD_FGRichnessScaled.tif'))
-
+scaleGL(layername = 'PETyr', data = fg_richness, load = file.path(processed_dir, 'pet_he_yr_TIF.tif'),
+       save = file.path(savefolder, 'PETyr_FGRichnessScaled.tif'))
 
 print("Done!")
 
