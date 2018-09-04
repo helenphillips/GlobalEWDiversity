@@ -127,3 +127,23 @@ fg1 <- glmer(FGRichness ~  ESA + (scalePH  +
 summary(fg1)
 save(fg1, file = file.path(models, "functionalrichnessmodel_initialmodel.rds"))
 load(file.path(models, "functionalrichnessmodel_initialmodel.rds"))
+
+#####
+# Looking at coefficients of final model
+load(file.path(models, "fgrichnessmodel.rds"))
+
+
+summary(fgrichness_model)
+
+## Can use it to predict the values we already
+## This will help me see if the estimates are reasonable
+
+source("Functions/Plots.R")
+sites <- droplevels(sites[sites$ESA != "Bare area (unconsolidated",])
+predictedSites <- predictValues(fgrichness_model, sites, responseVar = "FGRichness", re.form = NA, seMultiplier = 1.96)
+
+summary(exp(predictedSites[,136]))
+plot(exp(predictedSites[,136]), (predictedSites[,126]))
+## All the high (>3 fg predicted) are for sites where we don't have the FG richness
+## The most consistently underpredicts though
+## Better than it was
