@@ -62,6 +62,20 @@ maxV <-max(c(maxValue(africa),
              maxValue(north_america),
              maxValue(west_asia)))
 
+meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
+
+sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
+                cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
+                cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
+                cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+                cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+                cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
+
 colbrks <-  c(minV, seq(1, 4, length.out = 198), maxV)
 
 # seq(minV, maxV, length.out = 200)
@@ -135,11 +149,11 @@ results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\B
  west_asia <- exp(west_asia) - 1
  
 minV <-min(c(minValue(africa),
-minValue(asia),
-minValue(europe),
-minValue(latin_america),
-minValue(north_america),
-minValue(west_asia)))
+             minValue(asia),
+             minValue(europe),
+             minValue(latin_america),
+             minValue(north_america),
+             minValue(west_asia)))
  
 maxV <-max(c(maxValue(africa),
              maxValue(asia),
@@ -147,6 +161,21 @@ maxV <-max(c(maxValue(africa),
              maxValue(latin_america),
              maxValue(north_america),
              maxValue(west_asia)))
+
+meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
+
+sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
+
 
 colbrks <-  c(minV, seq(2, 50, length.out = 198), maxV)
   
@@ -231,6 +260,20 @@ maxV <-max(c(maxValue(africa),
              maxValue(latin_america),
              maxValue(north_america),
              maxValue(west_asia)))
+
+meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
+
+sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
 
 colbrks <-  c(minV, seq(20, 100, length.out = 198), maxV)
 
