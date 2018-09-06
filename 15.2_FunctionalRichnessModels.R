@@ -26,7 +26,7 @@ fg1 <- glmer(FGRichness ~  ESA + (scalePH  +
                (bio10_1_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
                   ScalePETSD)^2 + 
                scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-               scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+               scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD +
                scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
                (1|file/Study_Name), data = fg_richness, family = poisson,
              control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
