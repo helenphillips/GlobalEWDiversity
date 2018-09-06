@@ -78,7 +78,7 @@ sites <- droplevels(sites[sites$ESA != "Unknown",]) #
 
 table(sites$ESA)
 sites_notinclude <- c("Needleleaf deciduous forest", "Tree open",
-                         "Sparse vegetation",  "Cropland/Other vegetation mosaic", "Urban",
+                         "Sparse vegetation",  "Urban",
                          "Bare area (consolidated", "Paddy field", "Wetland/Herbaceous", "Water bodies")
 
 sites <- droplevels(sites[!(sites$ESA %in% sites_notinclude),]) ##   5363
