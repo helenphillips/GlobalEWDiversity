@@ -69,119 +69,76 @@ createInteractionCoef <- function(x, y){
   
   print(file.path(GLs_folder, reg))
   
+  print("Habitat cover")
+  esa <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))
+  
   print("Chelsa data")
-  bio4 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_4_FGRichnessCutScaled.tif"))
+  bio1 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_1_FGRichnessCutScaled.tif"))
   bio15 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_FGRichnessCutScaled.tif"))
   
   print("Other climate data")
-  snow <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
+  # snow <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
   aridity <- raster(file.path(GLs_folder, reg, "Aridity_FGRichnessScaled.tif"))
-  pet <- raster(file.path(GLs_folder, reg, "PETyr_FGRichnessScaled.tif"))
+  petsd <- raster(file.path(GLs_folder, reg, "PETSD_FGRichnessScaled.tif"))
   
   print("Soil data")
+  clay <- raster(file.path(GLs_folder, reg, "CLYPPT_FGRichnessCutScaled.tif"))
+  ph <- raster(file.path(GLs_folder, reg, "PHIHOX_FGRichnessCutScaled.tif"))
   silt <- raster(file.path(GLs_folder, reg, "SLTPPT_FGRichnessCutScaled.tif"))
-  orgC <- raster(file.path(GLs_folder, reg, "ORCDRC_FGRichnessCutScaled.tif"))
 
-  fixedeffs <- summary(fgrichness_model)$coefficients[,1]
+    fixedeffs <- summary(fgrichness_model)$coefficients[,1]
   
   #############################################################
+  print("Doing the ESA layer...")
   
-  print("Calculating interacting coefficients") 
-  print("Soil....")
+  esa[esa == 0] <- NA ## They have an NA pixel number 
+  esa[esa == 60] <- 0 ## intercept is added later
+  print("2 done")
+  esa[esa == 50] <- round(fixedeffs['ESABroadleaf evergreen forest'], digits = 2)
+  esa[esa == 70] <- round(fixedeffs['ESANeedleleaf evergreen forest'], digits = 2)
+  print("4 done")
+  esa[esa == 90] <- round(fixedeffs['ESAMixed forest'], digits = 2)
+  esa[esa == 110] <- round(fixedeffs['ESAHerbaceous with spare tree/shrub'], digits = 2)
+  print("6 done")
+  esa[esa == 12] <- round(fixedeffs['ESAProduction - Plantation'], digits = 2)
+  esa[esa == 120] <- round(fixedeffs['ESAShrub'], digits = 2)
+  print("8 done...last 2")
+  esa[esa == 130] <- round(fixedeffs['ESAHerbaceous'], digits = 2)
+  esa[esa == 10] <- round(fixedeffs['ESAProduction - Herbaceous'], digits = 2)
+  print("all done")
   
+    ## Put all habitat covers where we don't have the habitat cover in the model to NA
+  esa[esa > 10] <- NA
   
-  siltOrgC <- overlay(silt, orgC, fun = createInteractionCoef,
-                     filename = file.path(savefolder, reg, "siltOrgCFGRichness.tif"), overwrite = TRUE)
-  siltOrgC <- calc(siltOrgC, fun = function(x){round(x * fixedeffs['scaleSLTPPT:scaleORCDRC'], digits = 2)},
-                  filename = file.path(savefolder, reg, "siltOrgCFGRichnesscoef.tif"), overwrite = TRUE)
-  
- 
-  
-  print("Climate....")
-  ## Creating snowmonth masks and stuff
-  print("Creating snow masks....")
-  snow0 <- snow1 <- snow2 <- snow3 <-snow4 <- snow
-  snow0[snow0 > 0] <- NA
-  snow0[snow0 == 0] <- 1 ## This just makes it easier for my multiplications
-  
-  snow1[snow1 < 1 | snow1 > 1] <- NA
-  snow1mask <- snow1
-  snow1[snow1 == 1] <- round(fixedeffs['SnowMonths_cat1'], digits = 2)
-  
-  snow2[snow2 < 2 | snow2 > 2] <- NA
-  snow2mask <- snow2
-  snow2mask[snow2mask == 2] <- 1
-  snow2[snow2 == 2] <- round(fixedeffs['SnowMonths_cat2'], digits = 2)
-  
-  snow3[snow3 < 3 | snow3 > 3] <- NA
-  snow3mask <- snow3
-  snow3mask[snow3mask == 3] <- 1
-  snow3[snow3 == 3] <- round(fixedeffs['SnowMonths_cat3'], digits = 2)
-  
-  snow4[snow4 < 4 | snow4 > 4] <- NA
-  snow4mask <- snow4
-  snow4mask[snow4mask == 4] <- 1
-  snow4[snow4 == 4] <- round(fixedeffs['SnowMonths_cat4plus'], digits = 2)
-  
-  print("Interaction with snow....")
-  ## Bio1 and Snow Months
-  ## Snowmonth 0
-  bio15snow0 <- overlay(bio15, snow0, fun = createInteractionCoef, 
-                       filename = file.path(savefolder, reg, "bio15snow0fgrichness.tif"), overwrite = TRUE)
-  bio15snow0 <- calc(bio15snow0, fun = function(x){round(x * fixedeffs['bio10_15_scaled'], digits = 2)}, 
-                    filename = file.path(savefolder, reg, "bio15snow0fgrichnesscoef.tif"), overwrite = TRUE) 
-  
-  ## Snowmonth1
-  bio15snow1 <- overlay(bio15, snow1mask, fun = createInteractionCoef, 
-                       filename = file.path(savefolder, reg, "bio15snow1fgrichness.tif"), overwrite = TRUE)
-  bio15snow1 <- calc(bio15snow1, 
-                    fun = function(x){round(x * fixedeffs['bio10_15_scaled:SnowMonths_cat1'] + fixedeffs['SnowMonths_cat1'], digits = 2)}, 
-                    filename = file.path(savefolder, reg, "bio15snow1fgrichnesscoef.tif"), overwrite = TRUE) 
-  
-  ## Snowmonth2
-  bio15snow2 <- overlay(bio15, snow2mask, fun = createInteractionCoef, 
-                       filename = file.path(savefolder, reg, "bio15snow2fgrichness.tif"), overwrite = TRUE)
-  bio15snow2 <- calc(bio15snow2, 
-                    fun = function(x){round(x * fixedeffs['bio10_15_scaled:SnowMonths_cat2'] + fixedeffs['SnowMonths_cat2'], digits = 2)}, 
-                    filename = file.path(savefolder, reg, "bio15snow2fgrichnesscoef.tif"), overwrite = TRUE) 
-  
-  ## Snowmonth3
-  bio15snow3 <- overlay(bio15, snow3mask, fun = createInteractionCoef, 
-                       filename = file.path(savefolder, reg, "bio15snow3fgrichness.tif"), overwrite = TRUE)
-  bio15snow3 <- calc(bio15snow3, 
-                    fun = function(x){round(x * fixedeffs['bio10_15_scaled:SnowMonths_cat3'] + fixedeffs['SnowMonths_cat3'], digits = 2)}, 
-                    filename = file.path(savefolder, reg, "bio15snow3fgrichnesscoef.tif"), overwrite = TRUE) 
-  
-  ## Snowmonth4
-  bio15snow4 <- overlay(bio15, snow4mask, fun = createInteractionCoef, 
-                       filename = file.path(savefolder, reg, "bio15snow4fgrichness.tif"), overwrite = TRUE)
-  bio15snow4 <- calc(bio15snow4, 
-                    fun = function(x){round(x * fixedeffs['bio10_15_scaled:SnowMonths_cat4plus'] + fixedeffs['SnowMonths_cat4plus'], digits = 2)}, 
-                    filename = file.path(savefolder, reg, "bio51snow4fgrichnesscoef.tif"), overwrite = TRUE) 
-  
+  print("Saving ESA layer")
+  esa <- writeRaster(esa,  filename=file.path(savefolder, "ESA_FGRichnesscoefs.tif"), format="GTiff", overwrite=TRUE)
 
-  print("Adding together all bio1Snow coefs....")
-  AllBio15Snow_coefs <- cover(bio15snow0, bio15snow1, bio15snow2, bio15snow3, bio15snow4, 
-                               filename = file.path(savefolder, reg, "fgrichness_allBio15SnowCoefs.tif"), overwrite = TRUE)
-  rm(bio15snow0, bio15snow1, bio15snow2, bio15snow3, bio15snow4)
+
+  print("Soil....no interactions. Only single effects")
+  
+  
+  
   
  
+  print("Climate....")
+  print("Single effects....")
+  
   print("Interacting climate variables....")
+ 
+  bio1arid <- overlay(bio1, aridity, fun = createInteractionCoef, 
+                      filename = file.path(savefolder, reg, "aridbio1fgrichnesscoef.tif"), overwrite = TRUE)
+  bio1arid <- calc(bio1arid, fun = function(x){round(x * fixedeffs['bio10_1_scaled:scaleAridity'], digits = 2)}, 
+                   filename = file.path(savefolder, reg, "bio1aridfgrichnesscoef.tif"), overwrite = TRUE) 
   
-  bio4bio15 <- overlay(bio4, bio15, fun = createInteractionCoef, 
-                       filename = file.path(savefolder, reg, "bio4bio15fgrichness.tif"), overwrite = TRUE)
-  bio4bio15 <- calc(bio4bio15, fun = function(x){round(x * fixedeffs['bio10_4_scaled:bio10_15_scaled'], digits = 2)}, 
-                    filename = file.path(savefolder, reg, "bio4bio15abundancecoef.tif"), overwrite = TRUE) 
+  bio1petsd <- overlay(bio1, petsd, fun = createInteractionCoef, 
+                       filename = file.path(savefolder, reg, "bio1petsdfgrichness.tif"), overwrite = TRUE)
+  bio1petsd <- calc(bio1petsd, fun = function(x){round(x * fixedeffs['bio10_1_scaled:ScalePETSD'], digits = 2)}, 
+                    filename = file.path(savefolder, reg, "bio1petsdfgrichnesscoef.tif"), overwrite = TRUE) 
   
-  bio15arid <- overlay(bio15, aridity, fun = createInteractionCoef, 
-                      filename = file.path(savefolder, reg, "aridbio15abundance.tif"), overwrite = TRUE)
-  bio15arid <- calc(bio15arid, fun = function(x){round(x * fixedeffs['bio10_15_scaled:scaleAridity'], digits = 2)}, 
-                   filename = file.path(savefolder, reg, "bio15aridfgrichnesscoef.tif"), overwrite = TRUE) 
-  
-  bio15pet <- overlay(bio15, pet, fun = createInteractionCoef, 
-                       filename = file.path(savefolder, reg, "bio15petfgrichness.tif"), overwrite = TRUE)
-  bio15pet <- calc(bio15pet, fun = function(x){round(x * fixedeffs['bio10_15_scaled:ScalePET'], digits = 2)}, 
-                    filename = file.path(savefolder, reg, "bio15petfgrichnesscoef.tif"), overwrite = TRUE) 
+  aridpetsd <- overlay(aridity, petsd, fun = createInteractionCoef, 
+                       filename = file.path(savefolder, reg, "aridpetsdfgrichness.tif"), overwrite = TRUE)
+  aridpetsd <- calc(aridpetsd, fun = function(x){round(x * fixedeffs['scaleAridity:ScalePETSD'], digits = 2)}, 
+                    filename = file.path(savefolder, reg, "aridpetsdfgrichnesscoef.tif"), overwrite = TRUE) 
   
   
   
@@ -190,7 +147,7 @@ createInteractionCoef <- function(x, y){
   }
   
   print("Adding together all other climate coefs....")
-  allclimate_coefs <- overlay(bio4bio15, bio15arid, bio15pet, fun = f_together, 
+  allclimate_coefs <- overlay(bio1arid, bio1petsd, aridpetsd, fun = f_together, 
                               filename = file.path(savefolder, reg, "fgrichness_allotherClimateCoefs.tif"), overwrite = TRUE)
   
   
