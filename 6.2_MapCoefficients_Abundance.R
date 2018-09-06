@@ -71,7 +71,7 @@ createInteractionCoef <- function(x, y){
   bio1 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_1_AbundanceCutScaled.tif"))
   bio15 <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_AbundanceCutScaled.tif"))
   
-  snow <- raster(file.path(GLs_folder, reg, "Snow_newValues.tif"))
+  snow <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
   aridity <- raster(file.path(GLs_folder, reg, "Aridity_AbundanceScaled.tif"))
   petsd <- raster(file.path(GLs_folder, reg, "PETSD_AbundanceScaled.tif"))
   
@@ -276,28 +276,28 @@ createInteractionCoef <- function(x, y){
   petsdsnow1 <- overlay(petsd, snow1mask, fun = createInteractionCoef, 
                         filename = file.path(savefolder, reg, "petsdsnow1abundance.tif"), overwrite = TRUE)
   petsdsnow1 <- calc(petsdsnow1, 
-                     fun = function(x){round(x * fixedeffs['ScalePETSD:SnowMonths_cat1'] + fixedeffs['SnowMonths_cat1'], digits = 2)}, 
+                     fun = function(x){round(x * fixedeffs['SnowMonths_cat1:ScalePETSD'] + fixedeffs['SnowMonths_cat1'], digits = 2)}, 
                      filename = file.path(savefolder, reg, "snow1petsd_abundancecoef.tif"), overwrite = TRUE) 
   
   ## Snowmonth2
   petsdsnow2 <- overlay(petsd, snow2mask, fun = createInteractionCoef, 
                         filename = file.path(savefolder, reg, "petsdsnow2abundance.tif"), overwrite = TRUE)
   petsdsnow2 <- calc(petsdsnow2, 
-                     fun = function(x){round(x * fixedeffs['ScalePETSD:SnowMonths_cat2'] + fixedeffs['SnowMonths_cat2'], digits = 2)}, 
+                     fun = function(x){round(x * fixedeffs['SnowMonths_cat2:ScalePETSD'] + fixedeffs['SnowMonths_cat2'], digits = 2)}, 
                      filename = file.path(savefolder, reg, "snow2petsd_abundancecoef.tif"), overwrite = TRUE) 
   
   ## Snowmonth3
   petsdsnow3 <- overlay(petsd, snow3mask, fun = createInteractionCoef, 
                         filename = file.path(savefolder, reg, "petsdsnow3abundance.tif"), overwrite = TRUE)
   petsdsnow3 <- calc(petsdsnow3, 
-                     fun = function(x){round(x * fixedeffs['ScalePETSD:SnowMonths_cat3'] + fixedeffs['SnowMonths_cat3'], digits = 2)}, 
+                     fun = function(x){round(x * fixedeffs['SnowMonths_cat3:ScalePETSD'] + fixedeffs['SnowMonths_cat3'], digits = 2)}, 
                      filename = file.path(savefolder, reg, "snow3petsd_abundancecoef.tif"), overwrite = TRUE) 
   
   ## Snowmonth4
   petsdsnow4 <- overlay(petsd, snow4mask, fun = createInteractionCoef, 
                         filename = file.path(savefolder, reg, "petsdsnow4abundance.tif"), overwrite = TRUE)
   petsdsnow4 <- calc(petsdsnow4, 
-                     fun = function(x){round(x * fixedeffs['ScalePETSD:SnowMonths_cat4plus'] + fixedeffs['SnowMonths_cat4plus'], digits = 2)}, 
+                     fun = function(x){round(x * fixedeffs['SnowMonths_cat4plus:ScalePETSD'] + fixedeffs['SnowMonths_cat4plus'], digits = 2)}, 
                      filename = file.path(savefolder, reg, "snow4petsd_abundancecoef.tif"), overwrite = TRUE) 
   
   print("Adding together all petSDSnow coefs....")
@@ -374,9 +374,9 @@ createInteractionCoef <- function(x, y){
   }
   
   print("adding together all raster layers....")
-  abundance_finalraster <- overlay(intercept, esa, allsoil_coefs, AllBio1Snow_coefs, AllBio15Snow_coefs,
+  abundance_finalraster <- overlay(esa, allsoil_coefs, AllBio1Snow_coefs, AllBio15Snow_coefs,
                                    AllpetsdSnow_coefs,
-                                   allwaterretention_coefs, allclimate_coefs, 
+                                   allwaterretention_coefs, allclimate_coefs, intercept, 
                                    fun = f_together, 
                                    filename = file.path(savefolder, reg, "AbundanceFinalRaster.tif"), overwrite = TRUE)
   
