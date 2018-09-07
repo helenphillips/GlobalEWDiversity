@@ -80,6 +80,8 @@ createInteractionCoef <- function(x, y){
   # snow <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
   aridity <- raster(file.path(GLs_folder, reg, "Aridity_FGRichnessScaled.tif"))
   petsd <- raster(file.path(GLs_folder, reg, "PETSD_FGRichnessScaled.tif"))
+  intercept <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
+  
   
   print("Soil data")
   clay <- raster(file.path(GLs_folder, reg, "CLYPPT_FGRichnessCutScaled.tif"))
@@ -114,14 +116,20 @@ createInteractionCoef <- function(x, y){
   esa <- writeRaster(esa,  filename=file.path(savefolder, "ESA_FGRichnesscoefs.tif"), format="GTiff", overwrite=TRUE)
 
 
-  print("Soil....no interactions. Only single effects")
+  print("Soil....")
+  print("Interacting soil variables....")
+  
+  phsilt <- overlay(ph, silt, fun = createInteractionCoef, 
+                      filename = file.path(savefolder, reg, "phsiltfgrichnesscoef.tif"), overwrite = TRUE)
+  phsilt <- calc(phsilt, fun = function(x){round(x * fixedeffs['scalePH:scaleSLTPPT'], digits = 2)}, 
+                   filename = file.path(savefolder, reg, "phsiltfgrichnesscoef.tif"), overwrite = TRUE) 
   
   
-  
-  
- 
   print("Climate....")
-  print("Single effects....")
+  print("Single effect....")
+  bio15 <- calc(bio15, fun = function(x){round(x * fixedeffs['bio10_15_scaled'], digits = 2)}, 
+                filename = file.path(savefolder, reg, "bio15fgrichnesscoef.tif"), overwrite = TRUE)
+  
   
   print("Interacting climate variables....")
  
@@ -143,34 +151,45 @@ createInteractionCoef <- function(x, y){
   
   
   f_together <- function(a, b, c){
-    round(a + b +c, digits = 2)
+    round(a + b +c + d, digits = 2)
   }
   
   print("Adding together all other climate coefs....")
-  allclimate_coefs <- overlay(bio1arid, bio1petsd, aridpetsd, fun = f_together, 
+  allclimate_coefs <- overlay(bio15, bio1arid, bio1petsd, aridpetsd, fun = f_together, 
                               filename = file.path(savefolder, reg, "fgrichness_allotherClimateCoefs.tif"), overwrite = TRUE)
   
   
   
   
   print("Water retention....")
-  siltpet <- overlay(silt, pet, fun = createInteractionCoef, 
-                       filename = file.path(savefolder, reg, "petsiltfgrichness.tif"), overwrite = TRUE)
-  siltpet <- calc(siltpet, fun = function(x){round(x * fixedeffs['scaleSLTPPT:ScalePET'], digits = 2)}, 
-                    filename = file.path(savefolder, reg, "petsiltfgrichnesscoef.tif"), overwrite = TRUE) 
+  claypetsd <- overlay(clay, petsd, fun = createInteractionCoef, 
+                       filename = file.path(savefolder, reg, "petsdclayfgrichness.tif"), overwrite = TRUE)
+  claypetsd <- calc(claypetsd, fun = function(x){round(x * fixedeffs['scaleCLYPPT:ScalePETSD'], digits = 2)}, 
+                    filename = file.path(savefolder, reg, "petsdclayfgrichnesscoef.tif"), overwrite = TRUE) 
+  
+  clayarid <- overlay(clay, aridity, fun = createInteractionCoef, 
+                       filename = file.path(savefolder, reg, "aridclayfgrichness.tif"), overwrite = TRUE)
+  clayarid <- calc(clayarid, fun = function(x){round(x * fixedeffs['scaleCLYPPT:scaleAridity'], digits = 2)}, 
+                    filename = file.path(savefolder, reg, "aridclayfgrichnesscoef.tif"), overwrite = TRUE) 
+  
+  
+  print("Adding together all water retention coefs....")
+  
+  f_together <- function(a, b){
+    round(a + b , digits = 2)
+  }
+  
+  allwaterreten_coefs <- overlay(claypetsd, clayarid, fun = f_together, 
+                              filename = file.path(savefolder, reg, "fgrichness_allwaterretenetionCoefs.tif"), overwrite = TRUE)
   
   #### Intercept
   ## Snow raster layer can become the intercept layer
   print("Creating intercept raster....")
-  snow[!(is.na(snow))] <- fixedeffs['(Intercept)']
-  intercept <- snow
-  rm(snow)
+  
+  intercept[!(is.na(intercept))] <- fixedeffs['(Intercept)']
+  
   intercept <- writeRaster(intercept, filename=file.path(savefolder, reg, "intercept_fgrichnesscoefs.tif"), format="GTiff", overwrite=TRUE)
   
-  #### Remove all raster
-  rm(bio4, bio15, aridity, pet, silt, orgC)
-  
-  ## Need to add this to something
   ######## Add them all together
   
   f_together <- function(a, b, c, d, e){
@@ -179,10 +198,10 @@ createInteractionCoef <- function(x, y){
   
   print("adding together all raster layers....")
   fgrichness_finalraster <- overlay(intercept, 
-                                   siltpet,
-                                   siltOrgC,
-                                   AllBio15Snow_coefs,
-                                   allclimate_coefs,
+                                    allwaterreten_coefs,
+                                    allclimate_coefs,
+                                    phsilt,
+                                    esa,
                                    fun = f_together, 
                                    filename = file.path(savefolder, reg, "FGRichnessFinalRaster.tif"), overwrite = TRUE)
   
