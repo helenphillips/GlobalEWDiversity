@@ -92,9 +92,10 @@ for(resultRaster in c("spRFinalRaster.tif", "BiomassFinalRaster.tif"))
   #####
   # Calculating the top X percent
   #####
+  diff <- maxV - minV
   
-  top20 <- maxV - (maxV * 0.2)
-  bottom20 <- minV + (maxV * 0.2)
+  top20 <- maxV - (diff * 0.2)
+  bottom20 <- minV + (diff * 0.2)
   
   regions_all <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
   
@@ -133,7 +134,7 @@ for(resultRaster in c("spRFinalRaster.tif", "BiomassFinalRaster.tif"))
    
   }
   
-  cat(paste(resultRaster, "\n"), file = filename, append = TRUE)
+  # cat(paste(resultRaster, "\n"), file = filename, append = TRUE)
   capture.output(dat, file = filename, append = TRUE)
   
 }
