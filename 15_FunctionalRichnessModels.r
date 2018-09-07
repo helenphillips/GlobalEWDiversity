@@ -140,10 +140,9 @@ summary(fgrichness_model)
 
 source("Functions/Plots.R")
 sites <- droplevels(sites[sites$ESA != "Bare area (unconsolidated",])
-predictedSites <- predictValues(fgrichness_model, sites, responseVar = "FGRichness", re.form = NA, seMultiplier = 1.96)
+sites$Predicted <- (predict(fgrichness_model, sites, re.form = NA))
 
 summary(exp(predictedSites[,136]))
-plot(exp(predictedSites[,136]), (predictedSites[,126]))
-## All the high (>3 fg predicted) are for sites where we don't have the FG richness
-## The most consistently underpredicts though
-## Better than it was
+plot(exp(sites$Predicted) ~ jitter(sites$FGRichness))
+abline(0, 1)
+## Still underpredicts at the higher FGrichness....
