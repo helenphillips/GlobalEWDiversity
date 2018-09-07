@@ -18,6 +18,17 @@ library(sp)
 library(viridis)
 
 ############################################################
+## 'Global'
+############################################################
+
+
+
+## The percentage that map is cut off at top and bottom
+
+
+
+
+############################################################
 ## Species Richness
 ############################################################
 
@@ -76,7 +87,15 @@ sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
                 cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
                 cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
 
-colbrks <-  c(minV, seq(1, 4, length.out = 198), maxV)
+breakpoint_top <- 0.3
+breakpoint_bottom <- 0.02
+diff <- maxV - minV
+
+top20 <- maxV - (diff * breakpoint_top)
+bottom20 <- minV + (diff * breakpoint_bottom)
+
+
+colbrks <-  c(minV, seq(bottom20, top20, length.out = 198), maxV)
 
 # seq(minV, maxV, length.out = 200)
 # actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
@@ -106,6 +125,7 @@ for(reg in regions){
   #image(r, add = TRUE)  
 }
 
+
 image(asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(europe, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(latin_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
@@ -116,8 +136,8 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("1", at = 75, cex = 1)
-mtext("4", at = 430, cex = 1)
+mtext(round(bottom20, digits = 0), at = 75, cex = 1)
+mtext(round(top20, digits = 0), at = 430, cex = 1)
 mtext("Number of species", at = 250, cex = 0.5)
 dev.off()
 
@@ -176,9 +196,17 @@ sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
               cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
               cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
 
+breakpoint_top <- 0.9
+breakpoint_bottom <- 0.005
 
-colbrks <-  c(minV, seq(2, 50, length.out = 198), maxV)
-  
+diff <- maxV - minV
+
+top20 <- maxV - (diff * breakpoint_top)
+bottom20 <- minV + (diff * breakpoint_bottom)
+
+
+colbrks <-  c(minV, seq(bottom20, top20, length.out = 198), maxV)
+
   # seq(minV, maxV, length.out = 200)
 # actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
 #            '#EFF121', '#F5952D', '#E93131', '#D70131', '#D70131')
@@ -217,8 +245,8 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("2g/m2", at = 40, cex = 1)
-mtext("50g/m2", at = 480, cex = 1)
+mtext(paste(round(bottom20, digits = 0), "g/m2"), at = 75, cex = 1)
+mtext(paste(round(top20, digits = 0), "g/m2"), at = 430, cex = 1)
 dev.off()
 
 
@@ -280,7 +308,14 @@ sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
 ###########################################
 
 
-colbrks <-  c(minV, seq(20, 100, length.out = 198), maxV)
+
+diff <- maxV - minV
+
+top20 <- maxV - (diff * breakpoint_top)
+bottom20 <- minV + (diff * breakpoint_bottom)
+
+
+colbrks <-  c(minV, seq(bottom20, top20, length.out = 198), maxV)
 
 # seq(minV, maxV, length.out = 200)
 # actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
@@ -317,8 +352,8 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("20 ind/m2", at = 40, cex = 1)
-mtext("100 ind/m2", at = 480, cex = 1)
+mtext(paste(round(bottom20, digits = 0), "ind/m2"), at = 75, cex = 1)
+mtext(paste(round(top20, digits = 0), "ind/m2"), at = 430, cex = 1)dev.off()
 dev.off()
 
 ##############################################################################################
@@ -330,6 +365,7 @@ file_dates <- as.Date(file_dates)
 date <- max(file_dates, na.rm = TRUE)
 all_data <- read.csv(file.path(all_data, paste("sites_",date,".csv", sep = "")))
 
+# test
 
 models <- "Models"
 load(file.path(models, "richnessmodel_full.rds"))
