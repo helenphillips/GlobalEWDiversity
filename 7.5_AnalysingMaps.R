@@ -111,6 +111,7 @@ for(resultRaster in c("spRFinalRaster.tif", "BiomassFinalRaster.tif"))
     region <- reclassify(get(regions_all[reg]), rclmat)  ## "get" converts a string to a object name
     
     print("summing bottom")
+    region <- aggregate(region, fact=20, fun=sum)
     dat$BottomsCells_N[reg] <- sum(region[], na.rm = TRUE)
     
     print("reclassifying top")
@@ -118,7 +119,8 @@ for(resultRaster in c("spRFinalRaster.tif", "BiomassFinalRaster.tif"))
     rclmat <- matrix(m, ncol=3, byrow=TRUE)
     region <- reclassify(get(regions_all[reg]), rclmat)  ## "get" converts a string to a object name
     
-    print("summing top")          
+    print("summing top")  
+    region <- aggregate(region, fact=20, fun=sum)
     dat$TopCells_N[reg] <- sum(region[], na.rm = TRUE)
     
     print("reclassifying total area") 
@@ -126,6 +128,7 @@ for(resultRaster in c("spRFinalRaster.tif", "BiomassFinalRaster.tif"))
     rclmat <- matrix(m, ncol=3, byrow=TRUE)
     region <- reclassify(get(regions_all[reg]), rclmat)
     print("summing total area")
+    region <- aggregate(region, fact=20, fun=sum)
     dat$TotalCells_N[reg] <- sum(region[], na.rm = TRUE)
    
   }
