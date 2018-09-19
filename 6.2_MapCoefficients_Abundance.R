@@ -129,6 +129,8 @@ newdat <- data.frame(ESA = ESA,
                      bio10_15_scaled = bio10_15_scaled,
                      bio10_1_scaled = bio10_1_scaled)
 
+rm(list=c("bio10_1_scaled", "bio10_15_scaled", "SnowMonths_cat", "scaleAridity", "ScalePETSD",
+          "scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC", "ESA"))
 
 #############################################################
 

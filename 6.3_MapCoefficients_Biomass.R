@@ -5,6 +5,7 @@
 
 
 library(raster)
+library(lme4)
 
 ########################################################
 # 2. Set Working Directory or Cluster Info
@@ -98,6 +99,7 @@ SnowMonths_cat <- as.factor(SnowMonths_cat)
 levels(SnowMonths_cat)[levels(SnowMonths_cat) == "4"] <- "4plus"
 
 
+
 scalePH <- raster(file.path(GLs_folder, reg,"PHIHOX_BiomassCutScaled.tif"))
 scalePH <- as.vector(scalePH)
 
@@ -129,7 +131,8 @@ newdat <- data.frame(ESA = ESA,
                      bio10_15_scaled = bio10_15_scaled,
                      bio10_12_scaled = bio10_12_scaled)
 
-
+rm(list=c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", 
+          "scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC", "ESA"))
 #############################################################
 
 
