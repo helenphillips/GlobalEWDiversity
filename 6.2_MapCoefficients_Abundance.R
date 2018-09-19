@@ -133,11 +133,20 @@ rm(list=c("bio10_1_scaled", "bio10_15_scaled", "SnowMonths_cat", "scaleAridity",
           "scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC", "ESA"))
 
 #############################################################
-
 print("Predicting values...")
-res <- predict(mod, newdat, re.form = NA)
+
+x <- split(newdat, (0:nrow(newdat) %/% 3000))  # modulo division
+
+res <- c()
+
+for(l in 1:length(x)){
+  
+  res <- c(res, predict(mod, x[[l]], re.form = NA))
+  
+}
 
 
+length(res) == nrow(newdat)
 # need number of rows of the original raster
 # The resolution
 # the extent
