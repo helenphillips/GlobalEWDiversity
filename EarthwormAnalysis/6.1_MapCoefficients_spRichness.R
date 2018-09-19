@@ -13,10 +13,10 @@ library(lme4)
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
-
+  
   GLs_folder <- "I:\\sWorm\\ProcessedGLs\\Same_resolution\\regions"
   models <- "Models"
-  }else{ ## i.e. cluster
+}else{ ## i.e. cluster
   args <- commandArgs(trailingOnly = TRUE)
   
   GLs_folder <- args[1] # GLs_dir
@@ -40,13 +40,13 @@ print("Loading in the biodiversity models")
 load(file.path(models, "richnessmodel_full.rds"))
 
 
- 
-  
-  if(!dir.exists(file.path(savefolder, reg))){
-    dir.create(file.path(savefolder, reg))
-  }
-  #  data_out <- file.path(savefolder, reg)
-  
+
+
+if(!dir.exists(file.path(savefolder, reg))){
+  dir.create(file.path(savefolder, reg))
+}
+#  data_out <- file.path(savefolder, reg)
+
 
 #################################################
 # 4. Rerun model with different factor levels for ESA
@@ -66,99 +66,99 @@ levels(data$ESA)[levels(data$ESA) == 'Production - Plantation'] <- "12"
 
 
 mod <-  glmer(formula = richness_model@call$formula, data = data, 
-             control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+              control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
 
 #################################################
 # 5. RICHNESS
 #################################################
-  print("Creating richness raster")
-  print("Loading all rasters")
-  
-  bio10_4_scaled <- raster(file.path(GLs_folder,reg, "CHELSA_bio10_4_RichnessCutScaled.tif"))
-  dimensions <- dim(bio10_4_scaled)
-  resol <-res(bio10_4_scaled)
-  coordred <- crs(bio10_4_scaled)
-  exten <- extent(bio10_4_scaled)
-  bio10_4_scaled <- as.vector(bio10_4_scaled)
-  
-  
-  
-  bio10_15_scaled <- raster(file.path(GLs_folder,reg, "CHELSA_bio10_15_RichnessCutScaled.tif"))
-  bio10_15_scaled <- as.vector(bio10_15_scaled)
-  
-  SnowMonths_cat <- raster(file.path(GLs_folder,reg, "Snow_newValues_WGS84.tif"))
-  SnowMonths_cat <- as.vector(SnowMonths_cat)
-  SnowMonths_cat <- as.factor(SnowMonths_cat)
-  levels(SnowMonths_cat)[levels(SnowMonths_cat) == "4"] <- "4plus"
-  
-  scaleAridity <- raster(file.path(GLs_folder,reg, "Aridity_RichnessScaled.tif"))
-  scaleAridity <- as.vector(scaleAridity)
-  
-  ScalePET <- raster(file.path(GLs_folder,reg, "PETyr_RichnessScaled.tif"))
-  ScalePET <- as.vector(ScalePET)
-  
-  scalePH <- raster(file.path(GLs_folder,reg,"PHIHOX_RichnessCutScaled.tif"))
-  scalePH <- as.vector(scalePH)
-  
-  scaleCLYPPT <- raster(file.path(GLs_folder,reg,"CLYPPT_RichnessCutScaled.tif"))
-  scaleCLYPPT <- as.vector(scaleCLYPPT)
-  
-  scaleSLTPPT <- raster(file.path(GLs_folder,reg,"SLTPPT_RichnessCutScaled.tif"))
-  scaleSLTPPT <- as.vector(scaleSLTPPT)
-  
-  scaleCECSOL <- raster(file.path(GLs_folder,reg,"CECSOL_RichnessCutScaled.tif"))
-  scaleCECSOL <- as.vector(scaleCECSOL)
-  
-  scaleORCDRC <- raster(file.path(GLs_folder,reg,"ORCDRC_RichnessCutScaled.tif"))
-  scaleORCDRC <- as.vector(scaleORCDRC)
-  
-  ESA <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))
-  ESA <- as.vector(ESA)
-  keep <- c(60, 50, 70, 90, 110, 120, 130, 10, 12)
-  ESA <- ifelse(ESA %in% keep, ESA, NA)
-  ESA <- as.factor(ESA)
-  
-  newdat <- data.frame(ESA = ESA,
-                       scaleORCDRC = scaleORCDRC,
-                       scaleCECSOL = scaleCECSOL,
-                       scaleSLTPPT = scaleSLTPPT,
-                       scaleCLYPPT = scaleCLYPPT,
-                       scalePH = scalePH,
-                       ScalePET = ScalePET,
-                       scaleAridity = scaleAridity, 
-                       SnowMonths_cat = SnowMonths_cat,
-                       bio10_15_scaled = bio10_15_scaled,
-                       bio10_4_scaled = bio10_4_scaled)
-  
-  #############################################################
-  
-  print("Predicting values...")
-  res <- predict(mod, newdat, re.form = NA)
-  
-  
-  # need number of rows of the original raster
-  # The resolution
-  # the extent
-  # the coord.ref
-  # dimensions
-  # resol
-  
-  
-  print("Converting to raster...")
-  r <- matrix(res, nrow = dimensions[1], ncol = dimensions[2], byrow = TRUE)
-  r <- raster(r)
-  
-  print("Adding in the raster information")
-  
-  extent(r) <- exten
-  # ... and assign a projection
-  projection(r) <- coordred
-  
-  
-  # Save raster
-  print("Saving raster...")
-  r <- writeRaster(r,  filename=filename = file.path(savefolder, reg, "spRFinalRaster.tif"), format="GTiff", overwrite=TRUE)
-  
+print("Creating richness raster")
+print("Loading all rasters")
 
-  print("Done!") 
+bio10_4_scaled <- raster(file.path(GLs_folder,reg, "CHELSA_bio10_4_RichnessCutScaled.tif"))
+dimensions <- dim(bio10_4_scaled)
+resol <-res(bio10_4_scaled)
+coordred <- crs(bio10_4_scaled)
+exten <- extent(bio10_4_scaled)
+bio10_4_scaled <- as.vector(bio10_4_scaled)
+
+
+
+bio10_15_scaled <- raster(file.path(GLs_folder,reg, "CHELSA_bio10_15_RichnessCutScaled.tif"))
+bio10_15_scaled <- as.vector(bio10_15_scaled)
+
+SnowMonths_cat <- raster(file.path(GLs_folder,reg, "Snow_newValues_WGS84.tif"))
+SnowMonths_cat <- as.vector(SnowMonths_cat)
+SnowMonths_cat <- as.factor(SnowMonths_cat)
+levels(SnowMonths_cat)[levels(SnowMonths_cat) == "4"] <- "4plus"
+
+scaleAridity <- raster(file.path(GLs_folder,reg, "Aridity_RichnessScaled.tif"))
+scaleAridity <- as.vector(scaleAridity)
+
+ScalePET <- raster(file.path(GLs_folder,reg, "PETyr_RichnessScaled.tif"))
+ScalePET <- as.vector(ScalePET)
+
+scalePH <- raster(file.path(GLs_folder,reg,"PHIHOX_RichnessCutScaled.tif"))
+scalePH <- as.vector(scalePH)
+
+scaleCLYPPT <- raster(file.path(GLs_folder,reg,"CLYPPT_RichnessCutScaled.tif"))
+scaleCLYPPT <- as.vector(scaleCLYPPT)
+
+scaleSLTPPT <- raster(file.path(GLs_folder,reg,"SLTPPT_RichnessCutScaled.tif"))
+scaleSLTPPT <- as.vector(scaleSLTPPT)
+
+scaleCECSOL <- raster(file.path(GLs_folder,reg,"CECSOL_RichnessCutScaled.tif"))
+scaleCECSOL <- as.vector(scaleCECSOL)
+
+scaleORCDRC <- raster(file.path(GLs_folder,reg,"ORCDRC_RichnessCutScaled.tif"))
+scaleORCDRC <- as.vector(scaleORCDRC)
+
+ESA <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))
+ESA <- as.vector(ESA)
+keep <- c(60, 50, 70, 90, 110, 120, 130, 10, 12)
+ESA <- ifelse(ESA %in% keep, ESA, NA)
+ESA <- as.factor(ESA)
+
+newdat <- data.frame(ESA = ESA,
+                     scaleORCDRC = scaleORCDRC,
+                     scaleCECSOL = scaleCECSOL,
+                     scaleSLTPPT = scaleSLTPPT,
+                     scaleCLYPPT = scaleCLYPPT,
+                     scalePH = scalePH,
+                     ScalePET = ScalePET,
+                     scaleAridity = scaleAridity, 
+                     SnowMonths_cat = SnowMonths_cat,
+                     bio10_15_scaled = bio10_15_scaled,
+                     bio10_4_scaled = bio10_4_scaled)
+
+#############################################################
+
+print("Predicting values...")
+res <- predict(mod, newdat, re.form = NA)
+
+
+# need number of rows of the original raster
+# The resolution
+# the extent
+# the coord.ref
+# dimensions
+# resol
+
+
+print("Converting to raster...")
+r <- matrix(res, nrow = dimensions[1], ncol = dimensions[2], byrow = TRUE)
+r <- raster(r)
+
+print("Adding in the raster information")
+
+extent(r) <- exten
+# ... and assign a projection
+projection(r) <- coordred
+
+
+# Save raster
+print("Saving raster...")
+r <- writeRaster(r,  filename=filename = file.path(savefolder, reg, "spRFinalRaster.tif"), format="GTiff", overwrite=TRUE)
+
+
+print("Done!") 
 
