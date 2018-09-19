@@ -41,10 +41,10 @@ load(file.path(models, "fgrichnessmodel.rds"))
 
 
 
-  if(!dir.exists(file.path(savefolder, reg))){
-    dir.create(file.path(savefolder, reg))
-  }
- #  data_out <- file.path(savefolder, reg)
+if(!dir.exists(file.path(savefolder, reg))){
+  dir.create(file.path(savefolder, reg))
+}
+#  data_out <- file.path(savefolder, reg)
 
 
 
@@ -69,96 +69,105 @@ mod <-  glmer(formula = fgrichness_model@call$formula, data = data, family = "po
               control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
 
 
-  #################################################
-  # 5. FG Richness
-  #################################################
-  print("Creating Functional group richness raster")
-  print("Loading all rasters")
-  
-  print(file.path(GLs_folder, reg))
-  
-  
-  
+#################################################
+# 5. FG Richness
+#################################################
+print("Creating Functional group richness raster")
+print("Loading all rasters")
 
-  bio10_1_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_1_FGRichnessCutScaled.tif"))
-  dimensions <- dim(bio10_1_scaled)
-  resol <-res(bio10_1_scaled)
-  coordred <- crs(bio10_1_scaled)
-  exten <- extent(bio10_1_scaled)
-   bio10_1_scaled <- as.vector(bio10_1_scaled)
- 
-  
-   bio10_15_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_FGRichnessCutScaled.tif"))
-   bio10_15_scaled <- as.vector(bio10_15_scaled)
-  
-  # snow <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
-   scaleAridity <- raster(file.path(GLs_folder, reg, "Aridity_FGRichnessScaled.tif"))
-   scaleAridity <- as.vector(scaleAridity)
-   
-   ScalePETSD <- raster(file.path(GLs_folder, reg, "PETSD_FGRichnessScaled.tif"))
-   ScalePETSD <- as.vector(ScalePETSD)
- 
-   scaleCLYPPT <- raster(file.path(GLs_folder, reg, "CLYPPT_FGRichnessCutScaled.tif"))
-   scaleCLYPPT <- as.vector(scaleCLYPPT)
-   
-   scalePH <- raster(file.path(GLs_folder, reg, "PHIHOX_FGRichnessCutScaled.tif"))
-   scalePH <- as.vector(scalePH)
-   
-   scaleSLTPPT <- raster(file.path(GLs_folder, reg, "SLTPPT_FGRichnessCutScaled.tif"))
-   scaleSLTPPT <- as.vector(scaleSLTPPT)
+print(file.path(GLs_folder, reg))
 
-    
-   
-   
-   ESA <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))
-   ESA <- as.vector(ESA)
-   keep <- c(60, 50, 70, 90, 110, 120, 130, 10, 12, 30)
-   ESA <- ifelse(ESA %in% keep, ESA, NA)
-   ESA <- as.factor(ESA)
-   
-   newdat <- data.frame(ESA = ESA,
-                       scaleSLTPPT = scaleSLTPPT,
-                        scaleCLYPPT = scaleCLYPPT,
-                        scalePH = scalePH,
-                        ScalePETSD = ScalePETSD,
-                        scaleAridity = scaleAridity, 
-                        bio10_15_scaled = bio10_15_scaled,
-                        bio10_1_scaled = bio10_1_scaled)
+
+
+
+bio10_1_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_1_FGRichnessCutScaled.tif"))
+dimensions <- dim(bio10_1_scaled)
+resol <-res(bio10_1_scaled)
+coordred <- crs(bio10_1_scaled)
+exten <- extent(bio10_1_scaled)
+bio10_1_scaled <- as.vector(bio10_1_scaled)
+
+
+bio10_15_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_FGRichnessCutScaled.tif"))
+bio10_15_scaled <- as.vector(bio10_15_scaled)
+
+# snow <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
+scaleAridity <- raster(file.path(GLs_folder, reg, "Aridity_FGRichnessScaled.tif"))
+scaleAridity <- as.vector(scaleAridity)
+
+ScalePETSD <- raster(file.path(GLs_folder, reg, "PETSD_FGRichnessScaled.tif"))
+ScalePETSD <- as.vector(ScalePETSD)
+
+scaleCLYPPT <- raster(file.path(GLs_folder, reg, "CLYPPT_FGRichnessCutScaled.tif"))
+scaleCLYPPT <- as.vector(scaleCLYPPT)
+
+scalePH <- raster(file.path(GLs_folder, reg, "PHIHOX_FGRichnessCutScaled.tif"))
+scalePH <- as.vector(scalePH)
+
+scaleSLTPPT <- raster(file.path(GLs_folder, reg, "SLTPPT_FGRichnessCutScaled.tif"))
+scaleSLTPPT <- as.vector(scaleSLTPPT)
+
+
+
+
+ESA <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))
+ESA <- as.vector(ESA)
+keep <- c(60, 50, 70, 90, 110, 120, 130, 10, 12, 30)
+ESA <- ifelse(ESA %in% keep, ESA, NA)
+ESA <- as.factor(ESA)
+
+newdat <- data.frame(ESA = ESA,
+                     scaleSLTPPT = scaleSLTPPT,
+                     scaleCLYPPT = scaleCLYPPT,
+                     scalePH = scalePH,
+                     ScalePETSD = ScalePETSD,
+                     scaleAridity = scaleAridity, 
+                     bio10_15_scaled = bio10_15_scaled,
+                     bio10_1_scaled = bio10_1_scaled)
+
+
+rm(list=c("bio10_1_scaled", "bio10_15_scaled",  "scaleAridity", "ScalePETSD",
+          "scalePH", "scaleCLYPPT", "scaleSLTPPT","ESA"))
+
+#############################################################
+
+print("Predicting values...")
+x <- split(newdat, (0:nrow(newdat) %/% 3000))  # modulo division
+
+res <- c()
+
+for(l in 1:length(x)){
   
-   
-   rm(list=c("bio10_1_scaled", "bio10_15_scaled",  "scaleAridity", "ScalePETSD",
-             "scalePH", "scaleCLYPPT", "scaleSLTPPT","ESA"))
-   
-   #############################################################
-   
-   print("Predicting values...")
-   res <- predict(mod, newdat, re.form = NA)
-   
-   
-   # need number of rows of the original raster
-   # The resolution
-   # the extent
-   # the coord.ref
-   # dimensions
-   # resol
-   
-   
-   print("Converting to raster...")
-   r <- matrix(res, nrow = dimensions[1], ncol = dimensions[2], byrow = TRUE)
-   r <- raster(r)
-   
-   print("Adding in the raster information")
-   
-   extent(r) <- exten
-   # ... and assign a projection
-   projection(r) <- coordred
-   
-   
-   # Save raster
-   print("Saving raster...")
-   r <- writeRaster(r,  filename=filename = file.path(savefolder, reg, "FGRichnessFinalRaster.tif"), format="GTiff", overwrite=TRUE)
-   
-   
-   print("Done!") 
-   
+  res <- c(res, predict(mod, x[[l]], re.form = NA))
   
+}
+
+
+length(res) == nrow(newdat)   
+
+# need number of rows of the original raster
+# The resolution
+# the extent
+# the coord.ref
+# dimensions
+# resol
+
+
+print("Converting to raster...")
+r <- matrix(res, nrow = dimensions[1], ncol = dimensions[2], byrow = TRUE)
+r <- raster(r)
+
+print("Adding in the raster information")
+
+extent(r) <- exten
+# ... and assign a projection
+projection(r) <- coordred
+
+
+# Save raster
+print("Saving raster...")
+r <- writeRaster(r,  filename=filename = file.path(savefolder, reg, "FGRichnessFinalRaster.tif"), format="GTiff", overwrite=TRUE)
+
+
+print("Done!") 
+
