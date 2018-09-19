@@ -129,7 +129,6 @@ newdat <- data.frame(ESA = ESA,
                      bio10_15_scaled = bio10_15_scaled,
                      bio10_1_scaled = bio10_1_scaled)
 
-# fixedeffs <- summary(abundance_model)$coefficients[,1]
 
 #############################################################
 
@@ -158,7 +157,7 @@ projection(r) <- coordred
 
 # Save raster
 print("Saving raster...")
-r <- writeRaster(esa,  filename=file.path(savefolder, reg, "AbundanceFinalRaster.tif"), format="GTiff", overwrite=TRUE)
+r <- writeRaster(r,  filename=file.path(savefolder, reg, "AbundanceFinalRaster.tif"), format="GTiff", overwrite=TRUE)
 
 
 print("Done!")
