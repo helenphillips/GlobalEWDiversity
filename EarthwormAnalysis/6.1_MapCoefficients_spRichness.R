@@ -65,7 +65,7 @@ levels(data$ESA)[levels(data$ESA) == 'Production - Plantation'] <- "12"
 # levels(data$ESA)[levels(data$ESA) == 'Cropland/Other vegetation mosaic'] <- "30"
 
 
-mod <-  glmer(formula = richness_model@call$formula, data = data, 
+mod <-  glmer(formula = richness_model@call$formula, data = data, family = "poisson",
               control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
 
 #################################################
@@ -129,6 +129,10 @@ newdat <- data.frame(ESA = ESA,
                      SnowMonths_cat = SnowMonths_cat,
                      bio10_15_scaled = bio10_15_scaled,
                      bio10_4_scaled = bio10_4_scaled)
+
+
+rm(list=c("bio10_4_scaled", "bio10_15_scaled", "SnowMonths_cat", "scaleAridity", "ScalePET",
+          "scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC", "ESA"))
 
 #############################################################
 
