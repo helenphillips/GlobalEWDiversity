@@ -307,6 +307,8 @@ sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
 
 ###########################################
 
+breakpoint_top <- 0.9
+breakpoint_bottom <- 0.005
 
 
 diff <- maxV - minV
