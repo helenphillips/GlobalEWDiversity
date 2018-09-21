@@ -5,6 +5,7 @@
 
 
 library(raster)
+library(lme4)
 
 ########################################################
 # 2. Set Working Directory or Cluster Info
@@ -53,6 +54,7 @@ if(!dir.exists(file.path(savefolder, reg))){
 #################################################
 print("Re-running model with new ESA values....")
 data <- fgrichness_model@frame
+
 levels(data$ESA)[levels(data$ESA) == 'Broadleaf deciduous forest'] <- "60"
 levels(data$ESA)[levels(data$ESA) == 'Broadleaf evergreen forest'] <- "50"
 levels(data$ESA)[levels(data$ESA) == 'Needleleaf evergreen forest'] <- "70"
@@ -166,7 +168,7 @@ projection(r) <- coordred
 
 # Save raster
 print("Saving raster...")
-r <- writeRaster(r,  filename=filename = file.path(savefolder, reg, "FGRichnessFinalRaster.tif"), format="GTiff", overwrite=TRUE)
+r <- writeRaster(r,  filename= file.path(savefolder, reg, "FGRichnessFinalRaster.tif"), format="GTiff", overwrite=TRUE)
 
 
 print("Done!") 
