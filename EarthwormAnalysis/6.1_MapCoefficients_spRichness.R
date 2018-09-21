@@ -171,7 +171,7 @@ projection(r) <- coordred
 
 # Save raster
 print("Saving raster...")
-r <- writeRaster(r,  filename=filename = file.path(savefolder, reg, "spRFinalRaster.tif"), format="GTiff", overwrite=TRUE)
+r <- writeRaster(r,  filename= file.path(savefolder, reg, "spRFinalRaster.tif"), format="GTiff", overwrite=TRUE)
 
 
 print("Done!") 
