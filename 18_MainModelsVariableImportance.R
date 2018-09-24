@@ -233,6 +233,7 @@ dat <- melt(a)
 dat$X1 <- factor(dat$X1, levels = c( "Functional Richness", "Biomass", "Abundance","SpeciesRichness"))
 dat$X2 <- factor(dat$X2, levels = c("ESA","Soil","Precipitation", "Temperature","Water Retention"))
 
+############################
 
 jpeg(file = file.path(figures, "variableImportance_splitGroups.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Main Models", deltas = d)
@@ -252,16 +253,16 @@ names(alldat)[names(alldat) == "delta$value"] <- "delta"
 
 spR <- alldat[alldat$X1 == "SpeciesRichness",]
 spR$y <- 4
-spR$x <- 1:5
+spR$x <- c(1, 3, 4, 2, 5)
 abund <- alldat[alldat$X1 == "Abundance",]
 abund$y <- 3
-abund$x <- 1:5
+abund$x <- c(1, 3, 4, 2, 5)
 bmass<- alldat[alldat$X1 == "Biomass",]
 bmass$y <- 2
-bmass$x <- 1:5
+bmass$x <- c(1, 3, 4, 2, 5)
 frichness <- alldat[alldat$X1 == "Functional Richness",]
 frichness$y <- 1
-frichness$x <- 1:5
+frichness$x <- c(1, 3, 4, 2, 5)
 
 circleSize <- function(dat){
   dat$size <- 9
@@ -279,6 +280,13 @@ frichness<- circleSize(frichness)
 
 all_dat <- rbind(spR, abund, bmass, frichness)
 
-plot(all_dat$x, all_dat$y, pch = 19, cex = all_dat$size, ylim = c(0, 5))
-
-
+jpeg(file = file.path(figures, "variableImportance_splitGroups_circles.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+par(mar = c(3, 9.5, 1, 3))
+plot(-1e+05, -1e+05, ylim = c(0, 5), xlim = c(0.5, 5.5),  
+     ylab = "", xlab = "",  xaxt='n', axes = FALSE)
+Axis(side = 2, cex.axis = 1, labels = levels(all_dat$X1), 
+     at = c(1:4), las = 2)
+points(all_dat$x, all_dat$y, pch = 19, cex = all_dat$size, ylim = c(0, 5))
+axis(side=1, at = 1:5, labels = levels(all_dat$X2), las=1, cex.axis = 1)
+mtext("Model", side = 2, line = 6, cex = 2)
+dev.off()
