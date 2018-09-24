@@ -242,3 +242,43 @@ annotate("text", x = c(1,2,3,4,5), y=3, label = c(d[2,'ESA'], d[2,'Soil'], d[2,'
 annotate("text", x = c(1,2,3,4,5), y=4, label = c(d[1,'ESA'], d[1,'Soil'], d[1,'Precipitation'], d[1,'Temperature'], d[1,'Water Retention']))
 p
 dev.off()
+
+##### Alternative plot
+
+delta <- melt(d)
+
+alldat <- cbind(dat, delta$value)
+names(alldat)[names(alldat) == "delta$value"] <- "delta"
+
+spR <- alldat[alldat$X1 == "SpeciesRichness",]
+spR$y <- 4
+spR$x <- 1:5
+abund <- alldat[alldat$X1 == "Abundance",]
+abund$y <- 3
+abund$x <- 1:5
+bmass<- alldat[alldat$X1 == "Biomass",]
+bmass$y <- 2
+bmass$x <- 1:5
+frichness <- alldat[alldat$X1 == "Functional Richness",]
+frichness$y <- 1
+frichness$x <- 1:5
+
+circleSize <- function(dat){
+  dat$size <- 9
+  onepercent <- min(dat$delta, na.rm = TRUE) / 100
+  dat$percentChange <- dat$delta / onepercent
+  dat$size <- dat$size * ((100 - dat$percentChange) / 100)
+  dat$size <- dat$size + 1
+  return(dat)
+}
+
+spR <- circleSize(spR)
+bmass<- circleSize(bmass)
+abund<- circleSize(abund)
+frichness<- circleSize(frichness)
+
+all_dat <- rbind(spR, abund, bmass, frichness)
+
+plot(all_dat$x, all_dat$y, pch = 19, cex = all_dat$size, ylim = c(0, 5))
+
+
