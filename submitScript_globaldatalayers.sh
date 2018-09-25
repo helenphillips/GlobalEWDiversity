@@ -17,8 +17,8 @@ export LANG=en_US.UTF8
 
 output_dir=/work/$USER/$JOB_NAME/$JOB_ID
 mkdir -p $output_dir
-data_dir=/data/idiv_sdiv/sworm/
-date="2018-05-25"
+data_dir=/data/idiv_sdiv/sworm
+date="2018-09-25"
 processed_dir=/data/idiv_sdiv/sworm/ProcessGLs
 module load R
  
