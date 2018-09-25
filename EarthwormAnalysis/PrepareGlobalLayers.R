@@ -126,8 +126,8 @@ biomass <- read.csv(file.path(folder, paste('sitesBiomass_', date, '.csv', sep="
  #        save = file.path(savefolder, 'CHELSA_bio10_1_RichnessCutScaled.tif'))
  # scaleGL(layername = 'bio10_4', data = richness, load = file.path(folder, 'CHELSA_bio10_4.tif'),
  #        save = file.path(savefolder, 'CHELSA_bio10_4_RichnessCutScaled.tif'))
- scaleGL(layername = 'bio10_7', data = richness, load = file.path(folder, 'CHELSA_bio10_7.tif'),
-          save = file.path(savefolder, 'CHELSA_bio10_7_RichnessCutScaled.tif'))
+ # scaleGL(layername = 'bio10_7', data = richness, load = file.path(folder, 'CHELSA_bio10_7.tif'),
+ #        save = file.path(savefolder, 'CHELSA_bio10_7_RichnessCutScaled.tif'))
          
  # scaleGL(layername = 'bio10_12', data = richness, load = file.path(folder, 'CHELSA_bio10_12.tif'),
  #        save = file.path(savefolder, 'CHELSA_bio10_12_RichnessCutScaled.tif'))
@@ -140,7 +140,8 @@ biomass <- read.csv(file.path(folder, paste('sitesBiomass_', date, '.csv', sep="
  #         save = file.path(savefolder, 'PETyr_RichnessScaled.tif'))
  # scaleGL(layername = 'PET_SD', data = richness, load = file.path(folder, 'pet_he_SD.tif'),
  #         save = file.path(savefolder, 'PETSD_RichnessScaled.tif'))
- # 
+  scaleGL(layername = 'elevation', data = richness, load = file.path(folder, 'elevation.tif'),
+          save = file.path(savefolder, 'elevation_RichnessScaled.tif'))
  
  ## Abundance
 print("Calculating abundance layers")
@@ -159,8 +160,8 @@ print("Calculating abundance layers")
 #         save = file.path(savefolder, 'CHELSA_bio10_1_AbundanceCutScaled.tif'))
 #  scaleGL(layername = 'bio10_4', data = abundance, load = file.path(folder, 'CHELSA_bio10_4.tif'), 
 #         save = file.path(savefolder, 'CHELSA_bio10_4_AbundanceCutScaled.tif'))
-  scaleGL(layername = 'bio10_7', data = abundance, load = file.path(folder, 'CHELSA_bio10_7.tif'), 
-         save = file.path(savefolder, 'CHELSA_bio10_7_AbundanceCutScaled.tif'))
+#  scaleGL(layername = 'bio10_7', data = abundance, load = file.path(folder, 'CHELSA_bio10_7.tif'), 
+#         save = file.path(savefolder, 'CHELSA_bio10_7_AbundanceCutScaled.tif'))
 #  scaleGL(layername = 'bio10_12', data = abundance, load = file.path(folder, 'CHELSA_bio10_12.tif'), 
 #         save = file.path(savefolder, 'CHELSA_bio10_12_AbundanceCutScaled.tif'))
 # scaleGL(layername = 'bio10_15', data = abundance, load = file.path(folder, 'CHELSA_bio10_15.tif'), 
@@ -172,7 +173,8 @@ print("Calculating abundance layers")
 #         save = file.path(savefolder, 'PETyr_AbundanceScaled.tif'))
 # scaleGL(layername = 'PET_SD', data = abundance, load = file.path(folder, 'pet_he_SD.tif'),
 #         save = file.path(savefolder, 'PETSD_AbundanceScaled.tif'))
-
+scaleGL(layername = 'elevation', data = abundance, load = file.path(folder, 'elevation.tif'),
+        save = file.path(savefolder, 'elevation_AbundanceScaled.tif'))
 
 ## Biomass
 print("Calculating biomass layers")
@@ -191,8 +193,8 @@ print("Calculating biomass layers")
 #         save = file.path(savefolder, 'CHELSA_bio10_1_BiomassCutScaled.tif'))
 # scaleGL(layername = 'bio10_4', data = biomass, load = file.path(folder, 'CHELSA_bio10_4.tif'), 
 #         save = file.path(savefolder, 'CHELSA_bio10_4_BiomassCutScaled.tif'))
- scaleGL(layername = 'bio10_7', data = biomass, load = file.path(folder, 'CHELSA_bio10_7.tif'), 
-         save = file.path(savefolder, 'CHELSA_bio10_7_BiomassCutScaled.tif'))
+# scaleGL(layername = 'bio10_7', data = biomass, load = file.path(folder, 'CHELSA_bio10_7.tif'), 
+#         save = file.path(savefolder, 'CHELSA_bio10_7_BiomassCutScaled.tif'))
 
 
 # scaleGL(layername = 'bio10_12', data = biomass, load = file.path(folder, 'CHELSA_bio10_12.tif'), 
@@ -206,7 +208,8 @@ print("Calculating biomass layers")
 #         save = file.path(savefolder, 'PETyr_BiomassScaled.tif'))
 # scaleGL(layername = 'PET_SD', data = biomass, load = file.path(folder, 'pet_he_SD.tif'),
 #         save = file.path(savefolder, 'PETSD_BiomassScaled.tif'))
-
+scaleGL(layername = 'elevation', data = biomass, load = file.path(folder, 'elevation.tif'),
+        save = file.path(savefolder, 'elevation_BiomassScaled.tif'))
 
 print("Done!")
 
