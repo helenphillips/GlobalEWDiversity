@@ -51,6 +51,11 @@ sites <- read.csv(file.path(data_in, loadinsites))
 # 4. Load in TIFs
 #################################################
 
+### elevation
+
+ele <- "I:\\sWorm\\Elevation"
+tif <- raster(file.path(ele, "elevation.tif"))
+sites$elevation <- extract(tif, data.frame(sites$Longitude__Decimal_Degrees, sites$Latitude__decimal_degrees))
 ############## SNOW
 
 snow <- "I:\\sWorm\\Database\\snow"
