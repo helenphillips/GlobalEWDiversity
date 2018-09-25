@@ -108,6 +108,7 @@ richness$bio10_15_scaled <- scale(richness$bio10_15)
 richness$scaleAridity <- scale(richness$Aridity)
 richness$ScalePET <- scale(richness$PETyr)
 richness$ScalePETSD <- scale(richness$PET_SD)
+richness$scaleElevation <- scale(richness$elevation)
 
 ## Save the data
 write.csv(richness, file = file.path(data_out, paste("sitesRichness_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
@@ -179,8 +180,29 @@ richness_model <- modelSimplificationAIC(model = r1, data = richness, optimizer 
 save(richness_model, file = file.path(models, "richnessmodel_full.rds"))
 # load(file.path(models, "richnessmodel_full.rds"))
 
+spRrefit <- glmer(formula = SpeciesRichness ~ scalePH + scaleCLYPPT + scaleSLTPPT + 
+                    scaleCECSOL + scaleORCDRC + bio10_4_scaled + bio10_15_scaled + 
+                    SnowMonths_cat + scaleAridity + ScalePET + scalePH:scaleCECSOL + 
+                    scalePH:scaleORCDRC + scaleCLYPPT:scaleCECSOL + scaleSLTPPT:scaleORCDRC + 
+                    scaleCECSOL:scaleORCDRC + bio10_4_scaled:bio10_15_scaled + 
+                    bio10_4_scaled:SnowMonths_cat + bio10_15_scaled:SnowMonths_cat + 
+                    bio10_15_scaled:scaleAridity + bio10_15_scaled:ScalePET + 
+                    scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:ScalePET + scaleSLTPPT:scaleAridity + 
+                    ESA + (1 | file/Study_Name), data = richness, family = poisson, control = glmerControl(optimizer = "bobyqa", 
+                                                                                                   optCtrl = list(maxfun = 2e5)))
 
+spRtest <- glmer(formula = SpeciesRichness ~ scaleElevation + scalePH + scaleCLYPPT + scaleSLTPPT + 
+                   scaleCECSOL + scaleORCDRC + bio10_4_scaled + bio10_15_scaled + 
+                   SnowMonths_cat + scaleAridity + ScalePET + scalePH:scaleCECSOL + 
+                   scalePH:scaleORCDRC + scaleCLYPPT:scaleCECSOL + scaleSLTPPT:scaleORCDRC + 
+                   scaleCECSOL:scaleORCDRC + bio10_4_scaled:bio10_15_scaled + 
+                   bio10_4_scaled:SnowMonths_cat + bio10_15_scaled:SnowMonths_cat + 
+                   bio10_15_scaled:scaleAridity + bio10_15_scaled:ScalePET + 
+                   scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:ScalePET + scaleSLTPPT:scaleAridity + 
+                   ESA + (1 | file/Study_Name), data = richness, family = poisson, control = glmerControl(optimizer = "bobyqa", 
+                                                                                                          optCtrl = list(maxfun = 2e5)))
 
+anova(spRrefit, spRtest)
 ##  From DHARMa
 simulationOutput <- simulateResiduals(fittedModel = richness_model, n = 250)
 plotSimulatedResiduals(simulationOutput = simulationOutput,quantreg = TRUE)
@@ -221,7 +243,7 @@ biomass$bio10_15_scaled <- scale(biomass$bio10_15)
 biomass$scaleAridity <- scale(biomass$Aridity)
 biomass$ScalePET <- scale(biomass$PETyr)
 biomass$ScalePETSD <- scale(biomass$PET_SD)
-
+biomass$ScaleElevation <- scale(biomass$elevation)
 ## Save the data
 write.csv(biomass, file = file.path(data_out, paste("sitesBiomass_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
@@ -253,7 +275,7 @@ corvif(data.frame(biomass$bio10_4, biomass$bio10_12,biomass$bio10_15,
 
 ## All fine
 
-b1 <- lmer(logBiomass ~  ESA + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+b1 <- lmer(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
                 (bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat)^2 + 
             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
@@ -274,6 +296,30 @@ plotSimulatedResiduals(simulationOutput = simulationOutput,quantreg = TRUE)
 biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
 save(biomass_model, file = file.path(models, "biomassmodel_full.rds"))
 # load(file.path(models, "biomassmodel_full.rds"))
+
+
+
+#biomass_model@call
+refitB <- lmer(formula = logBiomass ~ scalePH + scaleCLYPPT + scaleSLTPPT + 
+                                scaleORCDRC + scaleCECSOL + bio10_12_scaled + bio10_15_scaled + 
+                                scalePH:scaleCLYPPT + scalePH:scaleSLTPPT + scalePH:scaleORCDRC + 
+                                scalePH:scaleCECSOL + scaleCLYPPT:scaleORCDRC + scaleCLYPPT:scaleCECSOL + 
+                                scaleSLTPPT:scaleCECSOL + scaleORCDRC:scaleCECSOL + scaleCLYPPT:bio10_12_scaled + 
+                                scaleSLTPPT:bio10_12_scaled + scaleCLYPPT:bio10_15_scaled + 
+                                ESA + SnowMonths_cat + (1 | file/Study_Name), data = biomass, 
+                              control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5)))
+
+biomas_test <- lmer(formula = logBiomass ~ ScaleElevation + scalePH + scaleCLYPPT + scaleSLTPPT + 
+       scaleORCDRC + scaleCECSOL + bio10_12_scaled + bio10_15_scaled + 
+       scalePH:scaleCLYPPT + scalePH:scaleSLTPPT + scalePH:scaleORCDRC + 
+       scalePH:scaleCECSOL + scaleCLYPPT:scaleORCDRC + scaleCLYPPT:scaleCECSOL + 
+       scaleSLTPPT:scaleCECSOL + scaleORCDRC:scaleCECSOL + scaleCLYPPT:bio10_12_scaled + 
+       scaleSLTPPT:bio10_12_scaled + scaleCLYPPT:bio10_15_scaled + 
+       ESA + SnowMonths_cat + (1 | file/Study_Name), data = biomass, 
+     control = lmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2e5)))
+
+anova(refitB, biomas_test)
+
 
 simulationOutput_bm <- simulateResiduals(fittedModel = biomass_model, n = 250)
 plotSimulatedResiduals(simulationOutput = simulationOutput_bm,quantreg = TRUE)
