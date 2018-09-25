@@ -173,7 +173,6 @@ print("Converting to raster...")
 print(dimensions[1])
 print(dimensions[2])
 
-nrow(predValues)
 print(dimensions[1] * dimensions[2])
 
 # dimensions <- c(3032, 3074)
