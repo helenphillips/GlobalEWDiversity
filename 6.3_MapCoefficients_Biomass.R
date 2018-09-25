@@ -137,20 +137,27 @@ rm(list=c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat",
 
 
 print("Predicting values...")
-x <- split(newdat, (0:nrow(newdat) %/% 3000))  # modulo division
+x <- split(newdat, (0:nrow(newdat) %/% 10000))  # modulo division
 
-res <- c()
 
 for(l in 1:length(x)){
   
-  res <- c(res, predict(mod, x[[l]], re.form = NA))
+  print(paste(l, "in", length(x), "iterations.."))
+  
+  res <- predict(mod, x[[l]], re.form = NA)
+  write.table(res, file= file.path(savefolder, reg, "predictedValues.csv"),
+              append=TRUE, row.names = FALSE,
+              col.names = FALSE,
+              sep = ',')
+  
+  
   
 }
 
+res <- NULL
+x <- NULL
 
-length(res) == nrow(newdat)
-
-
+#  length(res) == nrow(newdat)
 
 # need number of rows of the original raster
 # The resolution
@@ -158,10 +165,18 @@ length(res) == nrow(newdat)
 # the coord.ref
 # dimensions
 # resol
-
+print("Loading csv of predicted values and converting to vector....")
+predValues <- read.csv(file.path(savefolder, reg, "predictedValues.csv"), header = FALSE)
+predValues <- as.vector(predValues$V1)
 
 print("Converting to raster...")
-r <- matrix(res, nrow = dimensions[1], ncol = dimensions[2], byrow = TRUE)
+print(dimensions[1])
+print(dimensions[2])
+
+print(dimensions[1] * dimensions[2])
+
+# dimensions <- c(3032, 3074)
+r <- matrix(predValues, nrow = dimensions[1], ncol = dimensions[2], byrow = TRUE)
 r <- raster(r)
 
 print("Adding in the raster information")
