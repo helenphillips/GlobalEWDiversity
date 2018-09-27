@@ -98,6 +98,7 @@ sites$bio10_15_scaled <- scale(sites$bio10_15)
 sites$scaleAridity <- scale(sites$Aridity)
 sites$ScalePET <- scale(sites$PETyr)
 sites$ScalePETSD <- scale(sites$PET_SD)
+sites$ScaleElevation <- scale(sites$elevation)
 
 ## Save the data
 write.csv(sites, file = file.path(data_out, paste("sites+FGRichness_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
@@ -106,19 +107,19 @@ ind <- df_variables(sites)
 dat <- sites[,c(ind)]
 cor <- findVariables(dat, VIFThreshold = 3)
 
-# "bio10_1"   "bio10_15"  "CECSOL"    "Aridity"   "PET_SD"     "phFinal"  
+# "bio10_7"   "bio10_15"  "CECSOL"  "elevation"  "Aridity"   "PETyr"     "phFinal"  
 # "ClayFinal" "SiltFinal" "OCFinal"  
-# These have changed from what Carlos did for me....whoops
+
 
 # Run the model of the cluster
 
 
-fg1 <- glmer(FGRichness ~  ESA + (scalePH  + 
-                                        scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-              (bio10_1_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                 ScalePETSD)^2 + 
+fg1 <- glmer(FGRichness ~  ESA + ScaleElevation + 
+               (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+              (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                 ScalePET)^2 + 
               scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-              scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD +
+              scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
               scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
               (1|file/Study_Name), data = sites, family = poisson,
             control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
