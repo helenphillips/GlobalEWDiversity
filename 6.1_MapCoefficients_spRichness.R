@@ -136,8 +136,50 @@ rm(list=c("bio10_4_scaled", "bio10_15_scaled", "SnowMonths_cat", "scaleAridity",
 
 #############################################################
 
+print("Splitting dataframe...")
+library(data.table)
+n <- 3000
+
+letterwrap <- function(n, depth = 1) {
+  args <- lapply(1:depth, FUN = function(x) return(LETTERS))
+  x <- do.call(expand.grid, args = list(args, stringsAsFactors = F))
+  x <- x[, rev(names(x)), drop = F]
+  x <- do.call(paste0, x)
+  if (n <= length(x)) return(x[1:n])
+  return(c(x, letterwrap(n - length(x), depth = depth + 1)))
+}
+
+t <- nrow(newdat) %/% n 
+alp <- letterwrap(t, depth = 1)
+last <- alp[length(alp)]
+
+print("1")
+t <- rep(alp, each = n)
+rm(alp)
+more <- letterwrap(1, depth = nchar(last) + 1)
+
+print("2")
+newdat$z <- c(t, rep(more, times = (nrow(newdat) - length(t))))
+rm(more)
+rm(t)
+rm(n)
+
+print("3")
+newdat_t = as.data.table(newdat)
+rm(newdat)
+
+gc()
+
+print("4")
+#system.time(
+  x <- split(newdat_t, f = newdat_t$z)
+#)
+
+rm(newdat_t)
+
+
 print("Predicting values...")
-x <- split(newdat, (0:nrow(newdat) %/% 10000))  # modulo division
+# x <- split(newdat, (0:nrow(newdat) %/% 10000))  # modulo division
 
 
 for(l in 1:length(x)){
