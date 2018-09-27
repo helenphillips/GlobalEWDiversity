@@ -21,12 +21,12 @@ fg_richness <- read.csv(file = file.path(data_in, paste("sites+FGRichness_", dat
 # Scaling variables in this script, but using VIF results from previous
 print("Doing the first model")
 
-fg1 <- glmer(FGRichness ~  ESA + (scalePH  + 
-                                    scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-               (bio10_1_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                  ScalePETSD)^2 + 
+fg1 <- glmer(FGRichness ~  ESA + ScaleElevation +
+               (scalePH  +  scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+               (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                  ScalePET)^2 + 
                scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-               scaleCLYPPT:ScalePETSD + scaleSLTPPT:ScalePETSD +
+               scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
                scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
                (1|file/Study_Name), data = fg_richness, family = poisson,
              control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
