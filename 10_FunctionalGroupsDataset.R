@@ -30,7 +30,10 @@ data_out <- "10_Data"
 data_in_spp <-"9_Data"
 files <- list.files(file.path(data_in_spp))
 ## This is a file I made manually, by combining data from George and Maria (also in this folder)
-loadinfg <- "Unique_Species_toSend2018-06-05_MJIB+GB.csv"
+loadinfg <- "Unique_Species_toSend2018-06-05_Final.csv"
+## Some species identifications are in press - look at George's final file to identify. 
+# Guillaume Rosseau would need to be contacted to get the ecological categories
+
 
 ## Site data
 
