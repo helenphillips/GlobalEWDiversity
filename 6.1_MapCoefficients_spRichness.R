@@ -153,24 +153,24 @@ t <- nrow(newdat) %/% n
 alp <- letterwrap(t, depth = 1)
 last <- alp[length(alp)]
 
-print("1")
+#print("1")
 t <- rep(alp, each = n)
 rm(alp)
 more <- letterwrap(1, depth = nchar(last) + 1)
 
-print("2")
+#print("2")
 newdat$z <- c(t, rep(more, times = (nrow(newdat) - length(t))))
 rm(more)
 rm(t)
 rm(n)
 
-print("3")
+#print("3")
 newdat_t = as.data.table(newdat)
 rm(newdat)
 
 gc()
 
-print("4")
+#print("4")
 #system.time(
   x <- split(newdat_t, f = newdat_t$z)
 #)
