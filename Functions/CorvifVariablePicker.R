@@ -7,7 +7,7 @@ toMatch <- c("phFinal",
 "^bio10_7$", "^bio10_12$",
 "^bio10_15$",
 
-"^Aridity$", "^PETyr$", "^PET_SD$")
+"^Aridity$", "^PETyr$", "^PET_SD$", "^elevation$")
 
 matches <- unique (grep(paste(toMatch,collapse="|"), 
                         names(data), value=FALSE))
