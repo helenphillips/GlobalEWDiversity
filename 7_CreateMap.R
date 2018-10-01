@@ -21,7 +21,7 @@ library(viridis)
 ## 'Global'
 ############################################################
 
-
+bkg <- raster("I:\\sWorm\\ProcessedGLs\\CHELSA_bio10_1_BiomassCutScaled.tif")
 
 ## The percentage that map is cut off at top and bottom
 
@@ -167,6 +167,14 @@ results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\B
  north_america <- exp(north_america) - 1
  west_asia <- raster(file.path(results, "west_asia", resultRaster))
  west_asia <- exp(west_asia) - 1
+ 
+ 
+ hist(africa, ylim =c(1, 1000))
+ hist(asia, ylim =c(1, 1000))
+ hist(europe, ylim =c(1, 1000))
+ hist(latin_america, ylim =c(1, 1000))
+ hist(north_america, ylim =c(1, 1000))
+ hist(west_asia, ylim =c(1, 1000))
  
 minV <-min(c(minValue(africa),
              minValue(asia),
