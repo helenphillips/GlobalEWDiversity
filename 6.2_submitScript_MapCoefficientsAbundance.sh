@@ -7,7 +7,7 @@
 #$ -j y
 
 #$ -l h_rt=100:00:00
-#$ -l h_vmem=100G,highmem
+#$ -l h_vmem=120G,highmem
  
 #$ -binding linear:1
 

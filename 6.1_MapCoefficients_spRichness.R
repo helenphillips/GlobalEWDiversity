@@ -37,7 +37,7 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 # 3. Load in models
 #################################################
 print("Loading in the biodiversity models")
-load(file.path(models, "richnessmodel_full.rds"))
+load(file.path(models, "richnessmodel.rds"))
 
 
 
@@ -74,12 +74,12 @@ mod <-  glmer(formula = richness_model@call$formula, data = data, family = "pois
 print("Creating richness raster")
 print("Loading all rasters")
 
-bio10_4_scaled <- raster(file.path(GLs_folder,reg, "CHELSA_bio10_4_RichnessCutScaled.tif"))
-dimensions <- dim(bio10_4_scaled)
-resol <-res(bio10_4_scaled)
-coordred <- crs(bio10_4_scaled)
-exten <- extent(bio10_4_scaled)
-bio10_4_scaled <- as.vector(bio10_4_scaled)
+bio10_7_scaled <- raster(file.path(GLs_folder,reg, "CHELSA_bio10_7_RichnessCutScaled.tif"))
+dimensions <- dim(bio10_7_scaled)
+resol <-res(bio10_7_scaled)
+coordred <- crs(bio10_7_scaled)
+exten <- extent(bio10_7_scaled)
+bio10_7_scaled <- as.vector(bio10_7_scaled)
 
 
 
@@ -99,6 +99,9 @@ ScalePET <- as.vector(ScalePET)
 
 scalePH <- raster(file.path(GLs_folder,reg,"PHIHOX_RichnessCutScaled.tif"))
 scalePH <- as.vector(scalePH)
+
+scaleElevation <- raster(file.path(GLs_folder,reg,"elevation_RichnessScaled.tif"))
+scaleElevation <- as.vector(scaleElevation)
 
 scaleCLYPPT <- raster(file.path(GLs_folder,reg,"CLYPPT_RichnessCutScaled.tif"))
 scaleCLYPPT <- as.vector(scaleCLYPPT)
@@ -128,11 +131,12 @@ newdat <- data.frame(ESA = ESA,
                      scaleAridity = scaleAridity, 
                      SnowMonths_cat = SnowMonths_cat,
                      bio10_15_scaled = bio10_15_scaled,
-                     bio10_4_scaled = bio10_4_scaled)
+                     bio10_7_scaled = bio10_7_scaled,
+                     scaleElevation = scaleElevation)
 
 
-rm(list=c("bio10_4_scaled", "bio10_15_scaled", "SnowMonths_cat", "scaleAridity", "ScalePET",
-          "scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC", "ESA"))
+rm(list=c("bio10_7_scaled", "bio10_15_scaled", "SnowMonths_cat", "scaleAridity", "ScalePET",
+          "scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC", "ESA", "scaleElevation"))
 
 #############################################################
 
@@ -153,24 +157,24 @@ t <- nrow(newdat) %/% n
 alp <- letterwrap(t, depth = 1)
 last <- alp[length(alp)]
 
-#print("1")
+print("1")
 t <- rep(alp, each = n)
 rm(alp)
 more <- letterwrap(1, depth = nchar(last) + 1)
 
-#print("2")
+print("2")
 newdat$z <- c(t, rep(more, times = (nrow(newdat) - length(t))))
 rm(more)
 rm(t)
 rm(n)
 
-#print("3")
+print("3")
 newdat_t = as.data.table(newdat)
 rm(newdat)
 
 gc()
 
-#print("4")
+print("4")
 #system.time(
   x <- split(newdat_t, f = newdat_t$z)
 #)

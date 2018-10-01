@@ -52,23 +52,23 @@ if(!dir.exists(file.path(savefolder, reg))){
 #################################################
 # 4. Rerun model with different factor levels for ESA
 #################################################
-print("Re-running model with new ESA values....")
-data <- fgrichness_model@frame
-
-levels(data$ESA)[levels(data$ESA) == 'Broadleaf deciduous forest'] <- "60"
-levels(data$ESA)[levels(data$ESA) == 'Broadleaf evergreen forest'] <- "50"
-levels(data$ESA)[levels(data$ESA) == 'Needleleaf evergreen forest'] <- "70"
-levels(data$ESA)[levels(data$ESA) == 'Mixed forest'] <- "90"
-levels(data$ESA)[levels(data$ESA) == 'Herbaceous with spare tree/shrub'] <- "110"
-levels(data$ESA)[levels(data$ESA) == 'Shrub'] <- "120"
-levels(data$ESA)[levels(data$ESA) == 'Herbaceous'] <- "130"
-levels(data$ESA)[levels(data$ESA) == 'Production - Herbaceous'] <- "10"
-levels(data$ESA)[levels(data$ESA) == 'Production - Plantation'] <- "12"
-levels(data$ESA)[levels(data$ESA) == 'Cropland/Other vegetation mosaic'] <- "30"
-
-
-mod <-  glmer(formula = fgrichness_model@call$formula, data = data, family = "poisson",
-              control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+# print("Re-running model with new ESA values....")
+# data <- fgrichness_model@frame
+# 
+# levels(data$ESA)[levels(data$ESA) == 'Broadleaf deciduous forest'] <- "60"
+# levels(data$ESA)[levels(data$ESA) == 'Broadleaf evergreen forest'] <- "50"
+# levels(data$ESA)[levels(data$ESA) == 'Needleleaf evergreen forest'] <- "70"
+# levels(data$ESA)[levels(data$ESA) == 'Mixed forest'] <- "90"
+# levels(data$ESA)[levels(data$ESA) == 'Herbaceous with spare tree/shrub'] <- "110"
+# levels(data$ESA)[levels(data$ESA) == 'Shrub'] <- "120"
+# levels(data$ESA)[levels(data$ESA) == 'Herbaceous'] <- "130"
+# levels(data$ESA)[levels(data$ESA) == 'Production - Herbaceous'] <- "10"
+# levels(data$ESA)[levels(data$ESA) == 'Production - Plantation'] <- "12"
+# levels(data$ESA)[levels(data$ESA) == 'Cropland/Other vegetation mosaic'] <- "30"
+# 
+# 
+# mod <-  glmer(formula = fgrichness_model@call$formula, data = data, family = "poisson",
+#               control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
 
 
 #################################################
@@ -82,12 +82,12 @@ print(file.path(GLs_folder, reg))
 
 
 
-bio10_1_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_1_FGRichnessCutScaled.tif"))
-dimensions <- dim(bio10_1_scaled)
-resol <-res(bio10_1_scaled)
-coordred <- crs(bio10_1_scaled)
-exten <- extent(bio10_1_scaled)
-bio10_1_scaled <- as.vector(bio10_1_scaled)
+bio10_7_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_7_FGRichnessCutScaled.tif"))
+dimensions <- dim(bio10_7_scaled)
+resol <-res(bio10_7_scaled)
+coordred <- crs(bio10_7_scaled)
+exten <- extent(bio10_7_scaled)
+bio10_7_scaled <- as.vector(bio10_7_scaled)
 
 
 bio10_15_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_FGRichnessCutScaled.tif"))
@@ -97,8 +97,13 @@ bio10_15_scaled <- as.vector(bio10_15_scaled)
 scaleAridity <- raster(file.path(GLs_folder, reg, "Aridity_FGRichnessScaled.tif"))
 scaleAridity <- as.vector(scaleAridity)
 
-ScalePETSD <- raster(file.path(GLs_folder, reg, "PETSD_FGRichnessScaled.tif"))
-ScalePETSD <- as.vector(ScalePETSD)
+ScalePET <- raster(file.path(GLs_folder, reg, "PETyr_FGRichnessScaled.tif"))
+ScalePET <- as.vector(ScalePET)
+
+SnowMonths_cat <- raster(file.path(GLs_folder,reg, "Snow_newValues_WGS84.tif"))
+SnowMonths_cat <- as.vector(SnowMonths_cat)
+SnowMonths_cat <- as.factor(SnowMonths_cat)
+levels(SnowMonths_cat)[levels(SnowMonths_cat) == "4"] <- "4plus"
 
 scaleCLYPPT <- raster(file.path(GLs_folder, reg, "CLYPPT_FGRichnessCutScaled.tif"))
 scaleCLYPPT <- as.vector(scaleCLYPPT)
@@ -109,27 +114,34 @@ scalePH <- as.vector(scalePH)
 scaleSLTPPT <- raster(file.path(GLs_folder, reg, "SLTPPT_FGRichnessCutScaled.tif"))
 scaleSLTPPT <- as.vector(scaleSLTPPT)
 
+scaleORCDRC <- raster(file.path(GLs_folder, reg, "ORCDRC_FGRichnessCutScaled.tif"))
+scaleORCDRC <- as.vector(scaleORCDRC)
+
+ScaleElevation <- raster(file.path(GLs_folder, reg, "elevation_FGRichnessScaled.tif"))
+ScaleElevation <- as.vector(ScaleElevation)
 
 
+# ESA <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))
+# ESA <- as.vector(ESA)
+# keep <- c(60, 50, 70, 90, 110, 120, 130, 10, 12, 30)
+# ESA <- ifelse(ESA %in% keep, ESA, NA)
+# ESA <- as.factor(ESA)
 
-ESA <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))
-ESA <- as.vector(ESA)
-keep <- c(60, 50, 70, 90, 110, 120, 130, 10, 12, 30)
-ESA <- ifelse(ESA %in% keep, ESA, NA)
-ESA <- as.factor(ESA)
-
-newdat <- data.frame(ESA = ESA,
+newdat <- data.frame(#ESA = ESA,
                      scaleSLTPPT = scaleSLTPPT,
                      scaleCLYPPT = scaleCLYPPT,
                      scalePH = scalePH,
-                     ScalePETSD = ScalePETSD,
+                     scaleORCDRC = scaleORCDRC,
+                     ScalePET = ScalePET,
                      scaleAridity = scaleAridity, 
+                     SnowMonths_cat = SnowMonths_cat,
+                     ScaleElevation = ScaleElevation,
                      bio10_15_scaled = bio10_15_scaled,
-                     bio10_1_scaled = bio10_1_scaled)
+                     bio10_7_scaled = bio10_7_scaled)
 
 
-rm(list=c("bio10_1_scaled", "bio10_15_scaled",  "scaleAridity", "ScalePETSD",
-          "scalePH", "scaleCLYPPT", "scaleSLTPPT","ESA"))
+rm(list=c("bio10_7_scaled", "bio10_15_scaled",  "scaleAridity", "ScalePET", "scaleORCDRC",
+          "scalePH", "scaleCLYPPT", "scaleSLTPPT","SnowMonths_cat", "ScaleElevation"))
 
 #############################################################
 print("Splitting dataframe...")
@@ -149,24 +161,24 @@ t <- nrow(newdat) %/% n
 alp <- letterwrap(t, depth = 1)
 last <- alp[length(alp)]
 
-#print("1")
+print("1")
 t <- rep(alp, each = n)
 rm(alp)
 more <- letterwrap(1, depth = nchar(last) + 1)
 
-#print("2")
+print("2")
 newdat$z <- c(t, rep(more, times = (nrow(newdat) - length(t))))
 rm(more)
 rm(t)
 rm(n)
 
-#print("3")
+print("3")
 newdat_t = as.data.table(newdat)
 rm(newdat)
 
 gc()
 
-#print("4")
+print("4")
 #system.time(
 x <- split(newdat_t, f = newdat_t$z)
 #)
@@ -181,7 +193,7 @@ for(l in 1:length(x)){
   
   print(paste(l, "in", length(x), "iterations.."))
   
-  res <- predict(mod, x[[l]], re.form = NA)
+  res <- predict(fgrichness_model, x[[l]], re.form = NA)
   write.table(res, file= file.path(savefolder, reg, "predictedValues.csv"),
               append=TRUE, row.names = FALSE,
               col.names = FALSE,
