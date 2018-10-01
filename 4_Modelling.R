@@ -213,7 +213,7 @@ cor <- findVariables(dat, VIFThreshold = 3)
 ## All fine
 
 b1 <- lmer(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
-                (bio10_7 + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat)^2 + 
+                (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat)^2 + 
             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
              ScalePET:bio10_12_scaled + ScalePET:bio10_15_scaled +
