@@ -74,13 +74,13 @@ print("Creating abundance raster")
 print("Loading all rasters")
 
 
-bio10_1_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_1_AbundanceCutScaled.tif"))
+bio10_7_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_7_AbundanceCutScaled.tif"))
 
-dimensions <- dim(bio10_1_scaled)
-resol <-res(bio10_1_scaled)
-coordred <- crs(bio10_1_scaled)
-exten <- extent(bio10_1_scaled)
-bio10_1_scaled <- as.vector(bio10_1_scaled)
+dimensions <- dim(bio10_7_scaled)
+resol <-res(bio10_7_scaled)
+coordred <- crs(bio10_7_scaled)
+exten <- extent(bio10_7_scaled)
+bio10_7_scaled <- as.vector(bio10_7_scaled)
 
 bio10_15_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_AbundanceCutScaled.tif"))
 bio10_15_scaled <- as.vector(bio10_15_scaled)
@@ -93,8 +93,11 @@ levels(SnowMonths_cat)[levels(SnowMonths_cat) == "4"] <- "4plus"
 scaleAridity <- raster(file.path(GLs_folder, reg, "Aridity_AbundanceScaled.tif"))
 scaleAridity <- as.vector(scaleAridity)
 
-ScalePETSD <- raster(file.path(GLs_folder, reg, "PETSD_AbundanceScaled.tif"))
-ScalePETSD <- as.vector(ScalePETSD)
+ScalePET <- raster(file.path(GLs_folder, reg, "PETyr_AbundanceScaled.tif"))
+ScalePET <- as.vector(ScalePET)
+
+ScaleElevation <- raster(file.path(GLs_folder, reg, "elevation_AbundanceScaled.tif"))
+ScaleElevation <- as.vector(ScaleElevation)
 
 scalePH <- raster(file.path(GLs_folder, reg,"PHIHOX_AbundanceCutScaled.tif"))
 scalePH <- as.vector(scalePH)
@@ -123,14 +126,15 @@ newdat <- data.frame(ESA = ESA,
                      scaleSLTPPT = scaleSLTPPT,
                      scaleCLYPPT = scaleCLYPPT,
                      scalePH = scalePH,
-                     ScalePETSD = ScalePETSD,
+                     ScalePET = ScalePET,
                      scaleAridity = scaleAridity, 
                      SnowMonths_cat = SnowMonths_cat,
                      bio10_15_scaled = bio10_15_scaled,
-                     bio10_1_scaled = bio10_1_scaled)
+                     bio10_7_scaled = bio10_7_scaled,
+                     ScaleElevation = ScaleElevation)
 
-rm(list=c("bio10_1_scaled", "bio10_15_scaled", "SnowMonths_cat", "scaleAridity", "ScalePETSD",
-          "scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC", "ESA"))
+rm(list=c("bio10_7_scaled", "bio10_15_scaled", "SnowMonths_cat", "scaleAridity", "ScalePET",
+          "scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC", "ESA", "ScaleElevation"))
 
 #############################################################
 print("Splitting dataframe...")
@@ -150,24 +154,24 @@ t <- nrow(newdat) %/% n
 alp <- letterwrap(t, depth = 1)
 last <- alp[length(alp)]
 
-#print("1")
+print("1")
 t <- rep(alp, each = n)
 rm(alp)
 more <- letterwrap(1, depth = nchar(last) + 1)
 
-#print("2")
+print("2")
 newdat$z <- c(t, rep(more, times = (nrow(newdat) - length(t))))
 rm(more)
 rm(t)
 rm(n)
 
-#print("3")
+print("3")
 newdat_t = as.data.table(newdat)
 rm(newdat)
 
 gc()
 
-#print("4")
+print("4")
 #system.time(
 x <- split(newdat_t, f = newdat_t$z)
 #)

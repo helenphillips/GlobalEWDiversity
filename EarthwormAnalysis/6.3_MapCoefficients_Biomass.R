@@ -90,8 +90,17 @@ coordred <- crs(bio10_12_scaled)
 exten <- extent(bio10_12_scaled)
 bio10_12_scaled <- as.vector(bio10_12_scaled)
 
+bio10_7_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_7_BiomassCutScaled.tif"))
+bio10_7_scaled <- as.vector(bio10_7_scaled)
+
+
 bio10_15_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_BiomassCutScaled.tif"))
 bio10_15_scaled <- as.vector(bio10_15_scaled)
+
+
+ScalePET <- raster(file.path(GLs_folder, reg, "PETyr_BiomassScaled.tif"))
+ScalePET <- as.vector(ScalePET)
+
 
 SnowMonths_cat <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
 SnowMonths_cat <- as.vector(SnowMonths_cat)
@@ -128,10 +137,12 @@ newdat <- data.frame(ESA = ESA,
                      scaleCLYPPT = scaleCLYPPT,
                      scalePH = scalePH,
                      SnowMonths_cat = SnowMonths_cat,
+                     ScalePET = ScalePET,
                      bio10_15_scaled = bio10_15_scaled,
-                     bio10_12_scaled = bio10_12_scaled)
+                     bio10_12_scaled = bio10_12_scaled,
+                     bio10_7_scaled = bio10_7_scaled)
 
-rm(list=c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", 
+rm(list=c("bio10_12_scaled", "bio10_15_scaled", "bio10_7_scaled", "SnowMonths_cat", "ScalePET",
           "scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC", "ESA"))
 #############################################################
 print("Splitting dataframe...")
@@ -151,24 +162,24 @@ t <- nrow(newdat) %/% n
 alp <- letterwrap(t, depth = 1)
 last <- alp[length(alp)]
 
-#print("1")
+print("1")
 t <- rep(alp, each = n)
 rm(alp)
 more <- letterwrap(1, depth = nchar(last) + 1)
 
-#print("2")
+print("2")
 newdat$z <- c(t, rep(more, times = (nrow(newdat) - length(t))))
 rm(more)
 rm(t)
 rm(n)
 
-#print("3")
+print("3")
 newdat_t = as.data.table(newdat)
 rm(newdat)
 
 gc()
 
-#print("4")
+print("4")
 #system.time(
 x <- split(newdat_t, f = newdat_t$z)
 #)
