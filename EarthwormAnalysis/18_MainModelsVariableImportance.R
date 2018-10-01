@@ -78,7 +78,7 @@ load(file.path(models, "abundancemodel_full.rds"))
 data_in <- "15_Data"
 
 files <- list.files(file.path(data_in))
-files <- files[grep("sites+FGRichness_", files)]
+files <- files[grep("sites\\+FGRichness_", files)]
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 file_dates <- as.Date(file_dates)
@@ -178,8 +178,10 @@ biomass_import_split <- group.importance(bioM_rf, groups)
 ## Functional Richness
 
 # RICHNESS
-fgrichness_mainEffects <- c("scaleSLTPPT", "scaleORCDRC", "bio10_4_scaled", "bio10_15_scaled",  
-                              "SnowMonths_cat", "scaleAridity", "ScalePET")
+fgrichness_mainEffects <- c("scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "bio10_7_scaled", "bio10_15_scaled",  
+                              "SnowMonths_cat", "scaleAridity", "ScalePET", "ScaleElevation", "scalePH")
+
+fgrichness <- droplevels(fgrichness[!(is.na(fgrichness$FGRichness)),])
 
 fgR_rf <- randomForest(y = fgrichness$FGRichness, x = fgrichness[,names(fgrichness) %in% fgrichness_mainEffects], 
                        ntree=501, importance=TRUE, proximity = TRUE)
@@ -187,13 +189,15 @@ fgR_rf <- randomForest(y = fgrichness$FGRichness, x = fgrichness[,names(fgrichne
 
 
 # ESA <- "ESA"
-Temperature <- c("bio10_4_scaled", "ScalePET")
+Elevation <- "ScaleElevation"
+Temperature <- c("bio10_7_scaled", "ScalePET")
 Precip <- c("bio10_15_scaled", "SnowMonths_cat", "scaleAridity")
-Soil <- c("scaleSLTPPT", "scaleORCDRC")
-WaterRetention <- c("scaleSLTPPT", "bio10_15_scaled", "scaleAridity", "ScalePET")
+Soil <- c("scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "scalePH")
+WaterRetention <- c("scaleSLTPPT", "scaleCLYPPT", "bio10_15_scaled", "scaleAridity", "ScalePET")
 
 groups <- list(
   # ESA = ESA,
+  Elevation = Elevation,
   Temperature = Temperature,
   Precip = Precip, 
   Soil = Soil,
@@ -211,14 +215,14 @@ richness_order <- c(4, 5, 6, 1, 2, 3)
 biomass_import_split
 biomass_order <- c(5,NA, 6,4,3, 2)
 fgrichness_import_split
-fgrichness_order <- c(NA, 5, 3, 2, 4)
+fgrichness_order <- c(NA, 5, 6, 2, 3, 4)
 
 abundance_import_delta <- c(abundance_import_split - max(abundance_import_split, na.rm = TRUE))
 richness_import_delta <- c(richness_import_split - max(richness_import_split, na.rm = TRUE))
 biomass_import_delta <- c(biomass_import_split - max(biomass_import_split, na.rm = TRUE))
 biomass_import_delta <- c(biomass_import_delta[1], NA, biomass_import_delta[2:5])
 fgrichness_import_delta <- c(fgrichness_import_split - max(fgrichness_import_split, na.rm = TRUE))
-fgrichness_import_delta <- c( NA, fgrichness_import_delta[1:4])
+fgrichness_import_delta <- c( NA, fgrichness_import_delta[1:5])
 
 d <- a <- matrix(rep(NA, length = 6*4), nrow = 4, ncol = 6)
 colnames(d) <- colnames(a) <- c("ESA","Elevation", "Temperature", "Precipitation", "Soil", "Water Retention")
@@ -227,7 +231,7 @@ a[2,] <- abundance_order
 a[3,] <- biomass_order
 a[4,] <- fgrichness_order
 ## 4 is most important, 1 is least important
-rownames(d) <- rownames(a) <- c("SpeciesRichness", "Abundance", "Biomass", "Functional Richness")
+rownames(d) <- rownames(a) <- c("Species Richness", "Abundance", "Biomass", "Functional Richness")
 
 
 d[1,] <- richness_import_delta
@@ -240,17 +244,17 @@ d <- round(d, digits = 0)
 dat <- melt(a)
 
 
-dat$X1 <- factor(dat$X1, levels = c( "Functional Richness", "Biomass", "Abundance","SpeciesRichness"))
+dat$X1 <- factor(dat$X1, levels = c( "Functional Richness", "Biomass", "Abundance","Species Richness"))
 dat$X2 <- factor(dat$X2, levels = c("ESA","Elevation", "Soil","Precipitation", "Temperature","Water Retention"))
 
 ############################
 
 jpeg(file = file.path(figures, "variableImportance_splitGroups.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Main Models", deltas = d)
-p <- p + annotate("text", x = c(1,2,3,4,5, 6), y=1, label = c(d[4,'ESA'],d[3, 'Elevation'],  d[4,'Soil'], d[4,'Precipitation'], d[4,'Temperature'], d[4,'Water Retention'])) +
+p <- p + annotate("text", x = c(1,2,3,4,5, 6), y=1, label = c(d[4,'ESA'],d[4, 'Elevation'],  d[4,'Soil'], d[4,'Precipitation'], d[4,'Temperature'], d[4,'Water Retention'])) +
 annotate("text", x = c(1,2,3,4,5,6), y=2, label = c(d[3,'ESA'], d[3, 'Elevation'], d[3,'Soil'], d[3,'Precipitation'], d[3,'Temperature'], d[3,'Water Retention'])) +
-annotate("text", x = c(1,2,3,4,5,6), y=3, label = c(d[2,'ESA'], d[3, 'Elevation'], d[2,'Soil'], d[2,'Precipitation'], d[2,'Temperature'], d[2,'Water Retention'])) +
-annotate("text", x = c(1,2,3,4,5,6), y=4, label = c(d[1,'ESA'], d[3, 'Elevation'], d[1,'Soil'], d[1,'Precipitation'], d[1,'Temperature'], d[1,'Water Retention']))
+annotate("text", x = c(1,2,3,4,5,6), y=3, label = c(d[2,'ESA'], d[2, 'Elevation'], d[2,'Soil'], d[2,'Precipitation'], d[2,'Temperature'], d[2,'Water Retention'])) +
+annotate("text", x = c(1,2,3,4,5,6), y=4, label = c(d[1,'ESA'], d[1, 'Elevation'], d[1,'Soil'], d[1,'Precipitation'], d[1,'Temperature'], d[1,'Water Retention']))
 p
 dev.off()
 
@@ -263,7 +267,7 @@ names(alldat)[names(alldat) == "delta$value"] <- "delta"
 
 ord <- c(1, 2, 4, 5, 3, 6)
 
-spR <- alldat[alldat$X1 == "SpeciesRichness",]
+spR <- alldat[alldat$X1 == "Species Richness",]
 spR$y <- 4
 spR$x <- ord
 abund <- alldat[alldat$X1 == "Abundance",]
@@ -274,7 +278,7 @@ bmass$y <- 2
 bmass$x <- ord
 frichness <- alldat[alldat$X1 == "Functional Richness",]
 frichness$y <- 1
-frichness$x <- c(1, 3, 4, 2, 5)
+frichness$x <- ord
 
 circleSize <- function(dat){
   dat$size <- 9
@@ -292,13 +296,16 @@ frichness<- circleSize(frichness)
 
 all_dat <- rbind(spR, abund, bmass, frichness)
 
+labs <- c("ESA","Elevation","Soil","Precipitation","Temperature","Water\nRetention")
+
 jpeg(file = file.path(figures, "variableImportance_splitGroups_circles.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-par(mar = c(3, 9.5, 1, 3))
+par(mar = c(3, 9.5, 1, 5))
 plot(-1e+05, -1e+05, ylim = c(0, 5), xlim = c(0.5, 6.5),  
      ylab = "", xlab = "",  xaxt='n', axes = FALSE)
-Axis(side = 2, cex.axis = 1, labels = levels(all_dat$X1), 
+axis(side = 2, cex.axis = 1, labels = levels(all_dat$X1), 
      at = c(1:4), las = 2)
 points(all_dat$x, all_dat$y, pch = 19, cex = all_dat$size, ylim = c(0, 5))
-axis(side=1, at = 1:6, labels = levels(all_dat$X2), las=1, cex.axis = 1)
+axis(side=1, at = 1:6, labels = labs, las=1, cex.axis = 1, padj=1, mgp = c(3, 0, 0)) 
+# padj put all labels on the same line, and mgp puts labels closer to the axis
 mtext("Model", side = 2, line = 6, cex = 2)
 dev.off()
