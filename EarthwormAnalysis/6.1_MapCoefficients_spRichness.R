@@ -154,13 +154,18 @@ letterwrap <- function(n, depth = 1) {
 }
 
 t <- nrow(newdat) %/% n 
-alp <- letterwrap(t, depth = 1)
+alp <- letterwrap(t, depth = ceiling(log(t, base = 26)))
 last <- alp[length(alp)]
 
 print("1")
 t <- rep(alp, each = n)
 rm(alp)
-more <- letterwrap(1, depth = nchar(last) + 1)
+# more <- letterwrap(1, depth = nchar(last) + 1)
+more <- rep("Z", length = nchar(last) + 1)
+implode <- function(..., sep='') {
+  paste(..., collapse=sep)
+}
+more <- implode(more)
 
 print("2")
 newdat$z <- c(t, rep(more, times = (nrow(newdat) - length(t))))
