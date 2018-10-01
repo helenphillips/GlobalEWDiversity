@@ -203,17 +203,17 @@ sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
               cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
               cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
               cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
+# 
+# breakpoint_top <- 0.9
+# breakpoint_bottom <- 0.005
+# 
+# diff <- maxV - minV
+# 
+# top20 <- maxV - (diff * breakpoint_top)
+# bottom20 <- minV + (diff * breakpoint_bottom)
+# 
 
-breakpoint_top <- 0.9
-breakpoint_bottom <- 0.005
-
-diff <- maxV - minV
-
-top20 <- maxV - (diff * breakpoint_top)
-bottom20 <- minV + (diff * breakpoint_bottom)
-
-
-colbrks <-  c(minV, seq(bottom20, top20, length.out = 198), maxV)
+colbrks <-  c(minV, seq(1, 1000, length.out = 198), maxV)
 
   # seq(minV, maxV, length.out = 200)
 # actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
@@ -229,20 +229,10 @@ png(file.path(figures, "Biomass.png"),width=17.5,height=8.75,units="cm",res=1200
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
-
-bkg <- raster(file.path(results, "africa", "clayBio15biomasscoef.tif"))
 image(bkg, ylim = c(-90, 90), xlim = c(-180, 180), col = "gray90", xaxt="n", yaxt="n", ylab="", xlab="")
+
+
 image(africa, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-
-
-for(reg in regions){
-   
-  bkg <- raster(file.path(results, reg, "clayBio15biomasscoef.tif"))
-  image(bkg, add = TRUE, col = "gray90") 
-  #r <- raster(file.path(results, reg, "BiomassFinalRaster.tif"))
-  #image(r, add = TRUE)  
-}
-
 image(asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(europe, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(latin_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
@@ -315,17 +305,17 @@ sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
 
 ###########################################
 
-breakpoint_top <- 0.9
-breakpoint_bottom <- 0.005
+# breakpoint_top <- 0.9
+# breakpoint_bottom <- 0.005
+# 
+# 
+# diff <- maxV - minV
+# 
+# top20 <- maxV - (diff * breakpoint_top)
+# bottom20 <- minV + (diff * breakpoint_bottom)
+# 
 
-
-diff <- maxV - minV
-
-top20 <- maxV - (diff * breakpoint_top)
-bottom20 <- minV + (diff * breakpoint_bottom)
-
-
-colbrks <-  c(minV, seq(bottom20, top20, length.out = 198), maxV)
+colbrks <-  c(minV, seq(5, 150, length.out = 198), maxV)
 
 # seq(minV, maxV, length.out = 200)
 # actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
