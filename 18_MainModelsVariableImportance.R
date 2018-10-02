@@ -106,6 +106,9 @@ AbundmainEffects <- c("scalePH" , "scaleCLYPPT" ,"scaleSLTPPT" , "scaleCECSOL" ,
 abundance_rf <- randomForest(y = abundance$logAbundance, x = abundance[,names(abundance) %in% AbundmainEffects], 
                              ntree=501, importance=TRUE, proximity = TRUE)
 
+
+# my_varimp <- importance(abundance_rf, scale=FALSE)
+
 ESA <- "ESA"
 Elevation <- "ScaleElevation"
 Temperature <- c("bio10_7_scaled", "ScalePET")
@@ -123,6 +126,7 @@ groups <- list(
   WaterRetention = WaterRetention
 )
 abundance_import_split <- group.importance(abundance_rf, groups) 
+
 
 # RICHNESS
 richness_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL",  
@@ -177,7 +181,7 @@ biomass_import_split <- group.importance(bioM_rf, groups)
 
 ## Functional Richness
 
-# RICHNESS
+# 
 fgrichness_mainEffects <- c("scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "bio10_7_scaled", "bio10_15_scaled",  
                               "SnowMonths_cat", "scaleAridity", "ScalePET", "ScaleElevation", "scalePH")
 
@@ -309,3 +313,50 @@ axis(side=1, at = 1:6, labels = labs, las=1, cex.axis = 1, padj=1, mgp = c(3, 0,
 # padj put all labels on the same line, and mgp puts labels closer to the axis
 mtext("Model", side = 2, line = 6, cex = 2)
 dev.off()
+
+
+########################################################################
+##
+########################################################################
+
+# Better to use MSE than NodeInpurity
+# https://stats.stackexchange.com/questions/162465/in-a-random-forest-is-larger-incmse-better-or-worse
+rich <- importance(spR_rf, scale = FALSE)[,1]
+rich <- data.frame(delta = (rich - rich[which(rich == max(rich))]))
+rich <- circleSize(rich)
+rich$x <- match(rownames(rich), allVars)
+
+which(allVars == rownames(rich))
+  
+abund <- importance(abundance_rf)[,1]
+bio <- importance(bioM_rf)[,1]
+fg <- importance(fgR_rf)[,1]
+
+
+allVars <- unique(c(names(rich), names(abund),names(bio),names(fg)))
+allVars <- as.factor(allVars)
+allVars <- factor(allVars, levels = c(
+  "ESA",
+  "scaleElevation",
+  #soil
+  "scaleCECSOL",
+  "scaleCLYPPT",
+  "scaleORCDRC","scalePH",
+  "scaleSLTPPT",
+  #temp
+  "bio10_7_scaled","ScalePET",
+  # precip
+  "bio10_15_scaled","SnowMonths_cat",  "scaleAridity","bio10_12_scaled"
+))
+                  
+
+plot(-1e+05, -1e+05, ylim = c(0, 5), xlim = c(0.5, 6.5),  
+     ylab = "", xlab = "",  xaxt='n', axes = FALSE)
+axis(side = 2, cex.axis = 1, labels = c("fg", "bio", "abund", "rich"), 
+     at = c(1:4), las = 2)
+points(all_dat$x, 4, pch = 19, cex = rich$size, ylim = c(0, 5))
+
+
+axis(side=1, at = 1:6, labels = labs, las=1, cex.axis = 1, padj=1, mgp = c(3, 0, 0)) 
+# padj put all labels on the same line, and mgp puts labels closer to the axis
+mtext("Model", side = 2, line = 6, cex = 2)
