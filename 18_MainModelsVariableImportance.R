@@ -33,6 +33,16 @@ source("Functions/Plots.R")
 data_in <- "4_Data"
 models <- "Models"
 figures <- "Figures"
+
+
+circleSize <- function(dat){
+  dat$size <- 9
+  onepercent <- min(dat$delta, na.rm = TRUE) / 100
+  dat$percentChange <- dat$delta / onepercent
+  dat$size <- dat$size * ((100 - dat$percentChange) / 100)
+  dat$size <- dat$size + 1
+  return(dat)
+}
 #################################################
 # 3. Load data and models
 #################################################
@@ -284,14 +294,7 @@ frichness <- alldat[alldat$X1 == "Functional Richness",]
 frichness$y <- 1
 frichness$x <- ord
 
-circleSize <- function(dat){
-  dat$size <- 9
-  onepercent <- min(dat$delta, na.rm = TRUE) / 100
-  dat$percentChange <- dat$delta / onepercent
-  dat$size <- dat$size * ((100 - dat$percentChange) / 100)
-  dat$size <- dat$size + 1
-  return(dat)
-}
+
 
 spR <- circleSize(spR)
 bmass<- circleSize(bmass)
@@ -321,20 +324,18 @@ dev.off()
 
 # Better to use MSE than NodeInpurity
 # https://stats.stackexchange.com/questions/162465/in-a-random-forest-is-larger-incmse-better-or-worse
-rich <- importance(spR_rf, scale = FALSE)[,1]
-rich <- data.frame(delta = (rich - rich[which(rich == max(rich))]))
-rich <- circleSize(rich)
-rich$x <- match(rownames(rich), allVars)
 
-which(allVars == rownames(rich))
-  
+
+rich <- importance(spR_rf, scale = FALSE)[,1]
 abund <- importance(abundance_rf)[,1]
 bio <- importance(bioM_rf)[,1]
 fg <- importance(fgR_rf)[,1]
 
-
 allVars <- unique(c(names(rich), names(abund),names(bio),names(fg)))
+allVars[which(allVars == "ScaleElevation")] <- "scaleElevation"
+allVars <- unique(allVars)
 allVars <- as.factor(allVars)
+allVars <- droplevels(allVars)
 allVars <- factor(allVars, levels = c(
   "ESA",
   "scaleElevation",
@@ -348,15 +349,59 @@ allVars <- factor(allVars, levels = c(
   # precip
   "bio10_15_scaled","SnowMonths_cat",  "scaleAridity","bio10_12_scaled"
 ))
-                  
 
-plot(-1e+05, -1e+05, ylim = c(0, 5), xlim = c(0.5, 6.5),  
+
+
+getPlottingDf <- function(vect, allVars){
+  
+  df <- data.frame(delta = (vect - vect[which(vect == max(vect))]))
+  df <- circleSize(df)
+  
+  
+  for(r in 1:nrow(df)){
+    if(rownames(df)[r] == "ScaleElevation"){
+      df$x[r] <- 2
+    }else {
+      df$x[r] <- grep(rownames(df)[r], levels(allVars))
+    }
+  }
+  
+  return(df)
+}
+
+rich <- getPlottingDf(rich, allVars)
+rich$y <- 4
+abund <- getPlottingDf(abund, allVars)
+abund$y <- 3
+bio <- getPlottingDf(bio, allVars)
+bio$y <- 2
+fg <- getPlottingDf(fg, allVars)
+fg$y <- 1
+
+allDat <- rbind(rich, abund, bio, fg)
+
+labs <- c( "Habitat Cover","Elevation",  "CEC"    ,
+          "Clay","Org C","PH"        ,
+          "Silt","bio10_7" , "PET"       ,
+          "bio10_15", "Snow Months","Aridity Index"   ,
+          "bio10_12")
+
+jpeg(file = file.path(figures, "variableImportanceMSE_splitGroups_circles.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+
+par(mar = c(10, 7, 1, 1))
+plot(-1e+05, -1e+05, ylim = c(0, 5), xlim = c(0, length(allVars)),
      ylab = "", xlab = "",  xaxt='n', axes = FALSE)
-axis(side = 2, cex.axis = 1, labels = c("fg", "bio", "abund", "rich"), 
+axis(side = 2, cex.axis = 1, labels = c("Functional Richness", "Biomass", "Abundance", "Species Richness"), 
      at = c(1:4), las = 2)
-points(all_dat$x, 4, pch = 19, cex = rich$size, ylim = c(0, 5))
+points(allDat$x, allDat$y, pch = 19, cex = allDat$size, ylim = c(0, 5))
+axis(side=1, at = 1:length(allVars), labels = labs, las=2, cex.axis = 1) 
 
+axis(1,at=c(2.8, 3, 4, 5, 6, 7, 7.2),col="blue",line=8,tick=T,labels=rep("",7),lwd=2,lwd.ticks=0)
+axis(1,at=c(7.8, 8, 9, 9.2),col="blue",line=8,tick=T,labels=rep("",4),lwd=2,lwd.ticks=0)
+axis(1,at=c(9.8, 10, 11, 12, 13, 13.2),col="blue",line=8,tick=T,labels=rep("",6),lwd=2,lwd.ticks=0)
+mtext("Soil", side = 1, line = 7, at = 5, cex = 1.2)
+mtext("Temperature", side = 1, line = 7, at = 8.5, cex = 1.2)
+mtext("Precipitation", side = 1, line = 7, at = 11.5, cex = 1.2)
 
-axis(side=1, at = 1:6, labels = labs, las=1, cex.axis = 1, padj=1, mgp = c(3, 0, 0)) 
-# padj put all labels on the same line, and mgp puts labels closer to the axis
 mtext("Model", side = 2, line = 6, cex = 2)
+dev.off()
