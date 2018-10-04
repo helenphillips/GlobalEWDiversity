@@ -31,7 +31,7 @@ cat("\n\n", file = filename, append = TRUE)
 print("Processing the rasters....")
 
 
-for(resultRaster in c("spRFinalRaster.tif", "BiomassFinalRaster.tif"))
+for(resultRaster in c("spRFinalRaster.tif" ))## , "BiomassFinalRaster.tif"))
 {
 
   print(resultRaster)
@@ -140,3 +140,107 @@ for(resultRaster in c("spRFinalRaster.tif", "BiomassFinalRaster.tif"))
 }
 
 print("Done!")
+
+
+
+
+#######################
+
+# For species richness only
+
+results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Richness"
+
+regions <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
+
+resultRaster <- "predictedValues.csv"
+
+
+africa <- read.csv(file.path(results, "africa", resultRaster), header = FALSE)
+# if(resultRaster == "spRFinalRaster.tif"){
+  africa <- exp(africa)
+#} else { africa <- exp(africa) - 1}
+
+asia <-  raster(file.path(results, "asia", resultRaster), header = FALSE)
+#if(resultRaster == "spRFinalRaster.tif"){
+  asia <- exp(asia)
+#} else { asia <- exp(asia) - 1}
+
+europe <- raster(file.path(results, "europe", resultRaster), header = FALSE)
+#if(resultRaster == "spRFinalRaster.tif"){
+  europe <- exp(europe)
+#} else { europe <- exp(europe) - 1}
+
+latin_america <- raster(file.path(results, "latin_america", resultRaster), header = FALSE)
+#if(resultRaster == "spRFinalRaster.tif"){
+  latin_america <- exp(latin_america)
+# } else { latin_america <- exp(latin_america) - 1}
+
+north_america <- raster(file.path(results, "north_america", resultRaster), header = FALSE)
+#if(resultRaster == "spRFinalRaster.tif"){
+  north_america <- exp(north_america)
+#} else { north_america <- exp(north_america) - 1}
+
+west_asia <- raster(file.path(results, "west_asia", resultRaster), header = FALSE)
+#if(resultRaster == "spRFinalRaster.tif"){
+  west_asia <- exp(west_asia)
+#} else { west_asia <- exp(west_asia) - 1}
+
+
+minV <-min(c(min(africa, na.rm = TRUE),
+             min(asia, na.rm = TRUE),
+             min(europe, na.rm = TRUE),
+             min(latin_america, na.rm = TRUE),
+             min(north_america, na.rm = TRUE),
+             min(west_asia, na.rm = TRUE)))
+
+maxV <-max(c(max(africa, na.rm = TRUE),
+             max(asia, na.rm = TRUE),
+             max(europe, na.rm = TRUE),
+             max(latin_america, na.rm = TRUE),
+             max(north_america, na.rm = TRUE),
+             max(west_asia, na.rm = TRUE)))
+
+
+
+diff <- maxV - minV
+
+top20 <- maxV - (diff * 0.2)
+bottom20 <- minV + (diff * 0.2)
+
+regions_all <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
+
+dat <- as.data.frame(matrix(NA, nrow = length(regions_all), ncol = 4))
+dat[,1] <- regions_all
+names(dat) <- c("Area", "TotalCells_N", "TopCells_N", "BottomsCells_N")
+# for(reg in 1:length(regions_all)){
+  
+  print(regions_all[reg])
+  
+  nrow(africa)[]
+  
+  print("reclassifying bottom")
+  m <- c(minV, bottom20, 1,  bottom20, maxV, 0)
+  rclmat <- matrix(m, ncol=3, byrow=TRUE)
+  region <- reclassify(get(regions_all[reg]), rclmat)  ## "get" converts a string to a object name
+  
+  print("summing bottom")
+  region <- aggregate(region, fact=20, fun=sum)
+  dat$BottomsCells_N[reg] <- sum(region[], na.rm = TRUE)
+  
+  print("reclassifying top")
+  m <- c(minV, top20, 0,  top20, maxV, 1)
+  rclmat <- matrix(m, ncol=3, byrow=TRUE)
+  region <- reclassify(get(regions_all[reg]), rclmat)  ## "get" converts a string to a object name
+  
+  print("summing top")  
+  region <- aggregate(region, fact=20, fun=sum)
+  dat$TopCells_N[reg] <- sum(region[], na.rm = TRUE)
+  
+  print("reclassifying total area") 
+  m <- c(minV, maxV, 1)
+  rclmat <- matrix(m, ncol=3, byrow=TRUE)
+  region <- reclassify(get(regions_all[reg]), rclmat)
+  print("summing total area")
+  region <- aggregate(region, fact=20, fun=sum)
+  dat$TotalCells_N[reg] <- sum(region[], na.rm = TRUE)
+  
