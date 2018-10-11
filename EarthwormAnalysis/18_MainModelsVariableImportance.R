@@ -112,7 +112,7 @@ load(file.path(models, "fgrichnessmodel.rds"))
 AbundmainEffects <- c("scalePH" , "scaleCLYPPT" ,"scaleSLTPPT" , "scaleCECSOL" , 
                       "scaleORCDRC" , "bio10_7_scaled" , "bio10_15_scaled" , "SnowMonths_cat" ,
                       "scaleAridity" , "ScalePET", "ESA", "ScaleElevation")
-
+# 12
 abundance_rf <- randomForest(y = abundance$logAbundance, x = abundance[,names(abundance) %in% AbundmainEffects], 
                              ntree=501, importance=TRUE, proximity = TRUE)
 
@@ -142,7 +142,7 @@ abundance_import_split <- group.importance(abundance_rf, groups)
 richness_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL",  
                           "scaleORCDRC", "bio10_7_scaled", "bio10_15_scaled", "SnowMonths_cat",  
                           "scaleAridity", "ScalePET", "ESA", "scaleElevation")
-
+# 12
 spR_rf <- randomForest(y = richness$SpeciesRichness, x = richness[,names(richness) %in% richness_mainEffects], 
                        ntree=501, importance=TRUE, proximity = TRUE)
 
@@ -169,7 +169,7 @@ richness_import_split <- group.importance(spR_rf, groups)
 biomass_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "scaleCECSOL", 
                          "bio10_7_scaled",  "bio10_12_scaled", 
                          "bio10_15_scaled", "ScalePET", "SnowMonths_cat", "ESA")
-
+# 11
 bioM_rf <- randomForest(y = biomass$logBiomass, x = biomass[,names(biomass) %in% biomass_mainEffects], 
                         ntree=501, importance=TRUE, proximity = TRUE)
 
@@ -194,7 +194,7 @@ biomass_import_split <- group.importance(bioM_rf, groups)
 # 
 fgrichness_mainEffects <- c("scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "bio10_7_scaled", "bio10_15_scaled",  
                               "SnowMonths_cat", "scaleAridity", "ScalePET", "ScaleElevation", "scalePH")
-
+# 10
 fgrichness <- droplevels(fgrichness[!(is.na(fgrichness$FGRichness)),])
 
 fgR_rf <- randomForest(y = fgrichness$FGRichness, x = fgrichness[,names(fgrichness) %in% fgrichness_mainEffects], 
