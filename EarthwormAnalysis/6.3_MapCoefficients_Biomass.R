@@ -209,7 +209,12 @@ for(l in 1:length(x)){
               col.names = FALSE,
               sep = ',')
   
+  x[[l]]$pred <- res
   
+  write.table(x[[l]], file= file.path(savefolder, reg, "AllValues.csv"),
+              append=TRUE, row.names = FALSE,
+              col.names = FALSE,
+              sep = ',')
   
 }
 
