@@ -16,15 +16,17 @@ library(mapdata)
 library(maptools)
 library(sp)
 library(viridis)
+############################################################
+## 'Global'
+############################################################
+
+bkg <- raster("I:\\sWorm\\ProcessedGLs\\CHELSA_bio10_1_BiomassCutScaled.tif")
 
 ############################################################
-## Species Richness
+## Functional Richness
 ############################################################
 
 results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\FunctionalRichness"
-
-regions <- c("asia", "europe", "latin_america", "north_america", "west_asia")
-
 resultRaster <- "FGRichnessFinalRaster.tif"
 
 africa <- raster(file.path(results, "africa", resultRaster))
@@ -62,37 +64,18 @@ maxV <-max(c(maxValue(africa),
              maxValue(latin_america),
              maxValue(north_america),
              maxValue(west_asia)))
-
-colbrks <-  c(minV, seq(0.5, 4, length.out = 198), maxV)
-
-# seq(minV, maxV, length.out = 200)
-# actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
-#            '#EFF121', '#F5952D', '#E93131', '#D70131', '#D70131')
-# r.cols <- colorRampPalette(actual, space = "rgb")
-
-
-
+colbrks <-  c(minV, seq(0.5,3, lengthou.out = 198), maxV)
 
 r.cols <- magma(199)
 
-png(file.path(figures, "Richness.png"),width=17.5,height=8.75,units="cm",res=1200)
+png(file.path(figures, "FunctionalRichness.png"),width=17.5,height=8.75,units="cm",res=1200)
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
 
-bkg <- raster(file.path(results, "africa", "cecOrgCrichnesscoef.tif"))
 image(bkg, ylim = c(-90, 90), xlim = c(-180, 180), col = "gray90", xaxt="n", yaxt="n", ylab="", xlab="")
+
 image(africa, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-
-
-for(reg in regions){
-  
-  bkg <- raster(file.path(results, reg, "cecOrgCrichnesscoef.tif"))
-  image(bkg, add = TRUE, col = "gray90") 
-  #r <- raster(file.path(results, reg, "BiomassFinalRaster.tif"))
-  #image(r, add = TRUE)  
-}
-
 image(asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(europe, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(latin_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
@@ -103,82 +86,27 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("1", at = 75, cex = 1)
-mtext("4", at = 430, cex = 1)
-mtext("Number of species", at = 250, cex = 0.5)
+mtext("0.5", at = 75, cex = 1)
+mtext("3", at = 430, cex = 1)
+mtext("Functional Richness", at = 250, cex = 0.5)
 dev.off()
 
 
+#####################
+## A discreet map
 
-############################################################
-## BIOMASS
-############################################################
+colbrks <-  c(minV, seq(0.5, 4.5, by = 1), maxV)
 
+r.cols <- magma(6)
 
-# regions <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
-
-results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Biomass"
-
- regions <- c("asia", "europe", "latin_america", "north_america", "west_asia")
- resultRaster <- "BiomassFinalRaster.tif"
- 
- africa <- raster(file.path(results, "africa", resultRaster))
- africa <- exp(africa) - 1
- asia <-  raster(file.path(results, "asia", resultRaster))
- asia <- exp(asia) - 1
- europe <- raster(file.path(results, "europe", resultRaster))
- europe <- exp(europe) - 1
- latin_america <- raster(file.path(results, "latin_america", resultRaster))
- latin_america <- exp(latin_america) - 1
- north_america <- raster(file.path(results, "north_america", resultRaster))
- north_america <- exp(north_america) - 1
- west_asia <- raster(file.path(results, "west_asia", resultRaster))
- west_asia <- exp(west_asia) - 1
- 
-minV <-min(c(minValue(africa),
-minValue(asia),
-minValue(europe),
-minValue(latin_america),
-minValue(north_america),
-minValue(west_asia)))
- 
-maxV <-max(c(maxValue(africa),
-             maxValue(asia),
-             maxValue(europe),
-             maxValue(latin_america),
-             maxValue(north_america),
-             maxValue(west_asia)))
-
-colbrks <-  c(minV, seq(2, 50, length.out = 198), maxV)
-  
-  # seq(minV, maxV, length.out = 200)
-# actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
-#            '#EFF121', '#F5952D', '#E93131', '#D70131', '#D70131')
-# r.cols <- colorRampPalette(actual, space = "rgb")
-
-
-
-
-r.cols <- magma(199)
-
-png(file.path(figures, "Biomass.png"),width=17.5,height=8.75,units="cm",res=1200)
+png(file.path(figures, "FunctionalRichness_discreet.png"),width=17.5,height=8.75,units="cm",res=1200)
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
 
-bkg <- raster(file.path(results, "africa", "clayBio15biomasscoef.tif"))
 image(bkg, ylim = c(-90, 90), xlim = c(-180, 180), col = "gray90", xaxt="n", yaxt="n", ylab="", xlab="")
+
 image(africa, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-
-
-for(reg in regions){
-   
-  bkg <- raster(file.path(results, reg, "clayBio15biomasscoef.tif"))
-  image(bkg, add = TRUE, col = "gray90") 
-  #r <- raster(file.path(results, reg, "BiomassFinalRaster.tif"))
-  #image(r, add = TRUE)  
-}
-
 image(asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(europe, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(latin_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
@@ -187,151 +115,15 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 
 ## Legend
 par(mar=c(1,13,1,13))
-scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
-barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("2g/m2", at = 40, cex = 1)
-mtext("50g/m2", at = 480, cex = 1)
-dev.off()
-
-
-############################################################
-## ABUNDANCE
-############################################################
-
-
-# regions <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
-
-results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Abundance"
-
-regions <- c("asia", "europe", "latin_america", "north_america", "west_asia")
-resultRaster <- "AbundanceFinalRaster.tif"
-
-africa <- raster(file.path(results, "africa", resultRaster))
-africa <- exp(africa) - 1
-asia <-  raster(file.path(results, "asia", resultRaster))
-asia <- exp(asia) - 1
-europe <- raster(file.path(results, "europe", resultRaster))
-europe <- exp(europe) - 1
-latin_america <- raster(file.path(results, "latin_america", resultRaster))
-latin_america <- exp(latin_america) - 1
-north_america <- raster(file.path(results, "north_america", resultRaster))
-north_america <- exp(north_america) - 1
-west_asia <- raster(file.path(results, "west_asia", resultRaster))
-west_asia <- exp(west_asia) - 1
-
-minV <-min(c(minValue(africa),
-             minValue(asia),
-             minValue(europe),
-             minValue(latin_america),
-             minValue(north_america),
-             minValue(west_asia)))
-
-maxV <-max(c(maxValue(africa),
-             maxValue(asia),
-             maxValue(europe),
-             maxValue(latin_america),
-             maxValue(north_america),
-             maxValue(west_asia)))
-
-colbrks <-  c(minV, seq(20, 100, length.out = 198), maxV)
-
-# seq(minV, maxV, length.out = 200)
-# actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
-#            '#EFF121', '#F5952D', '#E93131', '#D70131', '#D70131')
-# r.cols <- colorRampPalette(actual, space = "rgb")
-
-
-
-
-r.cols <- magma(199)
-
-png(file.path(figures, "Abundance.png"),width=17.5,height=8.75,units="cm",res=1200)
-nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
-# layout.show(nf)
-par(mar=c(0.1,0.1,0.1,0.1))
-
-bkg <- raster(file.path(results, "africa", "clayBio15abundancecoef.tif"))
-image(bkg, ylim = c(-90, 90), xlim = c(-180, 180), col = "gray90", xaxt="n", yaxt="n", ylab="", xlab="")
-image(africa, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-
-
-for(reg in regions){
-  
-  bkg <- raster(file.path(results, reg, "clayBio15abundancecoef.tif"))
-  image(bkg, add = TRUE, col = "gray90") 
-  #r <- raster(file.path(results, reg, "BiomassFinalRaster.tif"))
-  #image(r, add = TRUE)  
-}
-
-image(asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-image(europe, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-image(latin_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-image(north_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-
-## Legend
-par(mar=c(1,13,1,13))
-scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
-barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("20 ind/m2", at = 40, cex = 1)
-mtext("100 ind/m2", at = 480, cex = 1)
-dev.off()
-
-##############################################################################################
-all_data <-"3_Data"
-files <- list.files(file.path(all_data))
-file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
-file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-file_dates <- as.Date(file_dates)
-date <- max(file_dates, na.rm = TRUE)
-all_data <- read.csv(file.path(all_data, paste("sites_",date,".csv", sep = "")))
-
-
-models <- "Models"
-load(file.path(models, "richnessmodel_full.rds"))
-load(file.path(models, "biomassmodel_full.rds"))
-load(file.path(models, "abundancemodel_full.rds"))
-
-studies1 <- as.vector(unique(richness_model@frame$Study_Name))
-studies2 <- as.vector(unique(abundance_model@frame$Study_Name))
-studies3 <- as.vector(unique(biomass_model@frame$Study_Name))
-all_studies <- c(studies1, studies2, studies3)
-all_studies <- unique(all_studies)
-
-
-
-all_studies <- all_data[all_data$Study_Name %in% all_studies,]
-
-coord<-aggregate(cbind(all_studies$Longitude__Decimal_Degrees, all_studies$Latitude__decimal_degrees), list(all_studies$Study_Name), mean)
-
-coord$X<-coord$Group.1
-coord<-coord[2:4]
-names(coord)<-c("Long", "Lat", "X")
-
-dsSPDF<-SpatialPointsDataFrame(coord[,1:2], data.frame(coord[,1:3]))
-proj4string(dsSPDF)<-CRS("+proj=longlat")
-
-
-
-png(file.path(figures, "SpeciesRichness_DataPoints.png"),width=17.5,height=8.75,units="cm",res=1200)
-nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
-layout.show(nf)
-par(mar=c(0.1,0.1,0.1,0.1))
-image(spR_finalraster, col=b.cols(length(blubrks)-1), breaks=blubrks, xaxt="n", yaxt="n", ylab="", xlab="")
-image(spR_finalraster, col=r.cols(length(redbrks)-1), add = TRUE, breaks=redbrks, xaxt="n", yaxt="n", ylab="", xlab="")
-points(dsSPDF, col="black", bg="black", cex= 0.6, pch=19)
-#hist(1:10, axes = FALSE)
-par(mar=c(1,13,1,13))
-blu_scale <- rep(b.cols(length(blubrks)-1), each = 2) # 200 total
-red_scale <-rep(r.cols(length(redbrks)-1), each = 2)
-
-
-
-barplot(rep(1, 396), col = c(blu_scale, red_scale), border =c(blu_scale, red_scale), axes = FALSE )
-mtext("1", at = 20, cex = 1)
-# mtext("6", at = 350, cex = 0.5)
-mtext("8", at = 455, cex = 1)
-
+scale <- rep(magma(6), each = 20)
+barplot(rep(1, 120), col = scale, border =scale, axes = FALSE )
+mtext("0", at = 10, cex = 1)
+mtext("1", at = 35, cex = 1)
+mtext("2", at = 60, cex = 1)
+mtext("3", at = 85, cex = 1)
+mtext("4", at = 110, cex = 1)
+mtext(">4", at = 130, cex = 1)
+mtext("Functional Richness", at = 80, cex = 0.5, line = -1.5)
 dev.off()
 
 
