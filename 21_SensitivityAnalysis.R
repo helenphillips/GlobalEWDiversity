@@ -36,17 +36,35 @@ rm(date)
 sites <- read.csv(file.path(data_in, loadin))
 
 data_in <-"4_Data"
+## Richness 
+files <- list.files(file.path(data_in))
+files <- files[grep("sitesRichness_", files)]
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+file_dates <- as.Date(file_dates)
+date <- max(file_dates, na.rm = TRUE)
+loadin <- files[grep(date, files)]
+richness <- read.csv(file.path(data_in, loadin))
+
+## Biomass
 files <- list.files(file.path(data_in))
 files <- files[grep("sitesBiomass_", files)]
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-
 file_dates <- as.Date(file_dates)
 date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
-
 biomass <- read.csv(file.path(data_in, loadin))
 
+## Abundance
+files <- list.files(file.path(data_in))
+files <- files[grep("sitesAbundance_", files)]
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+file_dates <- as.Date(file_dates)
+date <- max(file_dates, na.rm = TRUE)
+loadin <- files[grep(date, files)]
+abundance <- read.csv(file.path(data_in, loadin))
 
 #################################################
 # 3. Create directories
@@ -65,45 +83,50 @@ figures <- "Figures"
 models <- "Models"
 
 
-load(file.path(models, "richnessmodel_full.rds"))
+load(file.path(models, "richnessmodel.rds"))
 load(file.path(models, "biomassmodel_full.rds"))
 load(file.path(models, "abundancemodel_full.rds"))
 
 #################################################
 # 5. Species Richness
 ################################################
+richnessData <- richness_model@frame
 
-spRData <- richness_model@frame
 
-spRData$Predicted <- exp(predict(richness_model, spRData, re.form = NA))
+########
+# K-Fold Cross validation
+########
+k_fold <- 10
+splits <- createSplits(richnessData, kfold = k_fold)
 
-opaqueBlack <- rgb(red = 0, green = 0, blue = 0, alpha = 0.3,maxColorValue = 1)
-plot(spRData$Predicted ~ jitter(spRData$SpeciesRichness), ylim = c(0, 15), pch = 19, col = opaqueBlack)
+predictedData <- list()
+for(k in 1:k_fold){
+  
+  rows <- as.vector(unlist(splits[k]))
+  testData <- richnessData[rows,]
+  bankData <- richnessData[-rows,]
+  
+  mod <- glmer(SpeciesRichness ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL +  
+                scaleORCDRC + bio10_7_scaled + bio10_15_scaled + SnowMonths_cat +  
+                scaleAridity + ScalePET + scalePH:scaleCECSOL + scalePH:scaleORCDRC +  
+                scaleCLYPPT:scaleCECSOL + scaleSLTPPT:scaleORCDRC + scaleCECSOL:scaleORCDRC +  
+                bio10_7_scaled:bio10_15_scaled + bio10_7_scaled:SnowMonths_cat +  
+                bio10_7_scaled:scaleAridity + bio10_15_scaled:SnowMonths_cat +  
+                bio10_15_scaled:scaleAridity + bio10_15_scaled:ScalePET +  
+                SnowMonths_cat:scaleAridity + scaleCLYPPT:bio10_15_scaled +  
+                scaleSLTPPT:ScalePET + scaleSLTPPT:scaleAridity + ESA + scaleElevation + 
+                (1 | file/Study_Name), data = bankData, family = poisson,
+              control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+  
+  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
+  
+  predictedData[[k]] <- data.frame(observed = testData$SpeciesRichness, predicted = testData$Predicted)
+  
+}
+
+df <- do.call("rbind", predictedData)
+plot(df$predicted ~ df$observed)
 abline(0, 1) 
-
-## Which have "bad" predictions
-
-badPreds <- droplevels(spRData[(spRData$SpeciesRichness) > 6,])
-levels(badPreds$file)
-
-dat <- droplevels(sites[sites$file %in% badPreds$file,])
-levels(dat$Country)
-
-summary(spRData)
-summary(badPreds)
-
-library(maps)
-library(maptools)
-coord<-aggregate(cbind(dat$Longitude__Decimal_Degrees, dat$Latitude__decimal_degrees), list(dat$Study_Name), mean)
-
-coord$X<-coord$Group.1
-coord<-coord[2:4]
-names(coord)<-c("Long", "Lat", "X")
-dsSPDF<-SpatialPointsDataFrame(coord[,1:2], data.frame(coord[,1:3]))
-proj4string(dsSPDF)<-CRS("+proj=longlat")
-mar=c(0,0,0,0)
-map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
-points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
 
 
 #################################################
@@ -112,11 +135,6 @@ points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
 
 abundanceData <- abundance_model@frame
 
-abundanceData$Predicted <- (predict(abundance_model, abundanceData, re.form = NA))
-
-opaqueBlack <- rgb(red = 0, green = 0, blue = 0, alpha = 0.3,maxColorValue = 1)
-plot(abundanceData$Predicted ~ jitter(abundanceData$logAbundance), ylim = c(0, 8), pch = 19, col = opaqueBlack)
-abline(0, 1) 
 
 ########
 # K-Fold Cross validation
@@ -132,17 +150,18 @@ for(k in 1:k_fold){
   bankData <- abundanceData[-rows,]
   
   mod <- lmer(logAbundance ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL +  
-                scaleORCDRC + bio10_1_scaled + bio10_15_scaled + SnowMonths_cat +  
-                scaleAridity + ScalePETSD + scalePH:scaleCLYPPT + scalePH:scaleCECSOL +  
-                scaleCLYPPT:scaleCECSOL + scaleSLTPPT:scaleCECSOL + scaleCECSOL:scaleORCDRC +  
-                bio10_1_scaled:bio10_15_scaled + bio10_1_scaled:SnowMonths_cat +  
-                bio10_1_scaled:scaleAridity + bio10_1_scaled:ScalePETSD +  
-                bio10_15_scaled:SnowMonths_cat + SnowMonths_cat:ScalePETSD +  
-                scaleCLYPPT:bio10_15_scaled + scaleCLYPPT:ScalePETSD + ESA +  
+                scaleORCDRC + bio10_7_scaled + bio10_15_scaled + SnowMonths_cat +  
+                scaleAridity + ScalePET + scalePH:scaleSLTPPT + scalePH:scaleCECSOL +  
+                scalePH:scaleORCDRC + scaleCLYPPT:scaleCECSOL + scaleCLYPPT:scaleORCDRC +  
+                scaleCECSOL:scaleORCDRC + bio10_7_scaled:bio10_15_scaled +  
+                bio10_7_scaled:SnowMonths_cat + bio10_7_scaled:scaleAridity +  
+                bio10_15_scaled:SnowMonths_cat + bio10_15_scaled:ScalePET +  
+                SnowMonths_cat:ScalePET + scaleAridity:ScalePET + scaleCLYPPT:bio10_15_scaled +  
+                scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET + ESA + ScaleElevation +  
                 (1 | file/Study_Name), data = bankData, 
               control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
   
-  testData$Predicted <- (predict(mod, testData, re.form = NA))
+  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
   
   predictedData[[k]] <- data.frame(observed = testData$logAbundance, predicted = testData$Predicted)
   
@@ -153,11 +172,46 @@ plot(df$predicted ~ df$observed)
 abline(0, 1) 
 
 
-### Biomass
-dat <- biomass_model@frame
-dat$resids <- residuals(biomass_model)
-dat$predicted <- (predict(biomass_model, dat, re.form = NA))
-plot(dat$predicted ~ dat$logBiomass)
+#################################
+## BIOMASS
+##################################
+biomassData <- biomass_model@frame
+
+########
+# K-Fold Cross validation
+########
+
+k_fold <- 10
+splits <- createSplits(biomassData, kfold = k_fold)
+
+predictedData <- list()
+for(k in 1:k_fold){
+  
+  rows <- as.vector(unlist(splits[k]))
+  testData <- biomassData[rows,]
+  bankData <- biomassData[-rows,]
+  
+  mod <- lmer(logBiomass ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleORCDRC +  
+                scaleCECSOL + bio10_7_scaled + bio10_12_scaled + bio10_15_scaled +  
+                ScalePET + SnowMonths_cat + scalePH:scaleCLYPPT + scalePH:scaleSLTPPT +  
+                scalePH:scaleORCDRC + scalePH:scaleCECSOL + scaleCLYPPT:scaleCECSOL +  
+                scaleORCDRC:scaleCECSOL + bio10_7_scaled:bio10_12_scaled +  
+                bio10_12_scaled:bio10_15_scaled + bio10_12_scaled:ScalePET +  
+                bio10_12_scaled:SnowMonths_cat + bio10_15_scaled:ScalePET +  
+                bio10_15_scaled:SnowMonths_cat + ScalePET:SnowMonths_cat +  
+                scaleSLTPPT:bio10_12_scaled + scaleCLYPPT:bio10_15_scaled +  
+                ESA +
+                (1 | file/Study_Name), data = bankData, 
+              control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+  
+  testData$Predicted <- (predict(mod, testData, re.form = NULL, allow.new.levels = TRUE))
+  
+  predictedData[[k]] <- data.frame(observed = testData$logBiomass, predicted = testData$Predicted)
+  
+}
+
+df <- do.call("rbind", predictedData)
+plot(df$predicted ~ df$observed)
 abline(0, 1) 
 
 
