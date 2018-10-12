@@ -44,6 +44,16 @@ df_variables_sensitivity <- function(data){
   
 }
 
+CreateSplits <- function(dat, kfold = 10){
+  rows <- nrow(dat)
+  rows <- sample(rows, size = length(1:rows))
+  
+  chunk <- function(x,n) split(x, cut(seq_along(x), n, labels = FALSE)) 
+  
+  splits <- chunk(rows, kfold)
+  
+  return(splits)
+}
 
 #################################################
 # 2. Loading in variables
@@ -242,19 +252,6 @@ abundance_model_SG <- modelSimplificationAIC(model = a1, data = abundance, optim
 save(abundance_model_SG, file = file.path(models, "abundancemodel_SoilGrids.rds"))
 
 
-load(file.path(models, "abundancemodel_full.rds"))
+# load(file.path(models, "abundancemodel_full.rds"))
 
 
-
-new <- data.frame(fixef(abundance_model_SG))
-new$var <- rownames(new)
-
-old <- data.frame(fixef(abundance_model))
-old$var <- rownames(old)
-
-abundance_all <- merge(new, old, by = "var", all = TRUE)
-abundance_all[is.na(abundance_all)] <- 10
-
-plot(abundance_all$fixef.abundance_model_SG. ~ abundance_all$fixef.abundance_model., 
-     pch = 19, ylab = "Only SoilGrids data", xlab = "Mixture of data")
-abline(0,1)
