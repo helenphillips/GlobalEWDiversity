@@ -89,7 +89,17 @@ plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier
   #####COLOURS
   ####
   
-
+  newdata$ESA <- factor(newdata$ESA, levels = c(
+    "Broadleaf deciduous forest", "Broadleaf evergreen forest", "Needleleaf deciduous forest",
+    "Needleleaf evergreen forest", "Mixed forest", "Tree open", "Herbaceous with spare tree/shrub",
+    "Shrub", "Herbaceous", "Sparse vegetation", "Production - Herbaceous", "Production - Plantation",
+    "Cropland/Other vegetation mosaic",  "Urban", "Bare area (consolidated",
+    "Bare area (unconsolidated", "Unknown", "Paddy field", "Wetland/Herbaceous", "Water bodies"))
+  newdata <- droplevels(newdata)
+  
+  if(Effect1 == "ESA"){
+    newdata <- newdata[order(newdata$ESA),]
+  }
   
   
   ## If predictor is numeric
