@@ -58,6 +58,17 @@ date <- max(file_dates, na.rm = TRUE)
 # loadin <- files[grep(date, files)]
 abundance <- read.csv(file.path(data_in, paste("sitesAbundance_",date,".csv", sep = "")))
 
+data_in <- "15_Data"
+
+files <- list.files(file.path(data_in))
+files <- files[grep("sites\\+FGRichness_", files)]
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+file_dates <- as.Date(file_dates)
+date <- max(file_dates, na.rm = TRUE)
+loadin <- files[grep(date, files)]
+fgrichness <- read.csv(file.path(data_in, loadin))
+
 
 if(!dir.exists("Figures")){
   dir.create("Figures")
@@ -72,6 +83,7 @@ figures <- "Figures"
 richness <- droplevels(SiteLevels(richness))
 biomass <- droplevels(SiteLevels(biomass))
 abundance <- droplevels(SiteLevels(abundance))
+fgrichness <- droplevels(SiteLevels(fgrichness))
 
 
 
@@ -82,9 +94,10 @@ abundance <- droplevels(SiteLevels(abundance))
 models <- "Models"
 
 
-load(file.path(models, "richnessmodel_full.rds"))
+load(file.path(models, "richnessmodel.rds"))
 load(file.path(models, "biomassmodel_full.rds"))
 load(file.path(models, "abundancemodel_full.rds"))
+load(file.path(models, "fgrichnessmodel.rds"))
 
 #################################################
 # 5. Pick colors for figures
@@ -97,338 +110,42 @@ abundanceCols <- ColourPicker(abundance$ESA)
 
 ############################################
 # SPECIES RICHNES
-####(#########################################
-
-
-
-jpeg(file = file.path(figures, "richness_pHOrgc.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
-plotInteraction(model = richness_model, Effect1 = "scalePH", Effect2 = "scaleORCDRC",
-                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                                      "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                                      "ESA", "scaleCLYPPT", "scaleSLTPPT"),
-                responseVar = "SpeciesRichness", seMultiplier = 1.96,
-                data = richness, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "")
-dev.off()
-
-
-jpeg(file = file.path(figures, "richness_AridityBio15.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
-plotInteraction(model = richness_model, Effect1 = "scaleAridity", Effect2 = "bio10_15_scaled",
-                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
-                responseVar = "SpeciesRichness", seMultiplier = 1.96,
-                data = richness, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "")
-dev.off()
-
-
-jpeg(file = file.path(figures, "richness_pHCEC.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
-plotInteraction(model = richness_model, Effect1 = "scalePH", Effect2 = "scaleCECSOL",
-                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
-                responseVar = "SpeciesRichness", seMultiplier = 1.96,
-                data = richness, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 125)
-dev.off()
-
-
- 
-jpeg(file = file.path(figures, "richness_Bio15PET.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
-plotInteraction(model = richness_model, Effect1 = "bio10_15_scaled", Effect2 = "ScalePET",
-                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
-                responseVar = "SpeciesRichness", seMultiplier = 1.96,
-                data = richness, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "")
-dev.off()
-
-
-jpeg(file = file.path(figures, "richness_Bio15PETSD.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
-plotInteraction(model = richness_model, Effect1 = "ScalePETSD", Effect2 = "bio10_15_scaled",
-                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
-                responseVar = "SpeciesRichness", seMultiplier = 1.96,
-                data = richness, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 205)
-dev.off()
-
-
-jpeg(file = file.path(figures, "richness_SnowPETSD.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
-plotInteraction(model = richness_model, Effect1 = "ScalePETSD", Effect2 = "SnowMonths",
-                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
-                responseVar = "SpeciesRichness", seMultiplier = 1.96,
-                data = richness, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "")
-dev.off()
-
-  
-
-jpeg(file = file.path(figures, "richness_SnowPET.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
-plotInteraction(model = richness_model, Effect1 = "ScalePET", Effect2 = "SnowMonths",
-                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
-                responseVar = "SpeciesRichness", seMultiplier = 1.96,
-                data = richness, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "")
-dev.off()
-
-
-
-jpeg(file = file.path(figures, "richness_AridityPETSD.jpg"), quality = 100, res = 200, width = 2000, height = 2000)
-plotInteraction(model = richness_model, Effect1 = "scaleAridity", Effect2 = "ScalePETSD",
-                modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                                    "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                                    "ESA", "scaleCLYPPT", "scaleSLTPPT"),
-                responseVar = "SpeciesRichness", seMultiplier = 1.96,
-                data = richness, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "")
-dev.off()
-
+#############################################
 
 
 jpeg(file = file.path(figures, "richness_ESA.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
 plotSingle(model= richness_model, 
-           modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                               "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                               "ESA", "scaleCLYPPT", "scaleSLTPPT"),
+           modelFixedEffs = c("scalePH","scaleCLYPPT", "scaleSLTPPT" , "scaleCECSOL" ,
+                                "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" , "SnowMonths_cat",  
+                                "scaleAridity", "ScalePET", "ESA", "scaleElevation"),
            Effect1 = "ESA", 
            responseVar = "SpeciesRichness", seMultiplier = 1, data = richness, cols = richnessCols, 
            legend.position, ylabel = "Species Richness", xlabel = "", otherContEffectsFun = "median")
 dev.off()
 
-scaleCLYPPT + scaleSLTPPT 
-
-jpeg(file = file.path(figures, "richness_Clay.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotSingle(model= richness_model, Effect1 = "scaleCLYPPT", 
-           modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                               "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                               "ESA", "scaleCLYPPT", "scaleSLTPPT"),
-           responseVar = "SpeciesRichness", seMultiplier = 1, data = richness,
-           ylabel = "Species Richness", xlabel = "Clay", otherContEffectsFun = "median")
-dev.off()
-
-jpeg(file = file.path(figures, "richness_Silt.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotSingle(model= richness_model, Effect1 = "scaleSLTPPT", 
-           modelFixedEffs = c( "scalePH", "scaleCECSOL", "scaleORCDRC", "bio10_15_scaled",  
-                               "SnowMonths", "scaleAridity", "ScalePET", "ScalePETSD", 
-                               "ESA", "scaleCLYPPT", "scaleSLTPPT"),
-           responseVar = "SpeciesRichness", seMultiplier = 1, data = richness,
-           ylabel = "Species Richness", xlabel = "Silt", otherContEffectsFun = "median")
-dev.off()
 #############################################
 # ABUNDANCE
 ###############################################
 
-jpeg(file = file.path(figures, "abundance_pHCEC.jpg"), quality = 100, res = 200, height = 1000, width = 1500, pointsize = 12)
-plotInteraction(model = abundance_model, Effect1 = "scalePH", Effect2 = "scaleCECSOL",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleCECSOL", "SnowMonths",  
-                "scaleAridity", "ESA", "scaleSLTPPT", "bio10_15_scaled", "ScalePETSD"),
-                responseVar = "logAbundance", seMultiplier = 1.96,
-                data = abundance, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 115)
-dev.off()
-
-jpeg(file = file.path(figures, "abundance_ClayCEC.jpg"), quality = 100, res = 200, height = 1000, width = 1500, pointsize = 12)
-plotInteraction(model = abundance_model, Effect1 = "scaleCLYPPT", Effect2 = "scaleCECSOL",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleCECSOL", "SnowMonths",  
-                                   "scaleAridity", "ESA", "scaleSLTPPT", "bio10_15_scaled", "ScalePETSD"),
-                responseVar = "logAbundance", seMultiplier = 1.96,
-                data = abundance, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "")
-dev.off()
-
-
-jpeg(file = file.path(figures, "abundance_SnowAridity.jpg"), quality = 100, res = 200, height = 1000, width = 1500, pointsize = 12)
-plotInteraction(model = abundance_model, Effect1 = "SnowMonths", Effect2 = "scaleAridity",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleCECSOL", "SnowMonths",  
-                                   "scaleAridity", "ESA", "scaleSLTPPT", "bio10_15_scaled", "ScalePETSD"),
-                responseVar = "logAbundance", seMultiplier = 1.96,
-                data = abundance, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 115)
-dev.off()
-
-
 jpeg(file = file.path(figures, "abundance_ESA.jpg"), quality = 100, res = 200, height = 1000, width = 1500, pointsize = 12)
 plotSingle(model= abundance_model, Effect1 = "ESA",
-           modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleCECSOL", "SnowMonths",  
-                              "scaleAridity", "ESA", "scaleSLTPPT", "bio10_15_scaled", "ScalePETSD"),
+           modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT" , "scaleCECSOL" ,
+                                "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" ,"SnowMonths_cat",  
+                                "scaleAridity" , "ScalePET", "ESA" , "ScaleElevation"),
            responseVar = "logAbundance", seMultiplier = 1, data = abundance, cols = abundanceCols, 
            legend.position, ylabel = "log(Abundance)", xlabel = "", otherContEffectsFun = "median")
 dev.off()
 
-jpeg(file = file.path(figures, "abundance_Silt.jpg"), quality = 100, res = 200, height = 1000, width = 1500, pointsize = 12)
-plotSingle(model= abundance_model, Effect1 = "scaleSLTPPT",
-           modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleCECSOL", "SnowMonths",  
-                              "scaleAridity", "ESA", "scaleSLTPPT", "bio10_15_scaled", "ScalePETSD"),
-           responseVar = "logAbundance", seMultiplier = 1, data = abundance,
-           ylabel = "log(Abundance)", xlabel = "Silt", otherContEffectsFun = "median")
-dev.off()
-
-jpeg(file = file.path(figures, "abundance_bio15.jpg"), quality = 100, res = 200, height = 1000, width = 1500, pointsize = 12)
-plotSingle(model= abundance_model, Effect1 = "bio10_15_scaled",
-           modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleCECSOL", "SnowMonths",  
-                              "scaleAridity", "ESA", "scaleSLTPPT", "bio10_15_scaled", "ScalePETSD"),
-           responseVar = "logAbundance", seMultiplier = 1, data = abundance,
-           ylabel = "log(Abundance)", xlabel = "Precipitation Seasonality", otherContEffectsFun = "median")
-dev.off()
-
-jpeg(file = file.path(figures, "abundance_PETSD.jpg"), quality = 100, res = 200, height = 1000, width = 1500, pointsize = 12)
-plotSingle(model= abundance_model, Effect1 = "ScalePETSD",
-           modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleCECSOL", "SnowMonths",  
-                              "scaleAridity", "ESA", "scaleSLTPPT", "bio10_15_scaled", "ScalePETSD"),
-           responseVar = "logAbundance", seMultiplier = 1, data = abundance,
-           ylabel = "log(Abundance)", xlabel = "Potential Evapo-Transpiration Std. Dev.", otherContEffectsFun = "median")
-dev.off()
-
-
-#################################################
-# BIOMASS
 #################################################
 
- 
-jpeg(file = file.path(figures, "biomass_pHClay.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "scalePH", Effect2 = "scaleCLYPPT",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                     "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                     "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 150)
-dev.off()
-
-jpeg(file = file.path(figures, "biomass_pHSilt.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "scalePH", Effect2 = "scaleSLTPPT",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                   "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                   "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "")
-dev.off()
-
-jpeg(file = file.path(figures, "biomass_pHCEC.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "scalePH", Effect2 = "scaleCECSOL",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                   "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                   "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 130)
-dev.off()
-
-
-
-
-jpeg(file = file.path(figures, "biomass_pHOrgC.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "scalePH", Effect2 = "scaleORCDRC",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                   "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                   "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "")
-dev.off()
-
-jpeg(file = file.path(figures, "biomass_ClayCEC.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "scaleCLYPPT", Effect2 = "scaleCECSOL",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                   "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                   "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "")
-dev.off()
-
-jpeg(file = file.path(figures, "biomass_ClayOrgC.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "scaleCLYPPT", Effect2 = "scaleORCDRC",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                   "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                   "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 60)
-dev.off()
-
-
-jpeg(file = file.path(figures, "biomass_SiltCEC.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "scaleSLTPPT", Effect2 = "scaleCECSOL",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                   "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                   "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 125)
-dev.off()
- 
-jpeg(file = file.path(figures, "biomass_Bio12Bio15.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "bio10_12_scaled", Effect2 = "bio10_15_scaled",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                   "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                   "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta =35)
-dev.off()
-
-jpeg(file = file.path(figures, "biomass_Bio12PET.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "bio10_12_scaled", Effect2 = "ScalePET",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                   "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                   "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 125)
-dev.off()
-
- 
-jpeg(file = file.path(figures, "biomass_Bio12PETSD.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "bio10_12_scaled", Effect2 = "ScalePETSD",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                   "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                   "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 125)
-dev.off()
-
-#  : + : + bio10_15_scaled:ScalePET + 
-jpeg(file = file.path(figures, "biomass_Bio15PETSD.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotInteraction(model = biomass_model, Effect1 = "bio10_15_scaled", Effect2 = "ScalePETSD",
-                modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                                   "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                                   "ScalePETSD", "ESA", "SnowMonths"),
-                responseVar = "logBiomass", seMultiplier = 1.96,
-                data = biomass, cols = c("white", "red"), legend.position = "topleft",
-                ylabel = "", xlabel = "", theta = 125)
-dev.off()
-
-
-##  ESA + SnowMonths
 jpeg(file = file.path(figures, "biomass_ESA.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
 plotSingle(model= biomass_model, Effect1 = "ESA", 
-           modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                              "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                              "ScalePETSD", "ESA", "SnowMonths"),
+           modelFixedEffs = c("scalePH" ,"scaleCLYPPT" , "scaleSLTPPT" , "scaleORCDRC",
+                                "scaleCECSOL" , "bio10_7_scaled" ,"bio10_12_scaled", "bio10_15_scaled",  
+                                "ScalePET" , "SnowMonths_cat", "ESA"),
            responseVar = "logBiomass", seMultiplier = 1, data = biomass, cols = biomassCols, 
            legend.position, ylabel = "log(Biomass)", xlabel = "", otherContEffectsFun = "median")
 dev.off()
-
-jpeg(file = file.path(figures, "biomass_Snow.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotSingle(model= biomass_model, Effect1 = "SnowMonths", 
-           modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", 
-                              "scaleORCDRC", "bio10_12_scaled", "bio10_15_scaled", "ScalePET", 
-                              "ScalePETSD", "ESA", "SnowMonths"),
-           responseVar = "logBiomass", seMultiplier = 1, data = biomass,
-           ylabel = "log(Biomass)", xlabel = "Months of Snow", otherContEffectsFun = "median")
-dev.off()
-
 
 ##################################################
 ## MAP
@@ -446,7 +163,9 @@ all_data <- read.csv(file.path(all_data, paste("sites_",date,".csv", sep = "")))
 studies1 <- as.vector(unique(richness_model@frame$Study_Name))
 studies2 <- as.vector(unique(abundance_model@frame$Study_Name))
 studies3 <- as.vector(unique(biomass_model@frame$Study_Name))
-all_studies <- c(studies1, studies2, studies3)
+studies4 <- as.vector(unique(fgrichness_model@frame$Study_Name))
+
+all_studies <- c(studies1, studies2, studies3, studies4)
 all_studies <- unique(all_studies)
 
 
@@ -456,6 +175,8 @@ all_studies <- all_data[all_data$Study_Name %in% all_studies,]
 
 ##  Saving for Carlos
 write.csv(all_studies, file = file.path(data_in, "DataUsed_forCarlos.csv"), row.names = FALSE)
+
+
 coord<-aggregate(cbind(all_studies$Longitude__Decimal_Degrees, all_studies$Latitude__decimal_degrees), list(all_studies$Study_Name), mean)
 
 coord$X<-coord$Group.1
