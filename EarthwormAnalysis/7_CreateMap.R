@@ -146,22 +146,22 @@ results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\B
  resultRaster <- "BiomassFinalRaster.tif"
  
  africa <- raster(file.path(results, "africa", resultRaster))
- # africa <- exp(africa) - 1
+ africa <- exp(africa) - 1
  asia <-  raster(file.path(results, "asia", resultRaster))
- # asia <- exp(asia) - 1
+ asia <- exp(asia) - 1
  europe <- raster(file.path(results, "europe", resultRaster))
- # europe <- exp(europe) - 1
+  europe <- exp(europe) - 1
  latin_america <- raster(file.path(results, "latin_america", resultRaster))
- # latin_america <- exp(latin_america) - 1
+  latin_america <- exp(latin_america) - 1
  north_america <- raster(file.path(results, "north_america", resultRaster))
- # north_america <- exp(north_america) - 1
+  north_america <- exp(north_america) - 1
  west_asia <- raster(file.path(results, "west_asia", resultRaster))
- # west_asia <- exp(west_asia) - 1
+  west_asia <- exp(west_asia) - 1
  
  
  hist(africa, ylim =c(1, 1000))
  hist(asia, ylim =c(1, 1000))
- hist(europe, ylim =c(1, 1000))
+ hist(europe, xlim = c(0, 50), breaks = seq(minValue(europe),  maxValue(europe), by = 1))
  hist(latin_america, ylim =c(1, 1000))
  hist(north_america, ylim =c(1, 1000))
  hist(west_asia, ylim =c(1, 1000))
@@ -196,7 +196,7 @@ sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
 # 
  
 
-colbrks <-  c(minV, seq(1, 6, length.out = 198), maxV)
+colbrks <-  c(minV, seq(1, 150, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
@@ -218,8 +218,8 @@ par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 mtext("1", at = 75, cex = 1)
-mtext("6", at = 460, cex = 1)
-mtext("log-Biomass (g/m2)", at = 250, cex = 0.5)
+mtext("150", at = 460, cex = 1)
+mtext("Biomass (g/m2)", at = 250, cex = 0.5)
 dev.off()
 
 
