@@ -85,9 +85,9 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 ## Legend
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
-barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("0.5", at = 75, cex = 1)
-mtext("3", at = 430, cex = 1)
+b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
+mtext("0.5", at = b[20], cex = 1)
+mtext("3", at = b[418], cex = 1)
 mtext("Functional Richness", at = 250, cex = 0.5)
 dev.off()
 
