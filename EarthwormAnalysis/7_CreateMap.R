@@ -73,37 +73,8 @@ maxV <-max(c(maxValue(africa),
              maxValue(north_america),
              maxValue(west_asia)))
 
-meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
-
-sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
-                cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
-                cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
-                cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
-                cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
-                cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
-
-# breakpoint_top <- 0.3
-# breakpoint_bottom <- 0.02
-# diff <- maxV - minV
-# 
-# top20 <- maxV - (diff * breakpoint_top)
-# bottom20 <- minV + (diff * breakpoint_bottom)
-
 
 colbrks <-  c(minV, seq(1, 6, length.out = 198), maxV)
-
-# seq(minV, maxV, length.out = 200)
-# actual <- c('#2F2C62', '#42399B', '#4A52A7', '#59AFEA', '#7BCEB8', '#A7DA64',
-#            '#EFF121', '#F5952D', '#E93131', '#D70131', '#D70131')
-# r.cols <- colorRampPalette(actual, space = "rgb")
-
-
-
 
 r.cols <- magma(199)
 
@@ -125,9 +96,12 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 ## Legend
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
-barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext(1, at = 75, cex = 1)
-mtext(6, at = 460, cex = 1)
+b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
+# b
+# abline(v = 20, col = "white")
+# abline(v = b[418], col = "black")
+mtext(1, at = b[20], cex = 1)
+mtext(6, at = b[418], cex = 1)
 mtext("Number of species", at = 250, cex = 0.5)
 dev.off()
 
@@ -216,9 +190,9 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 ## Legend
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
-barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("1", at = 75, cex = 1)
-mtext("150", at = 460, cex = 1)
+b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
+mtext("1", at =b[20], cex = 1)
+mtext("150", at = b[418], cex = 1)
 mtext("Biomass (g/m2)", at = 250, cex = 0.5)
 dev.off()
 
@@ -309,10 +283,10 @@ image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", yla
 ## Legend
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
-barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("5 ind/m2", at = 75, cex = 1)
-mtext("150 ind/m2", at = 460, cex = 1)
-mtext("Abundance", at = 250, cex = 0.5)
+b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
+mtext("5", at = b[20], cex = 1)
+mtext("150", at = b[418], cex = 1)
+mtext("Abundance (ind/m2)", at = 250, cex = 0.5)
 
 dev.off()
 
