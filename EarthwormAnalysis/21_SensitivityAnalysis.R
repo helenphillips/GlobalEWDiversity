@@ -120,21 +120,44 @@ abline(0, 1)
 
 abundance <- df
 
-abundance$obsMinuspred <- (exp(abundance$predicted)-1) - (exp(abundance$observed)-1)
-abundanceMSE <- mean(abundance$obsMinuspred^2)
+abundance$predicted <- exp(abundance$predicted) - 1
+abundance$observed <- exp(abundance$observed) - 1
 
-abundance$obsMinuspredsqr <- abundance$obsMinuspred ^ 2
-quantile((exp(abundance$observed)-1), probs = c(0.33, 0.66))
-low <- quantile((exp(abundance$observed)-1), probs = c(0.33, 0.66))[[1]]
-high <- quantile((exp(abundance$observed)-1), probs = c(0.33, 0.66))[[2]]
+calculateMSE <- function(data)
+  {
+  cat("Function only works if the predicted and observed values are in their original units - NOT LOGGED \n")
+  obsMinuspredsqr <- (data$observed - data$predicted)^2
+  meanMSE <- mean(obsMinuspredsqr)
+  
+  return(meanMSE)
+  
+  }
+  
+calculateMSE(abundance)
 
-abundance$quant <- 1
-abundance$quant <- ifelse((exp(abundance$observed)-1) > low, 2, abundance$quant)
-abundance$quant <- ifelse((exp(abundance$observed)-1) > high, 3, abundance$quant)
+calculateMSEofQuantiles <- function(data, quantProbs = c(0.33, 0.66)){
+  
+  cat("Function only works if the predicted and observed values are in their original units - NOT LOGGED \n")
+  obsMinuspredsqr <- (data$observed - data$predicted)^2
+  low <- quantile(data$observed, probs = c(quantProbs[1], quantProbs[2]))[[1]]
+  high <- quantile(data$observed, probs = c(quantProbs[1], quantProbs[2]))[[2]]
+  
+  data$quant <- 1
+  data$quant <- ifelse(data$observed > low, 2, data$quant)
+  data$quant <- ifelse(data$observed > high, 3, data$quant)
+  
+  
+  MSE_low <- mean(obsMinuspredsqr[data$quant == 1])
+  MSE_med <- mean(obsMinuspredsqr[data$quant == 2])
+  MSE_high <- mean(obsMinuspredsqr[data$quant == 3])
+  
+  allMSEs = c( MSE_low , MSE_med ,MSE_high)
+  names( allMSEs ) = c( "low" , "medium", "high" )
+  
+  return(allMSEs)
+}
 
-abundanceMSE_low <- mean(abundance$obsMinuspredsqr[abundance$quant == 1])
-abundanceMSE_med <- mean(abundance$obsMinuspredsqr[abundance$quant == 2])
-abundanceMSE_high <- mean(abundance$obsMinuspredsqr[abundance$quant == 3])
+calculateMSEofQuantiles(abundance)
 
 
 #################################
