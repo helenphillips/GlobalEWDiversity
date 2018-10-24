@@ -19,69 +19,6 @@ createSplits <- function(dat, kfold = 10){
 
 
 figures <- "Figures"
-#################################################
-# 2. Load data
-#################################################
-
-data_in <-"3.5_Data"
-
-files <- list.files(file.path(data_in))
-file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
-file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-
-file_dates <- as.Date(file_dates)
-date <- max(file_dates, na.rm = TRUE)
-loadin <- files[grep(date, files)]
-
-rm(files)
-rm(date)
-
-sites <- read.csv(file.path(data_in, loadin))
-
-data_in <-"4_Data"
-## Richness 
-files <- list.files(file.path(data_in))
-files <- files[grep("sitesRichness_", files)]
-file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
-file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-file_dates <- as.Date(file_dates)
-date <- max(file_dates, na.rm = TRUE)
-loadin <- files[grep(date, files)]
-richness <- read.csv(file.path(data_in, loadin))
-
-## Biomass
-files <- list.files(file.path(data_in))
-files <- files[grep("sitesBiomass_", files)]
-file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
-file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-file_dates <- as.Date(file_dates)
-date <- max(file_dates, na.rm = TRUE)
-loadin <- files[grep(date, files)]
-biomass <- read.csv(file.path(data_in, loadin))
-
-## Abundance
-files <- list.files(file.path(data_in))
-files <- files[grep("sitesAbundance_", files)]
-file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
-file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-file_dates <- as.Date(file_dates)
-date <- max(file_dates, na.rm = TRUE)
-loadin <- files[grep(date, files)]
-abundance <- read.csv(file.path(data_in, loadin))
-
-## FG Richness
-data_in <- "15_Data"
-
-files <- list.files(file.path(data_in))
-files <- files[grep("sites\\+FGRichness_", files)]
-file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
-file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-file_dates <- as.Date(file_dates)
-date <- max(file_dates, na.rm = TRUE)
-loadin <- files[grep(date, files)]
-fgrichness <- read.csv(file.path(data_in, loadin))
-
-
 
 #################################################
 # 3. Create directories
@@ -182,6 +119,23 @@ abline(0, 1)
 # dev.off()
 
 abundance <- df
+
+abundance$obsMinuspred <- (exp(abundance$predicted)-1) - (exp(abundance$observed)-1)
+abundanceMSE <- mean(abundance$obsMinuspred^2)
+
+abundance$obsMinuspredsqr <- abundance$obsMinuspred ^ 2
+quantile((exp(abundance$observed)-1), probs = c(0.33, 0.66))
+low <- quantile((exp(abundance$observed)-1), probs = c(0.33, 0.66))[[1]]
+high <- quantile((exp(abundance$observed)-1), probs = c(0.33, 0.66))[[2]]
+
+abundance$quant <- 1
+abundance$quant <- ifelse((exp(abundance$observed)-1) > low, 2, abundance$quant)
+abundance$quant <- ifelse((exp(abundance$observed)-1) > high, 3, abundance$quant)
+
+abundanceMSE_low <- mean(abundance$obsMinuspredsqr[abundance$quant == 1])
+abundanceMSE_med <- mean(abundance$obsMinuspredsqr[abundance$quant == 2])
+abundanceMSE_high <- mean(abundance$obsMinuspredsqr[abundance$quant == 3])
+
 
 #################################
 ## BIOMASS
