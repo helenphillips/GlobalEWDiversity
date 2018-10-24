@@ -64,6 +64,22 @@ maxV <-max(c(maxValue(africa),
              maxValue(latin_america),
              maxValue(north_america),
              maxValue(west_asia)))
+
+meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
+
+sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+              cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
+
+
 colbrks <-  c(minV, seq(0.5,3, lengthou.out = 198), maxV)
 
 r.cols <- magma(199)
