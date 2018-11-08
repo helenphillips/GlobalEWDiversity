@@ -17,6 +17,39 @@ createSplits <- function(dat, kfold = 10){
   return(splits)
 }
 
+calculateMSE <- function(data)
+{
+  cat("Function only works if the predicted and observed values are in their original units - NOT LOGGED \n")
+  obsMinuspredsqr <- (data$observed - data$predicted)^2
+  meanMSE <- mean(obsMinuspredsqr)
+  
+  return(meanMSE)
+  
+}
+
+
+calculateMSEofQuantiles <- function(data, quantProbs = c(0.33, 0.66)){
+  
+  cat("Function only works if the predicted and observed values are in their original units - NOT LOGGED \n")
+  obsMinuspredsqr <- (data$observed - data$predicted)^2
+  low <- quantile(data$observed, probs = c(quantProbs[1], quantProbs[2]))[[1]]
+  high <- quantile(data$observed, probs = c(quantProbs[1], quantProbs[2]))[[2]]
+  
+  data$quant <- 1
+  data$quant <- ifelse(data$observed > low, 2, data$quant)
+  data$quant <- ifelse(data$observed > high, 3, data$quant)
+  
+  
+  MSE_low <- mean(obsMinuspredsqr[data$quant == 1])
+  MSE_med <- mean(obsMinuspredsqr[data$quant == 2])
+  MSE_high <- mean(obsMinuspredsqr[data$quant == 3])
+  
+  allMSEs = c( MSE_low , MSE_med ,MSE_high)
+  names( allMSEs ) = c( "low" , "medium", "high" )
+  
+  return(allMSEs)
+}
+
 
 figures <- "Figures"
 
@@ -29,6 +62,10 @@ if(!dir.exists("Figures")){
 }
 figures <- "Figures"
 
+if(!dir.exists("21_Data")){
+  dir.create("21_Data")
+}
+data_out <- "21_Data"
 
 #################################################
 # 4. Load in models
@@ -48,39 +85,6 @@ k_fold <- 10
 
 
 
-#################################################
-# 5. Species Richness
-################################################
-richnessData <- richness_model@frame
-
-
-########
-# K-Fold Cross validation
-########
-
-splits <- createSplits(richnessData, kfold = k_fold)
-
-predictedData <- list()
-for(k in 1:k_fold){
-  
-  rows <- as.vector(unlist(splits[k]))
-  testData <- richnessData[rows,]
-  bankData <- richnessData[-rows,]
-  
-  mod <-  glmer(formula = richness_model@call$formula, data = bankData, family = "poisson",
-                control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
-  
-  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
-  
-  predictedData[[k]] <- data.frame(observed = testData$SpeciesRichness, predicted = testData$Predicted)
-  
-}
-
-df <- do.call("rbind", predictedData)
-plot(df$predicted ~ df$observed)
-abline(0, 1) 
-
-richness <- df
 
 #################################################
 # 5. Abundance
@@ -123,42 +127,10 @@ abundance <- df
 abundance$predicted <- exp(abundance$predicted) - 1
 abundance$observed <- exp(abundance$observed) - 1
 
-calculateMSE <- function(data)
-  {
-  cat("Function only works if the predicted and observed values are in their original units - NOT LOGGED \n")
-  obsMinuspredsqr <- (data$observed - data$predicted)^2
-  meanMSE <- mean(obsMinuspredsqr)
-  
-  return(meanMSE)
-  
-  }
-  
 calculateMSE(abundance)
-
-calculateMSEofQuantiles <- function(data, quantProbs = c(0.33, 0.66)){
-  
-  cat("Function only works if the predicted and observed values are in their original units - NOT LOGGED \n")
-  obsMinuspredsqr <- (data$observed - data$predicted)^2
-  low <- quantile(data$observed, probs = c(quantProbs[1], quantProbs[2]))[[1]]
-  high <- quantile(data$observed, probs = c(quantProbs[1], quantProbs[2]))[[2]]
-  
-  data$quant <- 1
-  data$quant <- ifelse(data$observed > low, 2, data$quant)
-  data$quant <- ifelse(data$observed > high, 3, data$quant)
-  
-  
-  MSE_low <- mean(obsMinuspredsqr[data$quant == 1])
-  MSE_med <- mean(obsMinuspredsqr[data$quant == 2])
-  MSE_high <- mean(obsMinuspredsqr[data$quant == 3])
-  
-  allMSEs = c( MSE_low , MSE_med ,MSE_high)
-  names( allMSEs ) = c( "low" , "medium", "high" )
-  
-  return(allMSEs)
-}
-
 calculateMSEofQuantiles(abundance)
 
+write.csv(abundance, file = file.path(data_out, "AbundanceCrossValidation.csv"), row.names = FALSE)
 
 #################################
 ## BIOMASS
@@ -193,6 +165,63 @@ plot(df$predicted ~ df$observed)
 abline(0, 1) 
 
 biomass <- df
+
+
+biomass$observed <- exp(biomass$observed) - 1
+biomass$predicted <- exp(biomass$predicted) - 1
+
+calculateMSE(biomass)
+calculateMSEofQuantiles(biomass)
+
+write.csv(biomass, file = file.path(data_out, "BiomassCrossValidation.csv"), row.names = FALSE)
+
+####
+##
+## WARNING: THESE TAKE A LONG TIME
+##
+###
+#################################################
+# 5. Species Richness
+################################################
+richnessData <- richness_model@frame
+
+
+########
+# K-Fold Cross validation
+########
+
+splits <- createSplits(richnessData, kfold = k_fold)
+
+predictedData <- list()
+for(k in 1:k_fold){
+  
+  rows <- as.vector(unlist(splits[k]))
+  testData <- richnessData[rows,]
+  bankData <- richnessData[-rows,]
+  
+  mod <-  glmer(formula = richness_model@call$formula, data = bankData, family = "poisson",
+                control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  
+  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
+  
+  predictedData[[k]] <- data.frame(observed = testData$SpeciesRichness, predicted = testData$Predicted)
+  
+}
+
+df <- do.call("rbind", predictedData)
+plot(df$predicted ~ df$observed)
+abline(0, 1) 
+
+richness <- df
+
+richness$observed <- exp(richness$observed)
+richness$predicted <- exp(richness$predicted) 
+
+calculateMSE(richness)
+calculateMSEofQuantiles(richness)
+
+write.csv(richness, file = file.path(data_out, "RichnessCrossValidation.csv"), row.names = FALSE)
+
 #################################
 ## FG Richness
 ##################################
@@ -224,6 +253,15 @@ plot(df$predicted ~ df$observed)
 abline(0, 1) 
 
 fgrichness <- df
+
+fgrichness$observed <- exp(fgrichness$observed)
+fgrichness$predicted <- exp(fgrichness$predicted) 
+
+calculateMSE(fgrichness)
+calculateMSEofQuantiles(fgrichness)
+
+write.csv(fgrichness, file = file.path(data_out, "FGRichnessCrossValidation.csv"), row.names = FALSE)
+
 
 ####################################
 ## PLOT
