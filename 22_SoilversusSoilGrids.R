@@ -19,41 +19,16 @@ library(maps)
 library(lme4)
 library(car)
 library(DHARMa)
+library(MuMIn)
+
 source("Functions/FormatData.R")
 source("Functions/lme4_ModellingFunctions.R")
 source("Functions/ModelSimplification.R")
 source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
 source("Functions/CorvifVariablePicker.R")
+source(file.path("Functions", "CrossValidationAndMSE.R"))
 
 
-df_variables_sensitivity <- function(data){
-  toMatch <- c("^PHIHOX$",
-               "^CLYPPT$", "^SLTPPT$",
-               "^CECSOL$", "^ORCDRC$",
-               
-               "^bio10_1$", "^bio10_4$",
-               "^bio10_7$", "^bio10_12$",
-               "^bio10_15$",
-               
-               "^Aridity$", "^PETyr$", "^PET_SD$", "^elevation$")
-  
-  matches <- unique (grep(paste(toMatch,collapse="|"), 
-                          names(data), value=FALSE))
-  
-  return(matches)
-  
-}
-
-CreateSplits <- function(dat, kfold = 10){
-  rows <- nrow(dat)
-  rows <- sample(rows, size = length(1:rows))
-  
-  chunk <- function(x,n) split(x, cut(seq_along(x), n, labels = FALSE)) 
-  
-  splits <- chunk(rows, kfold)
-  
-  return(splits)
-}
 
 #################################################
 # 2. Loading in variables
@@ -364,9 +339,96 @@ cor <- findVariables(dat, VIFThreshold = 3)
 ## ANALYSING MODELS
 ##############################################################
 
+if(!dir.exists("22_Data")){
+  dir.create("22_Data")
+}
+data_out <- "22_Data"
+
+
+k_fold <- 10
+
+
 ####### BIOMASS
 load(file.path(models, "biomassmodel_SoilGrids.rds"))
+r.squaredGLMM(biomass_model_SG)
 
-# Load the original model
-load(file.path(models, "biomassmodel_full.rds"))
+BiomassData <- biomass_model_SG@frame
+
+########
+# K-Fold Cross validation
+########
+
+splits <- createSplits(BiomassData, kfold = k_fold)
+
+predictedData <- list()
+for(k in 1:k_fold){
+  
+  rows <- as.vector(unlist(splits[k]))
+  testData <- BiomassData[rows,]
+  bankData <- BiomassData[-rows,]
+  
+  mod <-  lmer(formula = biomass_model_SG@call$formula, data = bankData, 
+                control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  
+  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
+  
+  predictedData[[k]] <- data.frame(observed = testData$logBiomass, predicted = testData$Predicted)
+  
+}
+
+df <- do.call("rbind", predictedData)
+plot(df$predicted ~ df$observed)
+abline(0, 1) 
+
+biomass <- df
+
+biomass$observed <- exp(biomass$observed) - 1
+biomass$predicted <- exp(biomass$predicted) - 1 
+
+calculateMSE(biomass)
+calculateMSEofQuantiles(biomass)
+
+write.csv(biomass, file = file.path(data_out, "BiomassSoilGridsCrossValidation.csv"), row.names = FALSE)
+
+####### ABUNDANCE
+load(file.path(models, "abundancemodel_SoilGrids.rds"))
+r.squaredGLMM(abundance_model_SG)
+
+AbundanceData <- abundance_model_SG@frame
+
+########
+# K-Fold Cross validation
+########
+
+splits <- createSplits(AbundanceData, kfold = k_fold)
+
+predictedData <- list()
+for(k in 1:k_fold){
+  
+  rows <- as.vector(unlist(splits[k]))
+  testData <- AbundanceData[rows,]
+  bankData <- AbundanceData[-rows,]
+  
+  mod <-  lmer(formula = abundance_model_SG@call$formula, data = bankData, 
+               control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  
+  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
+  
+  predictedData[[k]] <- data.frame(observed = testData$logAbundance, predicted = testData$Predicted)
+  
+}
+
+df <- do.call("rbind", predictedData)
+plot(df$predicted ~ df$observed)
+abline(0, 1) 
+
+abundance <- df
+
+abundance$observed <- exp(abundance$observed) - 1
+abundance$predicted <- exp(abundance$predicted) - 1 
+
+calculateMSE(abundance)
+calculateMSEofQuantiles(abundance)
+
+write.csv(abundance, file = file.path(data_out, "AbundanceSoilGridsCrossValidation.csv"), row.names = FALSE)
 
