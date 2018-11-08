@@ -168,24 +168,7 @@ b1 <- lmer(logBiomass ~  ESA + ScaleElevation +
 biomass_model_SG <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
 save(biomass_model_SG, file = file.path(models, "biomassmodel_SoilGrids.rds"))
 
-# Load the original model
-load(file.path(models, "biomassmodel_full.rds"))
 
-summary(biomass_model_SG)
-
-
-new <- data.frame(fixef(biomass_model_SG))
-new$var <- rownames(new)
-
-old <- data.frame(fixef(biomass_model))
-old$var <- rownames(old)
-
-biomass_all <- merge(new, old, by = "var", all = TRUE)
-biomass_all[is.na(biomass_all)] <- 10
-
-plot(biomass_all$fixef.biomass_model_SG. ~ biomass_all$fixef.biomass_model., 
-     pch = 19, ylab = "Only SoilGrids data", xlab = "Mixture of data")
-abline(0,1)
 
 
 #################################################
@@ -254,4 +237,136 @@ save(abundance_model_SG, file = file.path(models, "abundancemodel_SoilGrids.rds"
 
 # load(file.path(models, "abundancemodel_full.rds"))
 
+##############################################
+## For Species Richness model - on cluster
+##############################################
+
+richness <- sites[complete.cases(sites$SpeciesRichness),] #6089
+richness <- droplevels(richness[richness$ESA != "Unknown",]) # 5660
+richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),]) # 5642
+
+# richness <- richness[complete.cases(richness$scalePH),]
+
+# richness <- droplevels(richness[!(is.na(richness$PHIHOX)),])
+richness <- droplevels(richness[!(is.na(richness$bio10_15)),]) ## 5629
+richness <- droplevels(richness[!(is.na(richness$OCFinal)),]) ## 5622
+richness <- droplevels(richness[!(is.na(richness$phFinal)),]) ## 5618
+richness <- droplevels(richness[!(is.na(richness$scaleAridity)),]) ## 5509
+richness <- droplevels(richness[!(is.na(richness$SnowMonths_cat)),]) ## 5466
+
+
+table(richness$ESA)
+richness_notinclude <- c("Needleleaf deciduous forest", "Tree open",
+                         "Sparse vegetation",  "Cropland/Other vegetation mosaic",
+                         "Bare area (consolidated", "Paddy field", "Wetland/Herbaceous", "Water bodies")
+
+richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##   5414
+summary(richness$phFinal)
+richness$scalePH <- as.vector(scale(richness$PHIHOX))
+richness$scaleCLYPPT <- scale(richness$CLYPPT)
+richness$scaleSLTPPT <- scale(richness$SLTPPT)
+richness$scaleCECSOL <- scale(richness$CECSOL)
+richness$scaleORCDRC <- scale(richness$ORCDRC)
+
+richness$bio10_1_scaled <- scale(richness$bio10_1)
+richness$bio10_4_scaled <- scale(richness$bio10_4)
+richness$bio10_7_scaled <- scale(richness$bio10_7)
+richness$bio10_12_scaled <- scale(richness$bio10_12)
+richness$bio10_15_scaled <- scale(richness$bio10_15)
+
+richness$scaleAridity <- scale(richness$Aridity)
+richness$ScalePET <- scale(richness$PETyr)
+richness$ScalePETSD <- scale(richness$PET_SD)
+richness$scaleElevation <- scale(richness$elevation)
+
+## Save the data
+write.csv(richness, file = file.path(data_out, paste("sitesRichness_soilGrids_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
+
+## 
+ind <- df_variables_sensitivity(richness)
+dat <- richness[,c(ind)]
+cor <- findVariables(dat, VIFThreshold = 3)
+
+# bio10_7   bio10_15  PHIHOX SLTPPT CECSOL ORCDRC elevation Aridity PETyr
+
+########################################################
+## Functional Richness - to run on the cluster
+#######################################################
+
+
+data_in <-"10_Data"
+
+files <- list.files(file.path(data_in))
+files <- files[grep("SiteswithFunctionalGroups_", files)]
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+
+file_dates <- as.Date(file_dates)
+date <- max(file_dates, na.rm = TRUE)
+loadin <- files[grep(date, files)]
+
+rm(files)
+rm(date)
+
+sites <- read.csv(file.path(data_in, loadin))
+# sites <- read.csv("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\3_Data\\Sites_2017-11-09.csv")
+rm(loadin)
+
+sites <- SiteLevels(sites) ## relevels all land use/habitat variables
+table(sites$FGRichness)
+
+sites <- droplevels(sites[!(is.na(sites$bio10_15)),]) ## 
+sites <- droplevels(sites[!(is.na(sites$OCFinal)),]) ## 
+sites <- droplevels(sites[!(is.na(sites$phFinal)),]) ## 
+sites <- droplevels(sites[!(is.na(sites$scaleAridity)),]) ## 
+sites <- droplevels(sites[!(is.na(sites$SnowMonths_cat)),]) ## 
+
+sites <- droplevels(sites[sites$ESA != "Unknown",]) # 
+
+
+table(sites$ESA)
+sites_notinclude <- c("Needleleaf deciduous forest", "Tree open",
+                      "Sparse vegetation",  "Urban",
+                      "Bare area (consolidated", "Paddy field", "Wetland/Herbaceous", "Water bodies")
+
+sites <- droplevels(sites[!(sites$ESA %in% sites_notinclude),]) ##   5363
+summary(sites$phFinal)
+sites$scalePH <- scale(sites$PHIHOX)
+sites$scaleCLYPPT <- scale(sites$CLYPPT)
+sites$scaleSLTPPT <- scale(sites$SLTPPT)
+sites$scaleCECSOL <- scale(sites$CECSOL)
+sites$scaleORCDRC <- scale(sites$ORCDRC)
+
+sites$bio10_1_scaled <- scale(sites$bio10_1)
+sites$bio10_4_scaled <- scale(sites$bio10_4)
+sites$bio10_7_scaled <- scale(sites$bio10_7)
+sites$bio10_12_scaled <- scale(sites$bio10_12)
+sites$bio10_15_scaled <- scale(sites$bio10_15)
+
+sites$scaleAridity <- scale(sites$Aridity)
+sites$ScalePET <- scale(sites$PETyr)
+sites$ScalePETSD <- scale(sites$PET_SD)
+sites$ScaleElevation <- scale(sites$elevation)
+
+## Save the data
+write.csv(sites, file = file.path(data_out, paste("sites+FGRichness_soilGrids", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
+ind <- df_variables_sensitivity(sites)
+dat <- sites[,c(ind)]
+cor <- findVariables(dat, VIFThreshold = 3)
+
+# "bio10_7"   "bio10_15"  "CECSOL"  "elevation"  "Aridity"   "PETyr"     "phFinal"  
+# "ClayFinal" "SiltFinal" "OCFinal"  
+
+
+##############################################################
+## ANALYSING MODELS
+##############################################################
+
+####### BIOMASS
+load(file.path(models, "biomassmodel_SoilGrids.rds"))
+
+# Load the original model
+load(file.path(models, "biomassmodel_full.rds"))
 
