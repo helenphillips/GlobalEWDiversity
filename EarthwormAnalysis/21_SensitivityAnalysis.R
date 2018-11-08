@@ -245,3 +245,45 @@ abline(0, 1)
 text(x = -0.3, y = 4, labels = "Functional Richness", pos = 4)
 
 dev.off()
+
+
+##################################################
+# CHECKING A CHANGE IN CLIMATE WITHIN EACH STUDY
+##################################################
+
+allStudies <- c(as.vector(abundance_model@frame$Study_Name), as.vector(biomass_model@frame$Study_Name), 
+                as.vector(richness_model@frame$Study_Name), as.vector(fgrichness_model@frame$Study_Name))
+allStudies <- unique(allStudies)
+
+
+data_in <-"3.5_Data"
+files <- list.files(file.path(data_in))
+file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
+file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
+file_dates <- as.Date(file_dates)
+date <- max(file_dates, na.rm = TRUE)
+loadin <- files[grep(date, files)]
+
+rm(files)
+rm(date)
+sites <- read.csv(file.path(data_in, loadin))
+
+usedSites <- sites[sites$Study_Name %in% allStudies,]
+
+library(plyr)
+library(dplyr)
+
+var.df <- usedSites %>% # Start by defining the original dataframe, AND THEN...
+  group_by(Study_Name) %>% # Define the grouping variable, AND THEN...
+  summarise( # Now you define your summary variables with a name and a function...
+    bio10_1 = var(bio10_1),
+    bio10_4 = var(bio10_4),
+    bio10_7 = var(bio10_7),
+    bio10_12 = var(bio10_12),
+    bio10_15 = var(bio10_15)
+  )
+
+vardf <- as.data.frame(var.df)
+
+someClimate <- vardf[apply(vardf [c('bio10_1','bio10_4','bio10_7', 'bio10_12', 'bio10_15')],1,function(x) any(x == 0)),]
+noClimate <- vardf[apply(vardf [c('bio10_1','bio10_4','bio10_7', 'bio10_12', 'bio10_15')],1,function(x) all(x == 0)),]
