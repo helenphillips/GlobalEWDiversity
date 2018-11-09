@@ -432,3 +432,105 @@ calculateMSEofQuantiles(abundance)
 
 write.csv(abundance, file = file.path(data_out, "AbundanceSoilGridsCrossValidation.csv"), row.names = FALSE)
 
+####### RICHNESS
+load(file.path(models, "richnessmodel_SoilGrids.rds"))
+richness_model_SG <- richness_model
+
+data_in <- "4_Data"
+date <- "2018-11-08" # For now
+richness <- read.csv(file = file.path(data_in, paste("sitesRichness_soilGrids_", date, ".csv", sep = "")))
+optimizer = "bobyqa"
+Iters = 2e5
+data = richness
+fam = "poisson"
+
+r.squaredGLMM(richness_model_SG, pj2014 = TRUE)
+
+RichnessData <- richness_model_SG@frame
+
+########
+# K-Fold Cross validation
+########
+
+splits <- createSplits(RichnessData, kfold = k_fold)
+
+predictedData <- list()
+for(k in 1:k_fold){
+  
+  rows <- as.vector(unlist(splits[k]))
+  testData <- RichnessData[rows,]
+  bankData <- RichnessData[-rows,]
+  
+  mod <-  glmer(formula = richness_model_SG@call$formula, data = bankData, family = poisson,
+               control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  
+  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
+  
+  predictedData[[k]] <- data.frame(observed = testData$SpeciesRichness, predicted = testData$Predicted)
+  
+}
+
+df <- do.call("rbind", predictedData)
+plot(df$predicted ~ df$observed)
+abline(0, 1) 
+
+richness <- df
+
+richness$predicted <- exp(biomass$predicted) 
+
+calculateMSE(richness)
+calculateMSEofQuantiles(richness)
+
+write.csv(richness, file = file.path(data_out, "RichnessSoilGridsCrossValidation.csv"), row.names = FALSE)
+
+####### RICHNESS
+load(file.path(models, "fgrichnessmodel_soilGrids.rds"))
+fgrichness_model_SG <- fgrichness_model
+
+data_in <- "4_Data"
+date <- "2018-11-08" # For now
+fg_richness <- read.csv(file = file.path(data_in, paste("sites+FGRichness_soilGrids", date, ".csv", sep = "")))
+optimizer = "bobyqa"
+Iters = 2e5
+data = fg_richness
+fam = "poisson"
+
+r.squaredGLMM(fgrichness_model_SG, pj2014 = FALSE)
+
+FGRichnessData <- fgrichness_model_SG@frame
+
+########
+# K-Fold Cross validation
+########
+
+splits <- createSplits(FGRichnessData, kfold = k_fold)
+
+predictedData <- list()
+for(k in 1:k_fold){
+  
+  rows <- as.vector(unlist(splits[k]))
+  testData <- FGRichnessData[rows,]
+  bankData <- FGRichnessData[-rows,]
+  
+  mod <-  glmer(formula = fgrichness_model_SG@call$formula, data = bankData, family = poisson,
+                control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  
+  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
+  
+  predictedData[[k]] <- data.frame(observed = testData$FGRichness, predicted = testData$Predicted)
+  
+}
+
+df <- do.call("rbind", predictedData)
+plot(df$predicted ~ df$observed)
+abline(0, 1) 
+
+fgrichness <- df
+
+fgrichness$predicted <- exp(fgrichness$predicted) 
+
+calculateMSE(fgrichness)
+calculateMSEofQuantiles(fgrichness)
+
+write.csv(fgrichness, file = file.path(data_out, "FGRichnessSoilGridsCrossValidation.csv"), row.names = FALSE)
+
