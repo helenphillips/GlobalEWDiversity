@@ -80,7 +80,7 @@ sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
               cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
 
 
-colbrks <-  c(minV, seq(0.5,3, lengthou.out = 198), maxV)
+colbrks <-  c(minV, seq(0.5,3, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
