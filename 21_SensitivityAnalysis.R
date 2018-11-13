@@ -5,6 +5,8 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 # 1. Libraries
 #################################################
 library(lme4)
+library(MuMIn)
+
 source(file.path("Functions", "CrossValidationAndMSE.R"))
 
 figures <- "Figures"
@@ -142,6 +144,13 @@ write.csv(biomass, file = file.path(data_out, "BiomassCrossValidation.csv"), row
 #################################################
 # 5. Species Richness
 ################################################
+optimizer = "bobyqa"
+Iters = 2e5
+data = richness
+fam = "poisson"
+r.squaredGLMM(richness_model)
+
+
 richnessData <- richness_model@frame
 
 
@@ -173,7 +182,6 @@ abline(0, 1)
 
 richness <- df
 
-richness$observed <- exp(richness$observed)
 richness$predicted <- exp(richness$predicted) 
 
 calculateMSE(richness)
@@ -184,6 +192,13 @@ write.csv(richness, file = file.path(data_out, "RichnessCrossValidation.csv"), r
 #################################
 ## FG Richness
 ##################################
+optimizer = "bobyqa"
+Iters = 2e5
+data = richness
+fam = "poisson"
+r.squaredGLMM(fgrichness_model)
+
+
 fgRichnessData <- fgrichness_model@frame
 
 ########
@@ -213,7 +228,6 @@ abline(0, 1)
 
 fgrichness <- df
 
-fgrichness$observed <- exp(fgrichness$observed)
 fgrichness$predicted <- exp(fgrichness$predicted) 
 
 calculateMSE(fgrichness)

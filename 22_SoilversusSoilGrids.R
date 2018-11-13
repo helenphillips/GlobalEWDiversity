@@ -444,7 +444,7 @@ Iters = 2e5
 data = richness
 fam = "poisson"
 
-r.squaredGLMM(richness_model_SG, pj2014 = TRUE)
+r.squaredGLMM(richness_model_SG, pj2014 = FALSE)
 
 RichnessData <- richness_model_SG@frame
 
@@ -476,14 +476,14 @@ abline(0, 1)
 
 richness <- df
 
-richness$predicted <- exp(biomass$predicted) 
+richness$predicted <- exp(richness$predicted) 
 
 calculateMSE(richness)
 calculateMSEofQuantiles(richness)
 
 write.csv(richness, file = file.path(data_out, "RichnessSoilGridsCrossValidation.csv"), row.names = FALSE)
 
-####### RICHNESS
+####### FUNCTIONAL RICHNESS
 load(file.path(models, "fgrichnessmodel_soilGrids.rds"))
 fgrichness_model_SG <- fgrichness_model
 
