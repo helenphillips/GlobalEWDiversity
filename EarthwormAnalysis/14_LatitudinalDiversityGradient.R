@@ -185,3 +185,38 @@ axis(4,at=seq(0,1200,100), las = 2)
 axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
 mtext("Number of sites", side = 4, line = 3)
 dev.off()     
+
+
+
+###############################################
+## Trying to weight by area
+################################################
+library(rgdal)
+
+area <- readOGR(dsn = "I:/sWorm/Database/Area", layer = "area_5deg_equal_terrestrial_zero")
+dat <- area@data
+
+sum(dat$Shape_Area)
+dat$prop <- dat$Shape_Area / sum(dat$Shape_Area)
+
+dat <- dat[-(1:9) ,]
+dat <- dat[dat$Id %in% 1:32,]
+
+bandDat <- cbind(bandDat, dat)
+
+
+bandDat$weightRichness <- bandDat$total / bandDat$prop
+
+
+
+b <- barplot(bandDat$weightRichness, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+barplot(bandDat$weightRichness, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+par(new=TRUE)
+plot(b[,1],bandDat[,5],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
+axis(4,at=seq(0,1200,100), las = 2)
+axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
+mtext("Number of sites", side = 4, line = 3)
+
+
+
+
