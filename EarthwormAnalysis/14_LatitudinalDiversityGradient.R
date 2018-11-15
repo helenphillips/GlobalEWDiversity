@@ -189,7 +189,7 @@ dev.off()
 
 
 ###############################################
-## Trying to weight by area
+## Trying to correct for area
 ################################################
 library(rgdal)
 
@@ -204,19 +204,19 @@ dat <- dat[dat$Id %in% 1:32,]
 
 bandDat <- cbind(bandDat, dat)
 
+#### A linear model
+# What is the effect of latitude after accounting for 1) area and 2) number of sampling sites
 
-bandDat$weightRichness <- bandDat$total / bandDat$prop
+lm1 <- glm(total ~ Shape_Area, family = poisson, data = bandDat)
+bandDat$area_Resid <- resid(lm1)
+plot(y = bandDat$area_Resid, x = 1:nrow(bandDat))
+axis(1,  labels = bandDat$band, at = 1:nrow(bandDat))
+
+lm2 <- glm(total ~ bandDat$`number of sites`, family = poisson, data = bandDat)
+bandDat$nSites_Resid <- resid(lm2)
+
+plot(y = bandDat$nSites_Resid, x = 1:nrow(bandDat))
+axis(1,  labels = bandDat$band, at = 1:nrow(bandDat))
 
 
-
-b <- barplot(bandDat$weightRichness, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
-barplot(bandDat$weightRichness, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
-par(new=TRUE)
-plot(b[,1],bandDat[,5],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
-axis(4,at=seq(0,1200,100), las = 2)
-axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
-mtext("Number of sites", side = 4, line = 3)
-
-
-
-
+#########################
