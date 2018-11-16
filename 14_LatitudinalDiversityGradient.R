@@ -220,3 +220,85 @@ axis(1,  labels = bandDat$band, at = 1:nrow(bandDat))
 
 
 #########################
+## Calculating rarefied richness
+############################
+sitesbyband <- spp[,c('Study_site', 'band')]
+sitesbyband <- unique(sitesbyband[c("Study_site", "band")])
+
+# n_min <- min(table(sitesbyband$band)[(which(table(sitesbyband$band) != 0))]) ## the latitude with the fewest number of samples/sites
+n_min <- 22 # number of sites in a latitude, that isn't ridiculously low
+rm(sitesbyband)
+n_rarefied <- 1000
+
+
+library(reshape)
+
+for(i in 1:length(levels(spp$band))){
+  bnd <- spp[spp$band == levels(spp$band)[i],] 
+  bnd <- droplevels(bnd[,c('Study_site', 'Revised')])
+  print(levels(spp$band)[i])
+  
+  n <- length(unique(bnd$Study_site))
+  if(n < 22){
+    ## put NA in the results table 
+    #3 and break
+  }else{
+    bnd <- bnd[!(is.na(bnd$Revised)) ,]
+    sitebyspecies <- reshape(bnd, direction = "wide", 
+                             idvar = c("Study_site"), 
+                             timevar = "Revised",
+                             v.names="Revised")
+    
+    for(rep in 1:n_rarefied){
+      rows <- sample(1:nrow(sitebyspecies), size = n_min, replace = FALSE)
+      samp <- sitebyspecies[rows,]
+      # calculate the richness
+      # store in a vector
+    
+        
+      
+      }
+    # take mean
+  }
+  
+  
+ 
+  
+  
+  # Which band
+  bandDat[i, 1] <- levels(spp$band)[i]
+  # Sampling effort
+  bandDat[i, 5] <- length(unique(bnd$Study_site))
+  
+  if(nrow(bnd) == 0){
+    bandDat[i, c(2:4)] <- 0
+  }else{
+    
+    # Number of species binomials
+    bandDat[i, 2] <- length(unique(bnd$Revised))
+    
+    
+    # Number of morphospecies
+    mrphs <- bnd[!(is.na(bnd$MorphospeciesID)),]
+    if(nrow(mrphs) > 0){
+      bandDat[i, 3] <- length(unique(paste(mrphs$Genus, mrphs$MorphospeciesID)))
+    }else{ bandDat[i, 3] <- 0}
+    
+    # Number of genus not considered anywhere else
+    gns <- bnd[is.na(bnd$SpeciesBinomial),] 
+    gns <- gns[is.na(gns$MorphospeciesID),] 
+    uni <- as.character(unique(gns$Genus))
+    if(length(uni) > 0){
+      for(g in 1:length(uni)){
+        matches <- grep(uni[g], bnd$Revised)
+        if(length(matches) > 0){
+          uni[g] <- 0
+        } else {uni[g] <- 1}
+      }
+      uni <- as.numeric(uni)
+      bandDat[i, 4] <- sum(uni)
+    } else {bandDat[i, 4] <- 0}
+  }
+}
+
+
