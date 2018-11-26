@@ -239,22 +239,27 @@ write.csv(fgrichness, file = file.path(data_out, "FGRichnessCrossValidation.csv"
 ####################################
 ## PLOT
 ####################################
+richness <- read.csv(file.path(data_out, "RichnessCrossValidation.csv"))
+abundance <- read.csv(file = file.path(data_out, "AbundanceCrossValidation.csv"))
+biomass <- read.csv(file = file.path(data_out, "BiomassCrossValidation.csv"))
+fgrichness <- read.csv(file = file.path(data_out, "FGRichnessCrossValidation.csv"))
+
+
 
 jpeg(file = file.path(figures, "AllModels_Crossvalidation.jpg"), quality = 100, res = 200, width = 2000, height = 1500)
 
 par(mar = c(2.5, 2.5, 1, 1))
 par(mfrow = c(2, 2))
-plot(exp(richness$predicted) ~ jitter(richness$observed), ylab = "", xlab = "", pch = 19, cex = 0.5)
+plot(richness$predicted ~ jitter(richness$observed), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
 text(x = -0.5, y = 12, labels = "Species Richness", pos = 4)
-plot(abundance$predicted ~ abundance$observed, ylab = "", xlab = "", pch = 19, cex = 0.5, ylim = c(0, 8))
+plot(log(abundance$predicted + 1) ~ log(abundance$observed + 1), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
-text(x = -0.2, y = 7.4, labels = "(log)Abundance", pos = 4)
-plot(biomass$predicted ~ biomass$observed, ylab = "", xlab = "", pch = 19, cex = 0.5, ylim = c(0, 8))
+text(x = -0.2, y = 6, labels = "(log)Abundance", pos = 4)
+plot(log(biomass$predicted+1) ~ log(biomass$observed + 1), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
-text(x = -0.2, y = 7, labels = "(log)Biomass", pos = 4)
-
-plot(exp(fgrichness$predicted) ~ jitter(fgrichness$observed), ylab = "", xlab = "", pch = 19, cex = 0.5)
+text(x = -0.2, y = 5, labels = "(log)Biomass", pos = 4)
+plot(fgrichness$predicted ~ jitter(fgrichness$observed), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
 text(x = -0.3, y = 4, labels = "Functional Richness", pos = 4)
 
