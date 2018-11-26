@@ -28,7 +28,7 @@ source("Functions/FormatData.R")
 data_in <-"4_Data"
 
 files <- list.files(file.path(data_in))
-files <- files[grep("Richness", files)]
+files <- files[grep("sitesRichness", files)]
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
@@ -114,7 +114,7 @@ abundanceCols <- ColourPicker(abundance$ESA)
 
 
 jpeg(file = file.path(figures, "richness_ESA.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotSingle(model= richness_model, 
+plotSingle(model= richness_model, backTransform = TRUE, family = "poisson",
            modelFixedEffs = c("scalePH","scaleCLYPPT", "scaleSLTPPT" , "scaleCECSOL" ,
                                 "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" , "SnowMonths_cat",  
                                 "scaleAridity", "ScalePET", "ESA", "scaleElevation"),
