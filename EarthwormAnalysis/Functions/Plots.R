@@ -43,7 +43,7 @@ predictValues <- function(model, newdata, responseVar, re.form = NA, seMultiplie
 #################################################################################################
 
 
-plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier = 1.96, data, cols = "000000", legend.position, 
+plotSingle <- function(model, backTransform = FALSE, family = NULL, modelFixedEffs, Effect1, responseVar, seMultiplier = 1.96, data, cols = "000000", legend.position, 
                        ylabel = "", xlabel = "", otherContEffectsFun = "median", pt_cex = 1.5, pt_lwd = 1, axis_size =1){
   
   newdata <- createNewdata(model = model, modelFixedEffects = modelFixedEffs, mainEffect = Effect1, data = data)
@@ -84,6 +84,20 @@ plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier
   
   r <- which(names(newdata) == responseVar)
   p <- which(names(newdata) == Effect1)
+  
+  ## Backtransform?
+  if(backTransform){
+    if(family == "poisson"){
+      newdata[,r] <- exp(newdata[,r])
+      newdata$lower <- exp(newdata$lower)
+      newdata$upper <- exp(newdata$upper)
+    }
+    if(family == "gaussian"){
+      newdata[,r] <- exp(newdata[,r]) - 1
+      newdata$lower <- exp(newdata$lower) - 1
+      newdata$upper <- exp(newdata$upper) - 1
+    }
+  }
   
   
   #####COLOURS
@@ -134,7 +148,7 @@ plotSingle <- function(model, modelFixedEffs, Effect1, responseVar, seMultiplier
     
     
     par(mar=c(15, 4, 1, 1))
-    plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
+    plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE) + 0.2),
          xlim = c(0, (nrow(newdata)-1)),  ylab = ylabel, xlab = xlabel,  xaxt='n', axes = FALSE)
     Axis(side = 2, cex.axis = axis_size)
     errbar(0:(nrow(newdata)-1), newdata[,r], newdata$upper, newdata$lower,
