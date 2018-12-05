@@ -30,6 +30,7 @@ source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
 data_in <-"10_Data"
 
 files <- list.files(file.path(data_in))
+files <- files[grep("Sites", files)]
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
 file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
 
@@ -75,8 +76,8 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 #################################################
 # 5. Reorder data frame, column with FG
 #################################################
-
-idvars <- names(sites)[-(111:ncol(sites))]
+## Remove functional group diversity measures
+idvars <- names(sites)[-(112:ncol(sites))]
 
 m_sites <- melt(sites, id.vars = idvars)
 
@@ -120,11 +121,12 @@ ind <- df_variables(biomass)
 dat <- biomass[,c(ind)]
 cor <- findVariables(dat, VIFThreshold = 3)
 
-# Remove bio 7
-# REmove 1
-# Remove petyr
-# Remove Aridity
-# Ok
+# Remove
+# Bio 4
+# Bio 1
+# Aridity
+# Petyr
+
 
 ############################### Abundance
 abundance <- m_sites[grep("abundance", m_sites$variable),]
@@ -165,7 +167,7 @@ ind <- df_variables(abundance)
 dat <- abundance[,c(ind)]
 cor <- findVariables(dat, VIFThreshold = 3)
 
-# Remove bio 7
+# Remove bio 4
 # Remove 1
 # Remove 12
 # Remove pet_sd
@@ -184,19 +186,14 @@ biomass$value[which(biomass$value < 0)] <- 0
 biomass$logValue <- log(biomass$value + 1)
 hist(biomass$logValue)
 
-b1 <- lmer(logValue ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
-             (bio10_12_scaled  + bio10_15_scaled + SnowMonths_cat)^2 + 
+b1 <- lmer(logValue ~  (ESA * variable) + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+             (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePETSD + SnowMonths_cat)^2 + 
              scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-             #  SNDPPT # Not included, as the other two dictate the third
-             
-             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
-             
-             # HabitatCover + 
-             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
-             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+             ScalePETSD:bio10_12_scaled + ScalePETSD:bio10_15_scaled +
              (1|file/Study_Name), data = biomass,
            control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
 
 biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
 save(biomass_model, file = file.path(models, "biomassmodel_functionalgroups.rds"))
@@ -206,26 +203,24 @@ save(biomass_model, file = file.path(models, "biomassmodel_functionalgroups.rds"
 abundance$logValue <- log(abundance$value + 1)
 hist(abundance$logValue)
 
-
-a1 <- lmer(logValue ~  (ESA * variable) + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
-             (bio10_4_scaled  + bio10_15_scaled + SnowMonths_cat +scaleAridity + ScalePET)^2 + 
-             scaleCLYPPT:bio10_4_scaled + scaleSLTPPT:bio10_4_scaled +
+a1 <- lmer(logValue ~  (ESA * variable) + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+             (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                ScalePET)^2 +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-             scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
-             scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
-             #  SNDPPT # Not included, as the other two dictate the third
-             
-             # (Latitude__decimal_degrees * Longitude__Decimal_Degrees) +
-             
-             # HabitatCover + 
-             #   Soil_Organic_Matter__percent + # Organic_Carbon__percent +
-             # ph_new:HabitatCover + Organic_Carbon__percent:HabitatCover +
+             scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET + 
+             scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity + 
              (1|file/Study_Name), data = abundance,
            control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
 save(abundance_model, file = file.path(models, "abundancemodel_functionalgroups.rds"))
 # load(file.path(models, "abundancemodel_functionalgroups.rds"))
+
+
+########################
+# NOTHING PAST THIS POINT HAS BEEN UPDATED!!
+########################
+
 
 ############## Richness
 richness <- m_sites[grep("richness", m_sites$variable),]
