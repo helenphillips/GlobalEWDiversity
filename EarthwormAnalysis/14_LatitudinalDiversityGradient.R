@@ -225,8 +225,8 @@ axis(1,  labels = bandDat$band, at = 1:nrow(bandDat))
 sitesbyband <- spp[,c('Study_site', 'band')]
 sitesbyband <- unique(sitesbyband[c("Study_site", "band")])
 
- n_min <- min(table(sitesbyband$band)[(which(table(sitesbyband$band) != 0))]) ## the latitude with the fewest number of samples/sites
-#n_min <- 22 # number of sites in a latitude, that isn't ridiculously low
+# n_min <- min(table(sitesbyband$band)[(which(table(sitesbyband$band) != 0))]) ## the latitude with the fewest number of samples/sites
+n_min <- 40 # number of sites in a latitude, that isn't ridiculously low
 n_rarefied <- 1000
 
 
@@ -249,8 +249,11 @@ for(i in 1:length(levels(spp$band))){
   bandDat[i, 2] <- length(unique(bnd$Study_site))
   
   if(nrow(bnd) == 0){
+    bandDat[i, 3] <- 0}
+  if(length(unique(bnd$Study_site)) < n_min){
+    
     bandDat[i, 3] <- 0
-  }else{
+    }else{
     
     ## These are the unique sites in the band. 
     ## Take names of random sample to split the spp dataframe by
