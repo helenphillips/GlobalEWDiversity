@@ -216,13 +216,12 @@ b1 <- lmer(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleS
                 (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat)^2 + 
             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-             ScalePET:bio10_12_scaled + ScalePET:bio10_15_scaled +
                 (1|file/Study_Name), data = biomass,
               control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 simulationOutput <- simulateResiduals(fittedModel = b1, n = 250)
-plotSimulatedResiduals(simulationOutput = simulationOutput,quantreg = TRUE)
-# Not perfect....but could be worse
+plot(simulationOutput,quantreg = TRUE)
+# pretty good
 
 biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
 save(biomass_model, file = file.path(models, "biomassmodel_full.rds"))
