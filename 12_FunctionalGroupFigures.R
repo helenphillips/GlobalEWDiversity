@@ -93,8 +93,8 @@ load(file.path(models, "richnessmodel_functionalgroups.rds"))
 biomassCols <- ColourPicker(biomass$ESA)
 
 
-newdata <- createNewdata(model = biomass_model, modelFixedEffects = c("ESA","variable", "scalePH", "scaleCLYPPT", "scaleSLTPPT",  
-                                                                "scaleCECSOL", "bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat"),
+newdata <- createNewdata(model = biomass_model, modelFixedEffects = c("ESA","variable", "ScaleElevation",  "scalePH", "scaleCLYPPT", "scaleSLTPPT",  
+                                                                "scaleCECSOL", "bio10_7_scaled" , "bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", "ScalePETSD"),
                          mainEffect = c("ESA", "variable"), data = biomass)
 
 
@@ -140,7 +140,7 @@ df[which(df[,3] < 0), 3] <- 0
 
 df$total <- rowSums(df[,1:3])
 
-jpeg(file = file.path(figures, "BiomassFGTriangle.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+jpeg(file = file.path(figures, "BiomassFGTriangle.jpeg"), quality = 100, res = 200, width = 2000, height = 1000)
 
 t <- triangle.plot(df[,1:3], show.position = FALSE, min3 = c(0, 0, 0), max3 = c(1, 1, 1))
 points(t, col = df$col, cex = df$total/5, pch = 19)
@@ -168,7 +168,7 @@ abundanceCols <- ColourPicker(abundance$ESA)
 
 newdata <- createNewdata(model = abundance_model, 
                          modelFixedEffects = c("ESA", "variable", "scalePH", "scaleCLYPPT" ,
-                                               "scaleSLTPPT",  "scaleORCDRC", "scaleCECSOL", "bio10_4_scaled", 
+                                               "scaleSLTPPT",  "scaleORCDRC", "scaleCECSOL", "bio10_7_scaled", 
                                                "bio10_15_scaled", "SnowMonths_cat","scaleAridity", "ScalePET"),
                          mainEffect = c("ESA", "variable"), data = abundance)
 
