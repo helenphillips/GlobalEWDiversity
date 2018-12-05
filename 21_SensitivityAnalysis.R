@@ -35,7 +35,7 @@ models <- "Models"
 load(file.path(models, "richnessmodel.rds"))
 load(file.path(models, "biomassmodel_full.rds"))
 load(file.path(models, "abundancemodel_full.rds"))
-load(file.path(models, "fgrichnessmodel.rds"))
+# load(file.path(models, "fgrichnessmodel.rds"))
 
 
 
