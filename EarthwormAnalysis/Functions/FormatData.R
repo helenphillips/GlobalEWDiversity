@@ -147,7 +147,7 @@ SiteLevels <- function(sites){
 
 scaleVariables <- function(data){
   
-  print("Scaling the following variables: pH, Clay, Silt, CEC, OrganicC, bio1, bio4, bio7, bio12, bio15, aridity, PET and PETSD")
+  print("Scaling the following variables: elevation, pH, Clay, Silt, CEC, OrganicC, bio1, bio4, bio7, bio12, bio15, aridity, PET and PETSD")
   
   data$scalePH <- as.vector(scale(data$phFinal))
   data$scaleCLYPPT <- scale(data$ClayFinal)
@@ -164,6 +164,8 @@ scaleVariables <- function(data){
   data$scaleAridity <- scale(data$Aridity)
   data$ScalePET <- scale(data$PETyr)
   data$ScalePETSD <- scale(data$PET_SD)
+  
+  data$ScaleElevation <- scale(data$elevation)
   
   return(data)
   
