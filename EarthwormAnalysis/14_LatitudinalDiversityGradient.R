@@ -226,7 +226,7 @@ sitesbyband <- spp[,c('Study_site', 'band')]
 sitesbyband <- unique(sitesbyband[c("Study_site", "band")])
 
 # n_min <- min(table(sitesbyband$band)[(which(table(sitesbyband$band) != 0))]) ## the latitude with the fewest number of samples/sites
-n_min <- 40 # number of sites in a latitude, that isn't ridiculously low
+n_min <- 22 # number of sites in a latitude, that isn't ridiculously low
 n_rarefied <- 1000
 
 
@@ -312,4 +312,89 @@ barplot(bandDat$rarefiedRichness, space = 0, xaxs = "i", ylab = "Rarefied Richne
 axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
 dev.off()     
 
+##################################################################################
+# Doing the whole things for different n_mins
+##################################################################################
+
+n_min <- c(3, 5, 9, 22, 26, 30, 40, 47, 55) # number of sites in a latitude, that isn't ridiculously low
+n_rarefied <- 1000
+
+jpeg(file = file.path(figures, "LDG_regional_allnmins.jpg"), quality = 100, res = 200, width = 4000, height = 4000)
+par(mfrow = c(3, 3))
+
+for(m in n_min){
+
+bandDat <- data.frame(matrix(rep(NA, times = 3 * length(levels(spp$band))), 
+                             ncol = 3, nrow  = length(levels(spp$band))))
+names(bandDat) <- c("band", "number of sites", "rarefiedRichness")
+
+
+rarefiedDat <- data.frame(matrix(rep(NA, times = 4 * n_rarefied), 
+                                 ncol = 4, nrow  = n_rarefied))
+names(rarefiedDat) <- c("Number of Binomials", "Number of Morphospecies", "number of genus", "total")
+
+for(i in 1:length(levels(spp$band))){
+  bnd <- spp[spp$band == levels(spp$band)[i],] 
+  print(levels(spp$band)[i])
   
+  # Which band
+  bandDat[i, 1] <- levels(spp$band)[i]
+  # Sampling effort
+  bandDat[i, 2] <- length(unique(bnd$Study_site))
+  
+  if(nrow(bnd) == 0){
+    bandDat[i, 3] <- 0}
+  if(length(unique(bnd$Study_site)) < m){
+    
+    bandDat[i, 3] <- 0
+  }else{
+    
+    ## These are the unique sites in the band. 
+    ## Take names of random sample to split the spp dataframe by
+    for(r in 1:n_rarefied){
+      sbyb <- sitesbyband[sitesbyband$band == levels(spp$band)[i],]
+      thesesites <- sample(sbyb$Study_site, m)
+      
+      bnd_temp <- bnd[bnd$Study_site %in% thesesites,]
+      
+      
+      # Number of species binomials
+      rarefiedDat[r, 1] <- length(unique(bnd_temp$Revised))
+      
+      
+      # Number of morphospecies
+      mrphs <- bnd_temp[!(is.na(bnd_temp$MorphospeciesID)),]
+      if(nrow(mrphs) > 0){
+        rarefiedDat[r, 2] <- length(unique(paste(mrphs$Genus, mrphs$MorphospeciesID)))
+      }else{ rarefiedDat[r, 2] <- 0}
+      
+      # Number of genus not considered anywhere else
+      gns <- bnd_temp[is.na(bnd_temp$SpeciesBinomial),] 
+      gns <- gns[is.na(gns$MorphospeciesID),] 
+      uni <- as.character(unique(gns$Genus))
+      if(length(uni) > 0){
+        for(g in 1:length(uni)){
+          matches <- grep(uni[g], bnd_temp$Revised)
+          if(length(matches) > 0){
+            uni[g] <- 0
+          } else {uni[g] <- 1}
+        }
+        uni <- as.numeric(uni)
+        rarefiedDat[r, 3] <- sum(uni)
+      } else {rarefiedDat[r, 3] <- 0}
+      
+      rarefiedDat$total <- rowSums(rarefiedDat[,1:3])
+    }
+    ## Done the 1000 samples
+    bandDat[i, 3] <- mean(rarefiedDat$total)
+  }
+}
+
+
+
+par(mar = c(4, 4, 1, 5))
+barplot(bandDat$rarefiedRichness, space = 0, xaxs = "i", 
+        ylab = paste("Rarefied Richness (n_min = ", m,")", sep = ""), xlab = "Latitude")
+axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
+}
+dev.off()     
