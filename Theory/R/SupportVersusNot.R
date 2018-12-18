@@ -116,3 +116,44 @@ dev.off()
 ### If a yes for neutral, then it's a no for niche
 ### If a yes for niche, then its a no for neutral
 # if its a no for either, we do not assume support for the other
+nn <- droplevels(dat[dat$Theory == "Niche/Neutral",])
+nn$Notes <- NULL
+
+nn_both <- droplevels(nn[nn$Tested == "Niche;Neutral",])
+levels(nn_both$Supported)[levels(nn_both$Supported) == "Yes- Niche"] <- "Yes - Niche"
+levels(nn_both$Supported)[levels(nn_both$Supported) == "Yes-Niche"] <- "Yes - Niche"
+
+niche <- nn_both
+neutral <- nn_both
+
+
+levels(niche$Supported)[levels(niche$Supported) == "Yes - Niche"] <- "Yes"
+levels(niche$Supported)[levels(niche$Supported) == "Yes-Neutral; Yes-Niche"] <- "Yes"
+levels(niche$Supported)[levels(niche$Supported) == "Yes - Neutral"] <- "No"
+levels(niche$Supported)[levels(niche$Supported) == "No - neutral" ] <- "Yes"
+levels(niche$Supported)[levels(niche$Supported) == "Mixed - neutral"] <- "No"
+
+
+niche_only <- droplevels(nn[nn$Tested == "Niche",])
+levels(niche_only$Supported) 
+niche_only$Supported <- "Yes"
+
+niche <- rbind(niche, niche_only)
+
+#####
+
+levels(neutral$Supported)[levels(neutral$Supported) == "Mixed - neutral"] <- "Yes"
+levels(neutral$Supported)[levels(neutral$Supported) == "No - neutral"] <- "No"
+levels(neutral$Supported)[levels(neutral$Supported) == "Yes - Niche"] <- "No"
+levels(neutral$Supported)[levels(neutral$Supported) == "Yes-Neutral; Yes-Niche"] <- "Yes"
+levels(neutral$Supported)[levels(neutral$Supported) == "Yes - Neutral"] <- "Yes"
+
+neutral_only <- droplevels(nn[nn$Tested == "Neutral",])
+
+levels(neutral_only$Supported) 
+levels(neutral_only$Supported)[levels(neutral_only$Supported) == "No - neutral"] <- "No"
+levels(neutral_only$Supported)[levels(neutral_only$Supported) == "No - Neutral"] <- "No"
+levels(neutral_only$Supported)[levels(neutral_only$Supported) == "Yes-Neutral"] <- "Yes"
+levels(neutral_only$Supported)[levels(neutral_only$Supported) == "Yes - Neutral"] <- "Yes"
+
+neutral <- rbind(neutral, neutral_only)
