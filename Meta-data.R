@@ -160,14 +160,35 @@ summary(uniqueDat$WRB_FAO_SoilType)
 
 summary(uniqueDat$Soil_Organic_Matter__percent)
 
+#####################
+# Studies with soil
+####################
+
+library(plyr)
+library(dplyr)
 
 ########
 ##Studies with identical climate variables
 #######
 
+soil.df <- uniqueDat %>% # Start by defining the original dataframe, AND THEN...
+  group_by(Study_Name) %>% # Define the grouping variable, AND THEN...
+  summarise( # Now you define your summary variables with a name and a function...
+    PH = mean(PH, na.rm = TRUE),
+    CEC = mean(CEC, na.rm = TRUE),
+    Organic_Carbon__percent = mean(Organic_Carbon__percent, na.rm = TRUE),
+    Soil_Organic_Matter__percent = mean(Soil_Organic_Matter__percent, na.rm = TRUE),
+    C.N_ratio = mean(C.N_ratio, na.rm = TRUE),
+    Sand__percent = mean(Sand__percent, na.rm = TRUE)
+  )
 
-library(plyr)
-library(dplyr)
+soildf <- as.data.frame(soil.df)
+
+someSoil <- soildf[apply(soildf[c('PH','CEC','Organic_Carbon__percent', 'Soil_Organic_Matter__percent', 'C.N_ratio', 'Sand__percent')],1,function(x) any(x > 0)),]
+length(unique(someSoil$Study_Name)) ## 182 with one NA
+#######################
+## Studies with no variation in climate
+########################
 
 var.df <- uniqueDat %>% # Start by defining the original dataframe, AND THEN...
   group_by(Study_Name) %>% # Define the grouping variable, AND THEN...
@@ -181,7 +202,7 @@ var.df <- uniqueDat %>% # Start by defining the original dataframe, AND THEN...
 
 vardf <- as.data.frame(var.df)
 
-someClimate <- vardf[apply(vardf [c('bio10_1','bio10_4','bio10_7', 'bio10_12', 'bio10_15')],1,function(x) any(x == 0)),]
+someClimate <- vardf[apply(vardf [c('bio10_1','bio10_4','bio10_7', 'bio10_12', 'bio10_15')],1,function(x) any(x > 0)),]
 noClimate <- vardf[apply(vardf [c('bio10_1','bio10_4','bio10_7', 'bio10_12', 'bio10_15')],1,function(x) all(x == 0)),]
 
 
