@@ -189,51 +189,6 @@ calculateMSEofQuantiles(richness)
 
 write.csv(richness, file = file.path(data_out, "RichnessCrossValidation.csv"), row.names = FALSE)
 
-#################################
-## FG Richness
-##################################
-optimizer = "bobyqa"
-Iters = 2e5
-data = richness
-fam = "poisson"
-r.squaredGLMM(fgrichness_model)
-
-
-fgRichnessData <- fgrichness_model@frame
-
-########
-# K-Fold Cross validation
-########
-splits <- createSplits(fgRichnessData, kfold = k_fold)
-
-predictedData <- list()
-for(k in 1:k_fold){
-  
-  rows <- as.vector(unlist(splits[k]))
-  testData <- fgRichnessData[rows,]
-  bankData <- fgRichnessData[-rows,]
-  
-  mod <-  glmer(formula = fgrichness_model@call$formula, data = bankData, family = "poisson",
-                control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
-  
-  testData$Predicted <- (predict(mod, testData, re.form = NULL, allow.new.levels = TRUE))
-  
-  predictedData[[k]] <- data.frame(observed = testData$FGRichness, predicted = testData$Predicted)
-  
-}
-
-df <- do.call("rbind", predictedData)
-plot(df$predicted ~ df$observed)
-abline(0, 1) 
-
-fgrichness <- df
-
-fgrichness$predicted <- exp(fgrichness$predicted) 
-
-calculateMSE(fgrichness)
-calculateMSEofQuantiles(fgrichness)
-
-write.csv(fgrichness, file = file.path(data_out, "FGRichnessCrossValidation.csv"), row.names = FALSE)
 
 
 ####################################
@@ -242,26 +197,27 @@ write.csv(fgrichness, file = file.path(data_out, "FGRichnessCrossValidation.csv"
 richness <- read.csv(file.path(data_out, "RichnessCrossValidation.csv"))
 abundance <- read.csv(file = file.path(data_out, "AbundanceCrossValidation.csv"))
 biomass <- read.csv(file = file.path(data_out, "BiomassCrossValidation.csv"))
-fgrichness <- read.csv(file = file.path(data_out, "FGRichnessCrossValidation.csv"))
 
 
 
-jpeg(file = file.path(figures, "AllModels_Crossvalidation.jpg"), quality = 100, res = 200, width = 2000, height = 1500)
+jpeg(file = file.path(figures, "AllModels_Crossvalidation.jpg"), quality = 100, res = 200, width = 3000, height = 1000)
 
-par(mar = c(2.5, 2.5, 1, 1))
-par(mfrow = c(2, 2))
+par(mar = c(2.5, 2.5, 2, 1))
+par(mfrow = c(1, 3))
+
 plot(richness$predicted ~ jitter(richness$observed), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
-text(x = -0.5, y = 12, labels = "Species Richness", pos = 4)
+# text(x = -0.5, y = 12, labels = "Species Richness", pos = 4)
+mtext("(a) Species Richness", side = 3, line = 0.5, at = 0, adj = 0.1)
 plot(log(abundance$predicted + 1) ~ log(abundance$observed + 1), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
-text(x = -0.2, y = 6, labels = "(log)Abundance", pos = 4)
+# text(x = -0.2, y = 6, labels = "(log)Abundance", pos = 4)
+mtext("(b) (ln-) Abundance", side = 3, line = 0.5, at = 0, adj = 0.1)
+
 plot(log(biomass$predicted+1) ~ log(biomass$observed + 1), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
-text(x = -0.2, y = 5, labels = "(log)Biomass", pos = 4)
-plot(fgrichness$predicted ~ jitter(fgrichness$observed), ylab = "", xlab = "", pch = 19, cex = 0.5)
-abline(0, 1) 
-text(x = -0.3, y = 4, labels = "Functional Richness", pos = 4)
+#text(x = -0.2, y = 5, labels = "(log)Biomass", pos = 4)
+mtext("(c) (ln-) Biomass", side = 3, line = 0.5, at = 0, adj = 0.1)
 
 dev.off()
 
