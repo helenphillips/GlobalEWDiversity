@@ -189,7 +189,7 @@ biomass_import_delta <- c(biomass_import_delta[1], NA, biomass_import_delta[2:5]
 
 
 d <- a <- matrix(rep(NA, length = 6*3), nrow = 3, ncol = 6)
-colnames(d) <- colnames(a) <- c("ESA","Elevation", "Temperature", "Precipitation", "Soil", "Water Retention")
+colnames(d) <- colnames(a) <- c("Habitat Cover","Elevation", "Temperature", "Precipitation", "Soil", "Water Retention")
 a[1,] <- richness_order
 a[2,] <- abundance_order
 a[3,] <- biomass_order
@@ -209,15 +209,15 @@ dat <- melt(a)
 
 
 dat$X1 <- factor(dat$X1, levels = c( "Biomass", "Abundance","Species Richness"))
-dat$X2 <- factor(dat$X2, levels = c("ESA","Elevation", "Soil","Precipitation", "Temperature","Water Retention"))
+dat$X2 <- factor(dat$X2, levels = c("Habitat Cover","Elevation", "Soil","Precipitation", "Temperature","Water Retention"))
 
 ############################
 
 jpeg(file = file.path(figures, "variableImportance_splitGroups.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Main Models", deltas = d)
-p <- p + annotate("text", x = c(1,2,3,4,5,6), y=1, label = c(d[3,'ESA'], d[3, 'Elevation'], d[3,'Soil'], d[3,'Precipitation'], d[3,'Temperature'], d[3,'Water Retention'])) +
-annotate("text", x = c(1,2,3,4,5,6), y=2, label = c(d[2,'ESA'], d[2, 'Elevation'], d[2,'Soil'], d[2,'Precipitation'], d[2,'Temperature'], d[2,'Water Retention'])) +
-annotate("text", x = c(1,2,3,4,5,6), y=3, label = c(d[1,'ESA'], d[1, 'Elevation'], d[1,'Soil'], d[1,'Precipitation'], d[1,'Temperature'], d[1,'Water Retention']))
+p <- p + annotate("text", x = c(1,2,3,4,5,6), y=1, label = c(d[3,'Habitat Cover'], d[3, 'Elevation'], d[3,'Soil'], d[3,'Precipitation'], d[3,'Temperature'], d[3,'Water Retention'])) +
+annotate("text", x = c(1,2,3,4,5,6), y=2, label = c(d[2,'Habitat Cover'], d[2, 'Elevation'], d[2,'Soil'], d[2,'Precipitation'], d[2,'Temperature'], d[2,'Water Retention'])) +
+annotate("text", x = c(1,2,3,4,5,6), y=3, label = c(d[1,'Habitat Cover'], d[1, 'Elevation'], d[1,'Soil'], d[1,'Precipitation'], d[1,'Temperature'], d[1,'Water Retention']))
 dev.off()
 
 ##### Alternative plot
@@ -248,7 +248,7 @@ abund<- circleSize(abund)
 
 all_dat <- rbind(spR, abund, bmass)
 
-labs <- c("ESA","Elevation","Soil","Precipitation","Temperature","Water\nRetention")
+labs <- c("Habitat Cover","Elevation","Soil","Precipitation","Temperature","Water\nRetention")
 
 jpeg(file = file.path(figures, "variableImportance_splitGroups_circles.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 par(mar = c(3, 9.5, 1, 5))
