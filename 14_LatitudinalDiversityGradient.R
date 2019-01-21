@@ -392,9 +392,11 @@ for(i in 1:length(levels(spp$band))){
 
 
 
-par(mar = c(4, 4, 1, 5))
+par(mar = c(4, 4.5, 3.3, 5))
 barplot(bandDat$rarefiedRichness, space = 0, xaxs = "i", 
         ylab = paste("Rarefied Richness (n_min = ", m,")", sep = ""), xlab = "Latitude")
 axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
+mtext(paste("n = ", m, sep = ""), side = 3, line = 0, at = 0, adj = 0.1, cex = 3)
+
 }
 dev.off()     
