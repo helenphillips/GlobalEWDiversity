@@ -58,16 +58,8 @@ date <- max(file_dates, na.rm = TRUE)
 # loadin <- files[grep(date, files)]
 abundance <- read.csv(file.path(data_in, paste("sitesAbundance_",date,".csv", sep = "")))
 
-data_in <- "15_Data"
 
-files <- list.files(file.path(data_in))
-files <- files[grep("sites\\+FGRichness_", files)]
-file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
-file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-file_dates <- as.Date(file_dates)
-date <- max(file_dates, na.rm = TRUE)
-loadin <- files[grep(date, files)]
-fgrichness <- read.csv(file.path(data_in, loadin))
+
 
 
 if(!dir.exists("Figures")){
@@ -83,9 +75,6 @@ figures <- "Figures"
 richness <- droplevels(SiteLevels(richness))
 biomass <- droplevels(SiteLevels(biomass))
 abundance <- droplevels(SiteLevels(abundance))
-fgrichness <- droplevels(SiteLevels(fgrichness))
-
-
 
 #################################################
 # 4. Load in models
@@ -97,7 +86,6 @@ models <- "Models"
 load(file.path(models, "richnessmodel.rds"))
 load(file.path(models, "biomassmodel_full.rds"))
 load(file.path(models, "abundancemodel_full.rds"))
-load(file.path(models, "fgrichnessmodel.rds"))
 
 #################################################
 # 5. Pick colors for figures
@@ -133,7 +121,7 @@ plotSingle(model= abundance_model, Effect1 = "ESA",
                                 "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" ,"SnowMonths_cat",  
                                 "scaleAridity" , "ScalePET", "ESA" , "ScaleElevation"),
            responseVar = "logAbundance", seMultiplier = 1, data = abundance, cols = abundanceCols, 
-           legend.position, ylabel = "log(Abundance)", xlabel = "", otherContEffectsFun = "median")
+           legend.position = NA, ylabel = "log(Abundance)", xlabel = "", otherContEffectsFun = "median")
 dev.off()
 
 #################################################
@@ -144,7 +132,37 @@ plotSingle(model= biomass_model, Effect1 = "ESA",
                                 "scaleCECSOL" , "bio10_7_scaled" ,"bio10_12_scaled", "bio10_15_scaled",  
                                 "ScalePET" , "SnowMonths_cat", "ESA"),
            responseVar = "logBiomass", seMultiplier = 1, data = biomass, cols = biomassCols, 
-           legend.position, ylabel = "log(Biomass)", xlabel = "", otherContEffectsFun = "median")
+           legend.position = NA, ylabel = "log(Biomass)", xlabel = "", otherContEffectsFun = "median")
+dev.off()
+
+
+
+##############################################
+## FOr the manuscript
+##############################################
+jpeg(file = file.path(figures, "HabitatCover_Richness+Abundance.jpg"), quality = 100, res = 200, width = 1500, height = 2000)
+
+par(mfrow = c(2, 1))
+par(mar = c(15, 3, 1, 1))
+plotSingle(model= richness_model, backTransform = TRUE, family = "poisson",
+           modelFixedEffs = c("scalePH","scaleCLYPPT", "scaleSLTPPT" , "scaleCECSOL" ,
+                              "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" , "SnowMonths_cat",  
+                              "scaleAridity", "ScalePET", "ESA", "scaleElevation"),
+           Effect1 = "ESA", 
+           responseVar = "SpeciesRichness", seMultiplier = 1, data = richness, cols = richnessCols, 
+           legend.position, ylabel = "Species Richness", xlabel = "", otherContEffectsFun = "median")
+mtext("(a)", side = 3, line = 0, at = 0, adj = 0.1)
+
+plotSingle(model= abundance_model, Effect1 = "ESA",
+           modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT" , "scaleCECSOL" ,
+                              "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" ,"SnowMonths_cat",  
+                              "scaleAridity" , "ScalePET", "ESA" , "ScaleElevation"),
+           responseVar = "logAbundance", seMultiplier = 1, data = abundance, cols = abundanceCols, 
+           legend.position = NA, ylabel = "log(Abundance)", xlabel = "", otherContEffectsFun = "median")
+mtext("(b)", side = 3, line = 0, at = 0, adj = 0.1)
+
+
+
 dev.off()
 
 ##################################################
@@ -163,9 +181,8 @@ all_data <- read.csv(file.path(all_data, paste("sites_",date,".csv", sep = "")))
 studies1 <- as.vector(unique(richness_model@frame$Study_Name))
 studies2 <- as.vector(unique(abundance_model@frame$Study_Name))
 studies3 <- as.vector(unique(biomass_model@frame$Study_Name))
-studies4 <- as.vector(unique(fgrichness_model@frame$Study_Name))
 
-all_studies <- c(studies1, studies2, studies3, studies4)
+all_studies <- c(studies1, studies2, studies3)
 all_studies <- unique(all_studies)
 
 
@@ -173,18 +190,17 @@ all_studies <- unique(all_studies)
 all_studies <- all_data[all_data$Study_Name %in% all_studies,]
 
 
-##  Saving for Carlos
-write.csv(all_studies, file = file.path(data_in, "DataUsed_forCarlos.csv"), row.names = FALSE)
 
 
 coord<-aggregate(cbind(all_studies$Longitude__Decimal_Degrees, all_studies$Latitude__decimal_degrees), list(all_studies$Study_Name), mean)
-
 coord$X<-coord$Group.1
 coord<-coord[2:4]
 names(coord)<-c("Long", "Lat", "X")
 
 dsSPDF<-SpatialPointsDataFrame(coord[,1:2], data.frame(coord[,1:3]))
 proj4string(dsSPDF)<-CRS("+proj=longlat")
+
+
 
 
 #pdf(file = file.path(figures, "Map_alldata.pdf"), height = 4)
