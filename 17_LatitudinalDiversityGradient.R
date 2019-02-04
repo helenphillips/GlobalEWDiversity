@@ -28,15 +28,15 @@ source(file.path("Functions", "Plots.R"))
 
 figures <- "Figures"
 
-if(!dir.exists("12_Data")){
-  dir.create("12_Data")
+if(!dir.exists("17_Data")){
+  dir.create("17_Data")
 }
-data_out <- "14_Data"
+data_out <- "17_Data"
 
 #################################################
 # 3. Loading in data
 #################################################
-data_in <- "10_Data"
+data_in <- "16_Data"
 files_spp <- list.files(file.path(data_in))
 files_spp <- files_spp[grep("SpecieswithFunctionalGroups_", files_spp)]
 file_dates <- sapply(strsplit(files_spp, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
@@ -50,7 +50,7 @@ loadin <- files_spp[grep(date, files_spp)]
 spp <- read.csv(file.path(data_in, loadin))
 rm(files_spp)
 
-data_in <- "4_Data"
+data_in <- "8_Data"
 files_sites <- list.files(file.path(data_in))
 files_sites <- files_sites[grep("sitesRichness_", files_sites)]
 file_dates <- sapply(strsplit(files_sites, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
