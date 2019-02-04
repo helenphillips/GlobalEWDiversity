@@ -12,16 +12,16 @@ source("Functions/FormatData.R")
 # 2. Create folder if it doesn't exist to save data into
 ########################################################
 
-if(!dir.exists("2_Data")){
-  dir.create("2_Data")
+if(!dir.exists("5_Data")){
+  dir.create("5_Data")
 }
-data_out <- "2_Data"
+data_out <- "5_Data"
 
 #################################################
 # 3. Loading in variables
 #################################################
 
-data_in <-"1_Data"
+data_in <-"3_Data"
 files <- list.files(file.path(data_in))
 files <- files[grep("sitesWithChelsaAndSoilAndOthers_", files)]
 
