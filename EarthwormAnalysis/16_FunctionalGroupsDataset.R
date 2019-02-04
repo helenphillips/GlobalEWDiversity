@@ -16,10 +16,10 @@ library(plyr)
 # 2. Create folder if it doesn't exist to save data into
 ########################################################
 
-if(!dir.exists("10_Data")){
-  dir.create("10_Data")
+if(!dir.exists("16_Data")){
+  dir.create("16_Data")
 }
-data_out <- "10_Data"
+data_out <- "16_Data"
 
 
 #################################################
@@ -27,7 +27,7 @@ data_out <- "10_Data"
 #################################################
 ## Species data
 
-data_in_spp <-"9_Data"
+data_in_spp <-"15_Data"
 files <- list.files(file.path(data_in_spp))
 ## This is a file I made manually, by combining data from George and Maria (also in this folder)
 loadinfg <- "Unique_Species_toSend2018-06-05_Final.csv"
@@ -38,7 +38,7 @@ loadinfg <- "Unique_Species_toSend2018-06-05_Final.csv"
 ## Site data
 
 
-data_in_sites <-"3.5_Data"
+data_in_sites <-"7_Data"
 
 files <- list.files(file.path(data_in_sites))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
