@@ -30,10 +30,10 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 loadinsites <- loadin[grep("sitesWithChelsa_", loadin)]
 
-if(!dir.exists("1_Data")){
-  dir.create("1_Data")
+if(!dir.exists("2_Data")){
+  dir.create("2_Data")
 }
-data_out <- "1_Data"
+data_out <- "2_Data"
 
 if(!dir.exists("Figures")){
   dir.create("Figures")
