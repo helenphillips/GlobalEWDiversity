@@ -26,7 +26,7 @@ source("Functions/CorvifVariablePicker.R")
 # 2. Loading in variables
 #################################################
 
-data_in <-"3.5_Data"
+data_in <-"7_Data"
 
 files <- list.files(file.path(data_in))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
@@ -43,11 +43,11 @@ rm(date)
 # 2.5 Create folders
 #################################################
 
-if(!dir.exists("4_Data")){
-  dir.create("4_Data")
+if(!dir.exists("8_Data")){
+  dir.create("8_Data")
 }
 
-data_out <- "4_Data"
+data_out <- "8_Data"
 
 if(!dir.exists("Models")){
   dir.create("Models")
