@@ -24,4 +24,4 @@ functions=/work/$USER/Functions
 
 module load R
  
-Rscript /home/phillips/4.1_ModellingRichness.R $output_dir $data_in $date $functions
+Rscript /home/phillips/8.1_ModellingRichness.R $output_dir $data_in $date $functions
