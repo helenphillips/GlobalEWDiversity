@@ -23,4 +23,4 @@ region="$@"
 
 module load R
  
-Rscript /home/phillips/6.1_MapCoefficients_spRichness.R $GLs_dir $Models_dir $output_dir $region
+Rscript /home/phillips/10.1_MapCoefficients_spRichness.R $GLs_dir $Models_dir $output_dir $region
