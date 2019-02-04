@@ -10,10 +10,10 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 # 2. Create folder if it doesn't exist to save data into
 ########################################################
 
-if(!dir.exists("1_Data")){
-  dir.create("1_Data")
+if(!dir.exists("4_Data")){
+  dir.create("4_Data")
 }
-data_out <- "1_Data"
+data_out <- "4_Data"
 
 
 ########################################################
