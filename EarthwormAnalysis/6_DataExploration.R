@@ -20,7 +20,7 @@ source("Functions/FormatData.R")
 # 2. Loading in variables
 #################################################
 
-data_in <-"2_Data"
+data_in <-"5_Data"
 
 files <- list.files(file.path(data_in))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
@@ -30,10 +30,10 @@ file_dates <- as.Date(file_dates)
 date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 
-if(!dir.exists("3_Data")){
-  dir.create("3_Data")
+if(!dir.exists("6_Data")){
+  dir.create("6_Data")
 }
-data_out <- "3_Data"
+data_out <- "6_Data"
 
 if(!dir.exists("Figures")){
   dir.create("Figures")
@@ -280,30 +280,3 @@ levels(sites$SnowMonths_cat)[levels(sites$SnowMonths_cat) == 4] <- "4plus"
 #############################################################
 
 write.csv(sites, file = file.path(data_out, paste("Sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
-
-######################################################
-## Species level data
-######################################################
-###################################
-speciesdata <- "0_Data"
-
-files <- list.files(file.path(speciesdata))
-file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
-file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-
-file_dates <- as.Date(file_dates)
-date <- max(file_dates, na.rm = TRUE)
-loadin <- files[grep(date, files)]
-loadin <- loadin[grep("species_", loadin)]
-
-
-#################################################
-# 3. Load in data
-#################################################
-
-species <- read.csv(file.path(speciesdata, loadin))
-######################################################
-## How many species
-######################################################
-length(unique(species$SpeciesBinomial))
-head(unique(species$SpeciesBinomial), 50)
