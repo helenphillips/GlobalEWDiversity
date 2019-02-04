@@ -20,10 +20,10 @@ if(!dir.exists("Figures")){
 }
 figures <- "Figures"
 
-if(!dir.exists("21_Data")){
-  dir.create("21_Data")
+if(!dir.exists("13_Data")){
+  dir.create("13_Data")
 }
-data_out <- "21_Data"
+data_out <- "13_Data"
 
 #################################################
 # 4. Load in models
@@ -35,13 +35,9 @@ models <- "Models"
 load(file.path(models, "richnessmodel.rds"))
 load(file.path(models, "biomassmodel_full.rds"))
 load(file.path(models, "abundancemodel_full.rds"))
-# load(file.path(models, "fgrichnessmodel.rds"))
-
 
 
 k_fold <- 10
-
-
 
 
 #################################################
