@@ -34,7 +34,7 @@ source(file.path("Functions", "CrossValidationAndMSE.R"))
 # 2. Loading in variables
 #################################################
 
-data_in <-"3.5_Data"
+data_in <-"7_Data"
 
 files <- list.files(file.path(data_in))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
@@ -51,11 +51,11 @@ rm(date)
 # 2.5 Create folders
 #################################################
 
-if(!dir.exists("4_Data")){
-  dir.create("4_Data")
+if(!dir.exists("14_Data")){
+  dir.create("14_Data")
 }
 
-data_out <- "4_Data"
+data_out <- "14_Data"
 
 if(!dir.exists("Models")){
   dir.create("Models")
@@ -265,84 +265,15 @@ cor <- findVariables(dat, VIFThreshold = 3)
 
 # bio10_7   bio10_15  PHIHOX SLTPPT CECSOL ORCDRC elevation Aridity PETyr
 
-########################################################
-## Functional Richness - to run on the cluster
-#######################################################
-
-
-data_in <-"10_Data"
-
-files <- list.files(file.path(data_in))
-files <- files[grep("SiteswithFunctionalGroups_", files)]
-file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
-file_dates <- sapply(strsplit(file_dates, "\\."), "[", 1) ## Split the string by date, which produces a list, then take first element of each list i.e. the date
-
-file_dates <- as.Date(file_dates)
-date <- max(file_dates, na.rm = TRUE)
-loadin <- files[grep(date, files)]
-
-rm(files)
-rm(date)
-
-sites <- read.csv(file.path(data_in, loadin))
-# sites <- read.csv("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\3_Data\\Sites_2017-11-09.csv")
-rm(loadin)
-
-sites <- SiteLevels(sites) ## relevels all land use/habitat variables
-table(sites$FGRichness)
-
-sites <- droplevels(sites[!(is.na(sites$bio10_15)),]) ## 
-sites <- droplevels(sites[!(is.na(sites$OCFinal)),]) ## 
-sites <- droplevels(sites[!(is.na(sites$phFinal)),]) ## 
-sites <- droplevels(sites[!(is.na(sites$scaleAridity)),]) ## 
-sites <- droplevels(sites[!(is.na(sites$SnowMonths_cat)),]) ## 
-
-sites <- droplevels(sites[sites$ESA != "Unknown",]) # 
-
-
-table(sites$ESA)
-sites_notinclude <- c("Needleleaf deciduous forest", "Tree open",
-                      "Sparse vegetation",  "Urban",
-                      "Bare area (consolidated", "Paddy field", "Wetland/Herbaceous", "Water bodies")
-
-sites <- droplevels(sites[!(sites$ESA %in% sites_notinclude),]) ##   5363
-summary(sites$phFinal)
-sites$scalePH <- scale(sites$PHIHOX)
-sites$scaleCLYPPT <- scale(sites$CLYPPT)
-sites$scaleSLTPPT <- scale(sites$SLTPPT)
-sites$scaleCECSOL <- scale(sites$CECSOL)
-sites$scaleORCDRC <- scale(sites$ORCDRC)
-
-sites$bio10_1_scaled <- scale(sites$bio10_1)
-sites$bio10_4_scaled <- scale(sites$bio10_4)
-sites$bio10_7_scaled <- scale(sites$bio10_7)
-sites$bio10_12_scaled <- scale(sites$bio10_12)
-sites$bio10_15_scaled <- scale(sites$bio10_15)
-
-sites$scaleAridity <- scale(sites$Aridity)
-sites$ScalePET <- scale(sites$PETyr)
-sites$ScalePETSD <- scale(sites$PET_SD)
-sites$ScaleElevation <- scale(sites$elevation)
-
-## Save the data
-write.csv(sites, file = file.path(data_out, paste("sites+FGRichness_soilGrids", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
-
-ind <- df_variables_sensitivity(sites)
-dat <- sites[,c(ind)]
-cor <- findVariables(dat, VIFThreshold = 3)
-
-# "bio10_7"   "bio10_15"  "CECSOL"  "elevation"  "Aridity"   "PETyr"     "phFinal"  
-# "ClayFinal" "SiltFinal" "OCFinal"  
-
 
 ##############################################################
 ## ANALYSING MODELS
 ##############################################################
 
-if(!dir.exists("22_Data")){
-  dir.create("22_Data")
+if(!dir.exists("14_Data")){
+  dir.create("14_Data")
 }
-data_out <- "22_Data"
+data_out <- "14_Data"
 
 
 k_fold <- 10
@@ -436,7 +367,7 @@ write.csv(abundance, file = file.path(data_out, "AbundanceSoilGridsCrossValidati
 load(file.path(models, "richnessmodel_SoilGrids.rds"))
 richness_model_SG <- richness_model
 
-data_in <- "4_Data"
+data_in <- "8_Data"
 date <- "2018-11-08" # For now
 richness <- read.csv(file = file.path(data_in, paste("sitesRichness_soilGrids_", date, ".csv", sep = "")))
 optimizer = "bobyqa"
@@ -482,55 +413,4 @@ calculateMSE(richness)
 calculateMSEofQuantiles(richness)
 
 write.csv(richness, file = file.path(data_out, "RichnessSoilGridsCrossValidation.csv"), row.names = FALSE)
-
-####### FUNCTIONAL RICHNESS
-load(file.path(models, "fgrichnessmodel_soilGrids.rds"))
-fgrichness_model_SG <- fgrichness_model
-
-data_in <- "4_Data"
-date <- "2018-11-08" # For now
-fg_richness <- read.csv(file = file.path(data_in, paste("sites+FGRichness_soilGrids", date, ".csv", sep = "")))
-optimizer = "bobyqa"
-Iters = 2e5
-data = fg_richness
-fam = "poisson"
-
-r.squaredGLMM(fgrichness_model_SG, pj2014 = FALSE)
-
-FGRichnessData <- fgrichness_model_SG@frame
-
-########
-# K-Fold Cross validation
-########
-
-splits <- createSplits(FGRichnessData, kfold = k_fold)
-
-predictedData <- list()
-for(k in 1:k_fold){
-  
-  rows <- as.vector(unlist(splits[k]))
-  testData <- FGRichnessData[rows,]
-  bankData <- FGRichnessData[-rows,]
-  
-  mod <-  glmer(formula = fgrichness_model_SG@call$formula, data = bankData, family = poisson,
-                control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
-  
-  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
-  
-  predictedData[[k]] <- data.frame(observed = testData$FGRichness, predicted = testData$Predicted)
-  
-}
-
-df <- do.call("rbind", predictedData)
-plot(df$predicted ~ df$observed)
-abline(0, 1) 
-
-fgrichness <- df
-
-fgrichness$predicted <- exp(fgrichness$predicted) 
-
-calculateMSE(fgrichness)
-calculateMSEofQuantiles(fgrichness)
-
-write.csv(fgrichness, file = file.path(data_out, "FGRichnessSoilGridsCrossValidation.csv"), row.names = FALSE)
 

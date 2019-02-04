@@ -24,4 +24,4 @@ functions=/work/$USER/Functions
 
 module load R
  
-Rscript /home/phillips/22.1_SoilversusSoilGrids_richness.R $output_dir $data_in $date $functions
+Rscript /home/phillips/14.1_SoilversusSoilGrids_richness.R $output_dir $data_in $date $functions
