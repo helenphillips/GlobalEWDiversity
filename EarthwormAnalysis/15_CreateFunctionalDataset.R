@@ -10,13 +10,13 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 # 2. Create folder if it doesn't exist to save data into
 ########################################################
 
-if(!dir.exists("9_Data")){
-  dir.create("9_Data")
+if(!dir.exists("15_Data")){
+  dir.create("15_Data")
 }
-data_out <- "9_Data"
+data_out <- "15_Data"
 
 data_in_fg <- "RevisedSpeciesNames"
-data_in_spp <- "1_Data"
+data_in_spp <- "8_Data"
 ########################################################
 # 3. Libraries
 ########################################################
