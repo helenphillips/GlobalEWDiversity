@@ -239,31 +239,3 @@ sites$ID <- paste(sites$file, sites$Study_Name, sites$ID, sep = "_")
 write.csv(sites, file = file.path(data_out, paste("sites_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 write.csv(species, file = file.path(data_out, paste("species_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 write.csv(bib, file = file.path(data_out, paste("Metadata_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
-
-########################################################
-# 11. Save the data for Carlos
-########################################################
-
-# carlos_sites <- sites[,c("ID", "Latitude__decimal_degrees", "Longitude__Decimal_Degrees")]
-# names(carlos_sites) <- c("ID", "LAT", "LONG")
-# write.csv(carlos_sites, file = file.path(data_out, paste("sitesIDLatLong_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
-
-
-########################################################
-# 11. Save the data for Erin and Olga
-########################################################
-
-# eo_sites <- sites[1:200,]
-# 
-# eo_species <- species[7500:8159,]
-# 
-# toDel <- c("file.y", "Study_Name", "Site_Name.y", "SpeciesRichness", 
-#            "SpeciesRichnessUnit","Site_WetBiomass","Site_WetBiomassUnits",   
-#            "Site_Abundance","Site_AbundanceUnits","NumberofSpecies",
-#            "Individuals_fromspecies","Individuals_fromspeciesUnits", 
-#            "Biomass_fromspecies","Biomass_fromspeciesUnits")
-# 
-# eo_species[,which(names(eo_species) %in% toDel)] <- NULL
-# 
-# write.csv(eo_species, file = file.path(data_out, paste("speciesExample_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
-# write.csv(eo_sites, file = file.path(data_out, paste("sitesExample", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
