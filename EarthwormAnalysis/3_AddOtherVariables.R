@@ -17,7 +17,7 @@ library(rgdal)
 # 2. Loading in variables
 #################################################
 
-data_in <-"1_Data"
+data_in <-"2_Data"
 
 files <- list.files(file.path(data_in))
 files <- files[grep("sitesWithChelsaAndSoil_", files)]
@@ -30,10 +30,10 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 loadinsites <- loadin[grep("sitesWithChelsaAndSoil_", loadin)]
 
-if(!dir.exists("1_Data")){
-  dir.create("1_Data")
+if(!dir.exists("3_Data")){
+  dir.create("3_Data")
 }
-data_out <- "1_Data"
+data_out <- "3_Data"
 
 if(!dir.exists("Figures")){
   dir.create("Figures")
