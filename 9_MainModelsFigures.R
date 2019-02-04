@@ -25,7 +25,7 @@ source("Functions/FormatData.R")
 # 2. Loading in variables
 #################################################
 
-data_in <-"4_Data"
+data_in <-"8_Data"
 
 files <- list.files(file.path(data_in))
 files <- files[grep("sitesRichness", files)]
@@ -57,9 +57,6 @@ file_dates <- as.Date(file_dates)
 date <- max(file_dates, na.rm = TRUE)
 # loadin <- files[grep(date, files)]
 abundance <- read.csv(file.path(data_in, paste("sitesAbundance_",date,".csv", sep = "")))
-
-
-
 
 
 if(!dir.exists("Figures")){
@@ -168,7 +165,7 @@ dev.off()
 ##################################################
 ## MAP
 ##################################################
-all_data <-"3.5_Data"
+all_data <-"7_Data"
 
 files <- list.files(file.path(all_data))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
