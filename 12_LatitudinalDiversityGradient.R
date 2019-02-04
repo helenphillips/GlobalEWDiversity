@@ -16,7 +16,7 @@ library(maps)
 library(lme4)
 library(car)
 
-source("Functions/FormatData.R")
+source(file.path("Functions", "FormatData.R"))
 source(file.path("Functions", "Plots.R"))
 # source("Functions/lme4_ModellingFunctions.R")
 # source("Functions/ModelSimplification.R")
@@ -28,8 +28,8 @@ source(file.path("Functions", "Plots.R"))
 
 figures <- "Figures"
 
-if(!dir.exists("14_Data")){
-  dir.create("14_Data")
+if(!dir.exists("12_Data")){
+  dir.create("12_Data")
 }
 data_out <- "14_Data"
 
