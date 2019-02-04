@@ -238,31 +238,6 @@ tapply(sites$Soil_Organic_Matter__percent, sites$LU_Mgmt, summary)
 tapply(sites$Organic_Carbon__percent, sites$LU_Mgmt, summary)
 
 
-
-###########################################################
-## Create a intensity variable (categorical integer)
-#############################################################
-
-
-
-intensityvars <- c("Tillage", "Pesticide", "Fertilizer",                  
-                   "Selectively_harvested","Clear_cut",                   
-                   "Fire","Stocking_rate",               
-                   "Grazing_all_year","Rotation",                    
-                   "Monoculture","Planted")
-
-
-## Rotation is a good thing
-sites$Rotation <- ifelse(sites$Rotation == 0, 2, sites$Rotation)
-sites$Rotation <- ifelse(sites$Rotation == 1, 0, sites$Rotation)
-sites$Rotation <- ifelse(sites$Rotation == 2, 1, sites$Rotation)
-
-sites$intensity <- rowSums(sites[,which(names(sites) %in% intensityvars)], na.rm = TRUE)
-sites$intensity <- ifelse(sites$LU_Mgmt == "Unknown", NA, sites$intensity)
-sites$intensity <- as.factor(sites$intensity)
-table(sites$LU_Mgmt, sites$intensity)
-
-
 ##########################################################
 ## Snow months to categorical variable
 #############################################################
