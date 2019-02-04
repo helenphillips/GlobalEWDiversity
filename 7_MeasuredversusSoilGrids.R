@@ -19,7 +19,7 @@ source("Functions/FormatData.R")
 # 2. Loading in variables
 #################################################
 
-data_in <-"3_Data"
+data_in <-"6_Data"
 
 files <- list.files(file.path(data_in))
 file_dates <- sapply(strsplit(files, "_"), "[", 2) ## Split the string by date, which produces a list, then take second element of each list i.e. the date
@@ -29,10 +29,10 @@ file_dates <- as.Date(file_dates)
 date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 
-if(!dir.exists("3.5_Data")){
-  dir.create("3.5_Data")
+if(!dir.exists("7_Data")){
+  dir.create("7_Data")
 }
-data_out <- "3.5_Data"
+data_out <- "7_Data"
 
 if(!dir.exists("Figures")){
   dir.create("Figures")
