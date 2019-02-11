@@ -12,11 +12,11 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 library(googlesheets)
 
 
-if(!dir.exists("20_Data")){
-  dir.create("20_Data")
+if(!dir.exists("TaxonomicBackbone")){
+  dir.create("TaxonomicBackbone")
 }
 
-data_out <- "20_Data"
+data_out <- "TaxonomicBackbone"
 
 #################################################
 # 2. Load Data
