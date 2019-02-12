@@ -146,15 +146,15 @@ df$total <- rowSums(df[,1:3])
 jpeg(file = file.path(figures, "BiomassFGTriangle.jpeg"), quality = 100, res = 200, width = 2000, height = 1000)
 
 t <- triangle.plot(df[,1:3], show.position = FALSE, min3 = c(0, 0, 0), max3 = c(1, 1, 1), cpoint = 0)
-points(t, col = df$col, cex = df$total/5, pch = 19)
+points(t, col = df$col, cex = df$total/5 + 0.5, pch = 19)
 # Legend for point size
 pts <- seq(floor(min(df[,5])), ceiling(max(df[,5])), length.out = 4)
 pts <- round(pts)
 
 
-legend(-1.5,1, legend= pts, pt.cex = pts/5, cex = 0.8, 
+legend(-1.5,1, legend= pts, pt.cex = pts/5 + 0.5, cex = 0.8, 
        bty = "n", pch = rep(19, times = 4), y.intersp = 2.5, x.intersp =3)
-mtext("Total Biomass (g/m2)", 3, 1.2, adj=0.08)
+mtext(expression("Total Biomass (grams per" ~ m^{2} ~ ")"), 3, 1.2, adj=0.08)
 
 # legend for colours
 legend(0.7,0.8, legend=labelsESA, fill = df$col, cex = 0.8, bty = "n")
