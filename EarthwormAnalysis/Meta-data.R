@@ -23,7 +23,7 @@ load(file.path(models, "biomassmodel_full.rds"))
 load(file.path(models, "abundancemodel_full.rds"))
 # load(file.path(models, "fgrichnessmodel.rds"))
 
-data_in <- "4_Data"
+data_in <- "8_Data"
 
 
 #################################################
@@ -221,3 +221,42 @@ unique(highAbundance$Study_Name)
 
 highBiomass <- droplevels(biomass[biomass$Site_WetBiomass > 300,])
 unique(highBiomass$Study_Name)
+
+
+##########################################
+# Number of sites with high number of months with snow
+#########################################
+
+table(uniqueDat$SnowMonths)
+table(uniqueDat$SnowMonths_cat)
+
+
+#####################################
+# Max depth of weighted soil means
+######################################
+# I stupidly didn't code that sort of information
+# So this will be a manual search (YAY!)
+names(uniqueDat)[grep("_mean", names(uniqueDat))]
+
+means1 <- as.vector(unique(uniqueDat$file[which(uniqueDat$PH_mean == "yes")]))
+means2 <- as.vector(unique(uniqueDat$file[which(uniqueDat$CEC_mean == "yes")]))
+means3 <- as.vector(unique(uniqueDat$file[which(uniqueDat$BaseSaturation_mean == "yes")]))
+means4 <- as.vector(unique(uniqueDat$file[which(uniqueDat$OC_mean == "yes")]))
+means5 <- as.vector(unique(uniqueDat$file[which(uniqueDat$SOM_mean == "yes")]))
+means6 <- as.vector(unique(uniqueDat$file[which(uniqueDat$CN_mean == "yes")]))
+means7 <- as.vector(unique(uniqueDat$file[which(uniqueDat$sand_silt_clay_mean == "yes")]))
+
+
+means <- (c(means1, means2, means3, means4, means5, means6, means7))
+unique(means) # 20
+
+# [1] "000_KotanenUnpublished"   # 25cm       "000_Bescansa2010"    # 30cm (but not sure we weighted)          
+# [3] "000_Virto2007"         # 1m         "3582_vanSchaik2014"            # 50cm
+# [5] "000_FunDivEurope"     # 20cm          "7543_Bedano2016"      # 20cm         
+# [7] "227_Richardson2015"    #10cm         "3331_Watmough2014"           # 10cm?  
+# [9] "4130_Kuntz2013"         # 30cm        "1247_Rampazzo2001"            # 30cm 
+# [11] "3225_Rozen1988"          #20cm       "384_Regulska2015"            30cm   
+# [13] "5184_Li2010"    # 15cm (but not sure weighted)                "6736_Ammer2006"       30cm         
+# [15] "4204_Uribe2012"         # 30cm        "4362_Castellanos-Navarrete2012"   #30 cm
+# [17] "4414_Rahman2012"      #30cm          "4963_Ayuke2011"           # 30cm     
+# [19] "5746_Ernst2009"         # 30cm        "4213_Virto2012"    # 30cm
