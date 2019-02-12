@@ -155,7 +155,7 @@ plotSingle(model= abundance_model, Effect1 = "ESA",
                               "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" ,"SnowMonths_cat",  
                               "scaleAridity" , "ScalePET", "ESA" , "ScaleElevation"),
            responseVar = "logAbundance", seMultiplier = 1, data = abundance, cols = abundanceCols, 
-           legend.position = NA, ylabel = "log(Abundance)", xlabel = "", otherContEffectsFun = "median")
+           legend.position = NA, ylabel = "(ln-) Abundance", xlabel = "", otherContEffectsFun = "median")
 mtext("(b)", side = 3, line = 0, at = 0, adj = 0.1)
 
 
