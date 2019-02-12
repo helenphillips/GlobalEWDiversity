@@ -19,8 +19,8 @@ library(DHARMa)
 library(reshape)
 library(Hmisc)
 library(ade4)
-source("Functions/FormatData.R")
-source("Functions/Plots.R")
+source(file.path("Functions", "FormatData.R"))
+source(file.path("Functions", "Plots.R"))
 source(file.path("Functions", "ColourPicker.R"))
 
 
@@ -28,7 +28,7 @@ source(file.path("Functions", "ColourPicker.R"))
 # 2. Loading in variables
 #################################################
 models <- "Models"
-data_in <-"11_Data"
+data_in <-"18_Data"
 
 
 
