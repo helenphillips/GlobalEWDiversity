@@ -1,5 +1,5 @@
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 #################################################
 # 1. Libraries
@@ -197,8 +197,9 @@ biomass <- read.csv(file = file.path(data_out, "BiomassCrossValidation.csv"))
 
 
 jpeg(file = file.path(figures, "AllModels_Crossvalidation.jpg"), quality = 100, res = 200, width = 3000, height = 1000)
+par(oma = c(2, 2, 1, 0))
 
-par(mar = c(2.5, 2.5, 2, 1))
+par(mar = c(3.5, 3.5, 2, 1))
 par(mfrow = c(1, 3))
 
 plot(richness$predicted ~ jitter(richness$observed), ylab = "", xlab = "", pch = 19, cex = 0.5)
@@ -214,6 +215,8 @@ plot(log(biomass$predicted+1) ~ log(biomass$observed + 1), ylab = "", xlab = "",
 abline(0, 1) 
 #text(x = -0.2, y = 5, labels = "(log)Biomass", pos = 4)
 mtext("(c) (ln-) Biomass", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext('Predicted values', side = 2, outer = TRUE, line = -0, las = 0, cex = 1.5)
+mtext('Observed values', side = 1, outer = TRUE, line = -0, las = 0, cex = 1.5)
 
 dev.off()
 
