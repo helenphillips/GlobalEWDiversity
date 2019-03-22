@@ -208,7 +208,7 @@ scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(
 b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 mtext("1", at =b[20], cex = 1)
 mtext("150", at = b[418], cex = 1)
-mtext("Biomass (g/m2)", at = 250, cex = 0.5)
+mtext(expression("Biomass (grams per" ~ m^{2} ~ ")"), at = 250, cex = 0.5)
 dev.off()
 
 
@@ -301,7 +301,7 @@ scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(
 b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 mtext("5", at = b[20], cex = 1)
 mtext("150", at = b[418], cex = 1)
-mtext("Abundance (ind/m2)", at = 250, cex = 0.5)
+mtext(expression("Abundance (individuals per" ~ m^{2} ~ ")"), at = 250, cex = 0.5)
 
 dev.off()
 
