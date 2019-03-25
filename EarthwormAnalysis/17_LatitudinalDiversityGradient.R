@@ -3,7 +3,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 
@@ -66,54 +66,6 @@ rm(files_sites)
 rm(date)
 rm(loadin)
 
-#################################################
-# 4. Quick and dirty plot
-#################################################
-
-plot(sites$Latitude__decimal_degrees, sites$SpeciesRichness)
-
-
-#################################################
-# 5. Model with polynomial
-#################################################
-
-sites$polyLatitude <- poly(sites$Latitude__decimal_degrees, 2)
-
-ldg1 <- glm(SpeciesRichness ~  polyLatitude * ExtractionMethod
-            , data = sites, family = poisson)
-# AIC - 17595.94
-ldg2 <- glm(SpeciesRichness ~  polyLatitude + ExtractionMethod
-            , data = sites, family = poisson)
-# AIC - 17777.55
-
-
-ldg <- glm(SpeciesRichness ~  poly(Latitude__decimal_degrees, 2) * ExtractionMethod
-           , data = sites, family = poisson)
-vars <- list()
-vars[[1]] <- unique(sites$ExtractionMethod)[2:length(unique(sites$ExtractionMethod))]
-vars[[2]] <- seq(min(sites$Latitude__decimal_degrees), max(sites$Latitude__decimal_degrees), by = 0.1)
-newdata <- expand.grid(vars)
-names(newdata) <- c("ExtractionMethod", "Latitude__decimal_degrees")
-newdata$predicted <- predict(ldg, newdata,type="response")
-
-handsorting <- newdata[newdata$ExtractionMethod == "Hand sorting",]
-handsorting <- handsorting[handsorting$Latitude__decimal_degrees > min(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Hand sorting"], na.rm = TRUE),]
-handsorting <- handsorting[handsorting$Latitude__decimal_degrees < max(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Hand sorting"], na.rm = TRUE),]
-
-mustard <- newdata[newdata$ExtractionMethod == "Liquid extraction (e.g. Mustard)",]
-mustard <- mustard[mustard$Latitude__decimal_degrees > min(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Liquid extraction (e.g. Mustard)"], na.rm = TRUE),]
-mustard <- mustard[mustard$Latitude__decimal_degrees < max(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Liquid extraction (e.g. Mustard)"], na.rm = TRUE),]
-
-handsortingandmustard <- newdata[newdata$ExtractionMethod == "Hand sorting + Liquid extraction (e.g. Mustard)",]
-handsortingandmustard <- handsortingandmustard[handsortingandmustard$Latitude__decimal_degrees > min(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Hand sorting + Liquid extraction (e.g. Mustard)"], na.rm = TRUE),]
-handsortingandmustard <- handsortingandmustard[handsortingandmustard$Latitude__decimal_degrees < max(sites$Latitude__decimal_degrees[sites$ExtractionMethod == "Hand sorting + Liquid extraction (e.g. Mustard)"], na.rm = TRUE),]
-
-jpeg(file = file.path(figures, "LDG_local.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-plot(handsorting$Latitude__decimal_degrees, handsorting$predicted, pch = 16, xlab = "Latitude", ylab = "Species Richness", type = "l", ylim = c(0,  3.5))
-lines(mustard$Latitude__decimal_degrees, mustard$predicted, col = "red")
-lines(handsortingandmustard$Latitude__decimal_degrees, handsortingandmustard$predicted, col = "blue")
-legend("topleft", legend= c("Handsorting", "Mustard", "Both"), col = c("black", "red", "blue"), lwd = 1, bty = "n")
-dev.off()
 #################################################
 # 6. LDG by bands
 #################################################
@@ -188,35 +140,6 @@ dev.off()
 
 
 RichnessDat <- bandDat
-###############################################
-## Trying to correct for area
-################################################
-library(rgdal)
-
-area <- readOGR(dsn = "I:/sWorm/Database/Area", layer = "area_5deg_equal_terrestrial_zero")
-dat <- area@data
-
-sum(dat$Shape_Area)
-dat$prop <- dat$Shape_Area / sum(dat$Shape_Area)
-
-dat <- dat[-(1:9) ,]
-dat <- dat[dat$Id %in% 1:32,]
-
-bandDat <- cbind(bandDat, dat)
-
-#### A linear model
-# What is the effect of latitude after accounting for 1) area and 2) number of sampling sites
-
-lm1 <- glm(total ~ Shape_Area, family = poisson, data = bandDat)
-bandDat$area_Resid <- resid(lm1)
-plot(y = bandDat$area_Resid, x = 1:nrow(bandDat))
-axis(1,  labels = bandDat$band, at = 1:nrow(bandDat))
-
-lm2 <- glm(total ~ bandDat$`number of sites`, family = poisson, data = bandDat)
-bandDat$nSites_Resid <- resid(lm2)
-
-plot(y = bandDat$nSites_Resid, x = 1:nrow(bandDat))
-axis(1,  labels = bandDat$band, at = 1:nrow(bandDat))
 
 
 #########################
