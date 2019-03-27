@@ -229,10 +229,13 @@ plot(b[,1],RichnessDat[,5],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALS
 axis(4,at=seq(0,1200,100), las = 2)
 axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
 mtext("Number of sites", side = 4, line = 3)
+mtext("(a)", side = 3, line = 0, at = 0, adj = 0.1)
 
 par(mar = c(4, 4, 1, 5))
 barplot(bandDat$rarefiedRichness, space = 0, xaxs = "i", ylab = "Rarefied Richness", xlab = "Latitude")
 axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
+mtext("(b)", side = 3, line = 0, at = 0, adj = 0.1)
+
 dev.off()     
 
 ##################################################################################
