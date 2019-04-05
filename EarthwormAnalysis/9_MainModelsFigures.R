@@ -3,7 +3,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 
@@ -204,6 +204,8 @@ jpeg(filename = file.path(figures, "Map_modelledData.jpg"), quality = 100, res =
 mar=c(0,0,0,0)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
 points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
+plotrix::corner.label(label = "(a)", x = -1, y = 1, cex = plotlabcex)
+
 dev.off()
 
 

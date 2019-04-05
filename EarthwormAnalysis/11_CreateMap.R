@@ -27,7 +27,7 @@ bkg <- raster("I:\\sWorm\\ProcessedGLs\\CHELSA_bio10_1_BiomassCutScaled.tif")
 
 
 plotlabcex <- 0.5
-
+resdpi <- 300
 ############################################################
 ## Species Richness
 ############################################################
@@ -93,7 +93,7 @@ colbrks <-  c(minV, seq(1, 6, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
-png(file.path(figures, "Richness.png"),width=17.5,height=8.75,units="cm",res=1200)
+png(file.path(figures, "Richness.png"),width=17.5,height=8.75,units="cm",res=resdpi)
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
@@ -150,15 +150,15 @@ results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\B
   north_america <- exp(north_america) - 1
  west_asia <- raster(file.path(results, "west_asia", resultRaster))
   west_asia <- exp(west_asia) - 1
- 
- 
- hist(africa, ylim =c(1, 1000))
- hist(asia, ylim =c(1, 1000))
- hist(europe, xlim = c(0, 50), breaks = seq(minValue(europe),  maxValue(europe), by = 1))
- hist(latin_america, ylim =c(1, 1000))
- hist(north_america, ylim =c(1, 1000))
- hist(west_asia, ylim =c(1, 1000))
- 
+
+  
+ # hist(africa, ylim =c(1, 1000))
+ # hist(asia, ylim =c(1, 1000))
+ # hist(europe, xlim = c(0, 50), breaks = seq(minValue(europe),  maxValue(europe), by = 1))
+ # hist(latin_america, ylim =c(1, 1000))
+ # hist(north_america, ylim =c(1, 1000))
+ # hist(west_asia, ylim =c(1, 1000))
+ # 
 minV <-min(c(minValue(africa),
              minValue(asia),
              minValue(europe),
@@ -173,19 +173,19 @@ maxV <-max(c(maxValue(africa),
              maxValue(north_america),
              maxValue(west_asia)))
 
-meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
-
-sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
-              cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
-              cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
-              cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
-              cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
-              cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
+# meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
+                 cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
+#                 cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
+#                 cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+#                 cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+#                 cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
+# 
+# sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
+#               cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
+#               cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
+#               cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+#               cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+#               cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
 # 
  
 
@@ -193,7 +193,7 @@ colbrks <-  c(minV, seq(1, 150, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
-png(file.path(figures, "Biomass.png"),width=17.5,height=8.75,units="cm",res=1200)
+png(file.path(figures, "Biomass.png"),width=17.5,height=8.75,units="cm",res=resdpi)
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
@@ -259,26 +259,26 @@ maxV <-max(c(maxValue(africa),
              maxValue(north_america),
              maxValue(west_asia)))
 
-hist(asia)
-hist(africa)
-hist(europe)
-hist(north_america)
-hist(latin_america)
-hist(west_asia)
-
-meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
-                cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
-
-sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
-              cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
-              cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
-              cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
-              cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
-              cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
+# hist(asia)
+# hist(africa)
+# hist(europe)
+# hist(north_america)
+# hist(latin_america)
+# hist(west_asia)
+# 
+# meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
+#                 cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
+#                 cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
+#                 cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+#                 cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+#                 cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
+# 
+# sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
+#               cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
+#               cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
+#               cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+#               cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+#               cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
 
 
 
@@ -288,7 +288,7 @@ colbrks <-  c(minV, seq(5, 150, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
-png(file.path(figures, "Abundance.png"),width=17.5,height=8.75,units="cm",res=1200)
+png(file.path(figures, "Abundance.png"),width=17.5,height=8.75,units="cm",res=resdpi)
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
