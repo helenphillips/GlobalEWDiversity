@@ -9,6 +9,21 @@ createSplits <- function(dat, kfold = 10){
   return(splits)
 }
 
+
+createSplitsStudies <- function(dat, kfold = 10){
+  
+  studies <- (unique(dat$Study_Name))
+  studies <- sample(studies, size = length(1:length(studies)))
+  
+  chunk <- function(x,n) split(x, cut(seq_along(x), n, labels = FALSE)) 
+  
+  splits <- chunk(studies, kfold)
+  
+  return(splits)
+  
+}
+
+
 calculateMSE <- function(data)
 {
   cat("Function only works if the predicted and observed values are in their original units - NOT LOGGED \n")
