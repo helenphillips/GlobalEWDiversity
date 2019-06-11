@@ -39,6 +39,9 @@ load(file.path(models, "abundancemodel_full.rds"))
 
 k_fold <- 10
 
+#################################################
+# NOT ACCOUNTING STUDIES
+################################################
 
 #################################################
 # 5. Abundance
@@ -219,6 +222,132 @@ mtext('Predicted values', side = 2, outer = TRUE, line = -0, las = 0, cex = 1.5)
 mtext('Observed values', side = 1, outer = TRUE, line = -0, las = 0, cex = 1.5)
 
 dev.off()
+
+#################################################
+# ACCOUNTING FOR STUDIES
+################################################
+
+
+#################################################
+# abundance
+################################################
+
+splits <- createSplitsStudies(abundanceData, kfold = 10)
+
+
+predictedData <- list()
+for(k in 1:k_fold){
+  
+  studies <- as.vector(unlist(splits[k]))
+  testData <- abundanceData[abundanceData$Study_Name %in% studies,]
+  bankData <- abundanceData[!(abundanceData$Study_Name %in% studies),]
+  
+  mod <-  lmer(formula = abundance_model@call$formula, data = bankData, 
+               control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  
+  
+  testData$Predicted <- (predict(mod, testData, re.form = NULL, allow.new.levels = TRUE))
+  
+  predictedData[[k]] <- data.frame(observed = testData$logAbundance, predicted = testData$Predicted)
+  
+}
+
+df <- do.call("rbind", predictedData)
+
+# jpeg(file = file.path(figures, "Abundance_Crossvalidation.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+plot(df$predicted ~ df$observed, ylab = "Predicted log-Abundance", xlab = "Observed log-Abundance", pch = 19, cex = 0.5)
+abline(0, 1) 
+# dev.off()
+
+abundance <- df
+
+abundance$predicted <- exp(abundance$predicted) - 1
+abundance$observed <- exp(abundance$observed) - 1
+
+calculateMSE(abundance)
+calculateMSEofQuantiles(abundance)
+
+write.csv(abundance, file = file.path(data_out, "AbundanceStudyCrossValidation.csv"), row.names = FALSE)
+
+#################################################
+# biomass
+################################################
+
+splits <- createSplitsStudies(biomassData, kfold = 10)
+
+biomassData <- biomassData[biomassData$ESA != "Bare area (unconsolidated",] ## Actually not included in the model anyway
+
+predictedData <- list()
+for(k in 1:k_fold){
+  
+  studies <- as.vector(unlist(splits[k]))
+  testData <- biomassData[biomassData$Study_Name %in% studies,]
+  bankData <- biomassData[!(biomassData$Study_Name %in% studies),]
+  
+  mod <-  lmer(formula = biomass_model@call$formula, data = bankData, 
+               control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  
+  
+  testData$Predicted <- (predict(mod, testData, re.form = NULL, allow.new.levels = TRUE))
+  
+  predictedData[[k]] <- data.frame(observed = testData$logBiomass, predicted = testData$Predicted)
+  
+}
+
+df <- do.call("rbind", predictedData)
+
+# jpeg(file = file.path(figures, "Abundance_Crossvalidation.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+plot(df$predicted ~ df$observed, ylab = "Predicted log-Biomass", xlab = "Observed log-Biomass", pch = 19, cex = 0.5)
+abline(0, 1) 
+# dev.off()
+
+biomass <- df
+
+biomass$predicted <- exp(biomass$predicted) - 1
+biomass$observed <- exp(biomass$observed) - 1
+
+calculateMSE(biomass)
+calculateMSEofQuantiles(biomass)
+
+write.csv(biomass, file = file.path(data_out, "BiomassStudyCrossValidation.csv"), row.names = FALSE)
+
+#############################################
+# richness
+############################################
+
+
+splits <- createSplitsStudies(richnessData, kfold = k_fold)
+
+predictedData <- list()
+for(k in 1:k_fold){
+  print(k)
+  
+  studies <- as.vector(unlist(splits[k]))
+  testData <- richnessData[richnessData$Study_Name %in% studies,]
+  bankData <- richnessData[!(richnessData$Study_Name %in% studies),]
+  
+  mod <-  glmer(formula = richness_model@call$formula, data = bankData, family = "poisson",
+                control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  
+  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
+  
+  predictedData[[k]] <- data.frame(observed = testData$SpeciesRichness, predicted = testData$Predicted)
+  
+}
+
+df <- do.call("rbind", predictedData)
+plot(df$predicted ~ df$observed)
+abline(0, 1) 
+
+richness <- df
+
+richness$predicted <- exp(richness$predicted) 
+
+calculateMSE(richness)
+calculateMSEofQuantiles(richness)
+
+write.csv(richness, file = file.path(data_out, "RichnessStudyCrossValidation.csv"), row.names = FALSE)
+
 
 
 ##################################################
