@@ -138,6 +138,22 @@ axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
 mtext("Number of sites", side = 4, line = 3)
 dev.off()     
 
+### Without morphospecies
+
+bandDat$totalnoMorphs <- rowSums(bandDat[,c(2,4)])
+jpeg(file = file.path(figures, "LDG_regional_nomorphs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+
+par(mar = c(4, 4, 1, 5))
+b <- barplot(bandDat$totalnoMorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+barplot(bandDat$totalnoMorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+par(new=TRUE)
+plot(b[,1],bandDat[,5],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
+axis(4,at=seq(0,1200,100), las = 2)
+axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
+mtext("Number of sites", side = 4, line = 3)
+dev.off()     
+
+
 
 RichnessDat <- bandDat
 
@@ -153,14 +169,14 @@ n_min <- 22 # number of sites in a latitude, that isn't ridiculously low
 n_rarefied <- 1000
 
 
-bandDat <- data.frame(matrix(rep(NA, times = 3 * length(levels(spp$band))), 
-                             ncol = 3, nrow  = length(levels(spp$band))))
-names(bandDat) <- c("band", "number of sites", "rarefiedRichness")
+bandDat <- data.frame(matrix(rep(NA, times = 4 * length(levels(spp$band))), 
+                             ncol = 4, nrow  = length(levels(spp$band))))
+names(bandDat) <- c("band", "number of sites", "rarefiedRichness", 'rarefiedNoMorphs')
 
 
-rarefiedDat <- data.frame(matrix(rep(NA, times = 4 * n_rarefied), 
-                                 ncol = 4, nrow  = n_rarefied))
-names(rarefiedDat) <- c("Number of Binomials", "Number of Morphospecies", "number of genus", "total")
+rarefiedDat <- data.frame(matrix(rep(NA, times = 5 * n_rarefied), 
+                                 ncol = 5, nrow  = n_rarefied))
+names(rarefiedDat) <- c("Number of Binomials", "Number of Morphospecies", "number of genus", "total", "totalnoMorphs")
 
 for(i in 1:length(levels(spp$band))){
   bnd <- spp[spp$band == levels(spp$band)[i],] 
@@ -172,10 +188,12 @@ for(i in 1:length(levels(spp$band))){
   bandDat[i, 2] <- length(unique(bnd$Study_site))
   
   if(nrow(bnd) == 0){
-    bandDat[i, 3] <- 0}
+    bandDat[i, 3] <- 0
+    bandDat[i, 4] <- 0    }
   if(length(unique(bnd$Study_site)) < n_min){
     
     bandDat[i, 3] <- 0
+    bandDat[i, 4] <- 0
     }else{
     
     ## These are the unique sites in the band. 
@@ -212,10 +230,14 @@ for(i in 1:length(levels(spp$band))){
         rarefiedDat[r, 3] <- sum(uni)
       } else {rarefiedDat[r, 3] <- 0}
       
+      # print(mean(rarefiedDat$`Number of Morphospecies`))
+      
       rarefiedDat$total <- rowSums(rarefiedDat[,1:3])
+      rarefiedDat$totalnoMorphs <- rowSums(rarefiedDat[,c(1,3)])
     }
     ## Done the 1000 samples
     bandDat[i, 3] <- mean(rarefiedDat$total)
+    bandDat[i, 4] <- mean(rarefiedDat$totalnoMorphs)
   }
 }
 
@@ -237,6 +259,26 @@ axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
 mtext("(b)", side = 3, line = 0, at = 0, adj = 0.1)
 
 dev.off()     
+
+jpeg(file = file.path(figures, "LDG_regional_paired_noMorphs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+par(mfrow = c(1, 2))
+par(mar = c(4, 4, 1, 5))
+b <- barplot(RichnessDat$totalnoMorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+# barplot(RichnessDat$totalnoMorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+par(new=TRUE)
+plot(b[,1],RichnessDat[,5],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
+axis(4,at=seq(0,1200,100), las = 2)
+axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
+mtext("Number of sites", side = 4, line = 3)
+mtext("(a)", side = 3, line = 0, at = 0, adj = 0.1)
+
+par(mar = c(4, 4, 1, 5))
+barplot(bandDat$rarefiedNoMorphs, space = 0, xaxs = "i", ylab = "Rarefied Richness (excluding morphospecies)", xlab = "Latitude")
+axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
+mtext("(b)", side = 3, line = 0, at = 0, adj = 0.1)
+
+dev.off()     
+
 
 ##################################################################################
 # Doing the whole things for different n_mins
