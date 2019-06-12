@@ -183,6 +183,7 @@ for(i in 1:length(levels(spp$band))){
 
 bandDat$total <- rowSums(bandDat[,2:4])
 
+## Add in all the gaps
 
 
 
@@ -195,6 +196,9 @@ bandDat$latDiff <- bandDat$maxLat - bandDat$minLat
 
 bandDat <- bandDat[order(bandDat$minLat),]
 
+
+jpeg(file = file.path(figures, "LDG_regional_fixedSites.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+
 b <- barplot(bandDat$total, width = bandDat$latDiff, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 
 min(bandDat$minLat)
@@ -203,13 +207,36 @@ max(bandDat$maxLat)
 ## Where would -40 be??
 # 0 =  -40.21667
 # 107.91 = 68.4525
-# so it spans 108.6692 degrees
+# so x spans 108.6692 degrees
 # each 1  unit on the x = 1.01 degree
 
-## So where is 40 degrees
+#axis(1, at = c(0), labels = c(1))
+#axis(1, at = c(107.91), labels = c(2))
+
+## So where is -40 degrees
+# -40 degrees is 0.21667 change
+1 / (1.01/0.21667)
+
+axis(1, at = 0.214, labels = "-40")
+
+# -30
+# 10.21667 degrees change
+# 1 / (1.01 / 10.21667)
+# axis(1, at = 10.115511, labels = "-30")
+
+## ok, a sequency of every 10 degrees
+# from 0.214 to 108, every (10.11551 - 0.214) = 9.90151
+
+# / (1.01/ 8.452500) # 8.45 degree change
+#axis(1, at = (99.22910 + 8.368812), labels = "68.4")
+
+labs <- as.character(seq(-40, 60, by = 10))
+labs <- c(labs, "68.4")
+
+axis(1, at = c(seq(0.214, 108, by = 9.90151), (99.22910 + 8.368812)), labels = labs)
+
+# axis(1, at = (99.22910 + 9.90151), labels = "70")
+dev.off()
 
 
-axis(1, at = c(0), labels = c(1))
-axis(1, at = c(107.91), labels = c(2))
-axis(1, at = c(41.7798), labels = c("t"))
 
