@@ -280,6 +280,7 @@ abundance$ScalePETSD <- scale(abundance$PET_SD)
 abundance$ScaleElevation  <- scale(abundance$elevation)
 ## Save the data
 write.csv(abundance, file = file.path(data_out, paste("sitesAbundance_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+#abundance <- read.csv(file.path(data_out, "sitesAbundance_2018-09-25.csv"))
 
 ind <- df_variables(abundance)
 dat <- abundance[,c(ind)]
@@ -317,3 +318,23 @@ dat <- abundance_model@frame
 dat$predicted <- predict(abundance_model, dat)
 plot(dat$logAbundance, dat$predicted)
 abline(0, 1)
+
+
+
+#########################################################
+# Correlation between abundance and biomass
+######################################################
+#
+# As per a reviewers comment
+# What is the relationship like between abundance and biomass
+# in the raw data.
+
+plot(abundance$logAbundance ~ abundance$logBiomass)
+
+abundancevBiomass <- lmer(logAbundance ~  logBiomass + 
+             (1|file/Study_Name), data = abundance,
+           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+
+summary(abundancevBiomass)
+
