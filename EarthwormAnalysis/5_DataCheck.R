@@ -4,7 +4,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 source("Functions/FormatData.R")
