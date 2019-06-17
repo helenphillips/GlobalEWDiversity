@@ -3,7 +3,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 ########################################################
@@ -29,7 +29,7 @@ source("Functions/CalculateSitelevelMetrics.R")
 ########################################################
 
 x <- gs_ls() ## Authentication
-
+# gs_token <- gs_auth(cache = FALSE)
 
 
 ########################################################
