@@ -117,7 +117,7 @@ sites <- merge(sites, biomes, by = 'ID', all.x = TRUE)
 
 ############## Country name
 
-shape <- readOGR(dsn = "I:\sDiv-PostDocs-Work\Phillips\sWorm\SpatialAnalysis\world\TM_WORLD_BORDERS_SIMPL-0.3", layer = "TM_WORLD_BORDERS_SIMPL-0.3")
+shape <- readOGR(dsn = "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\world\\TM_WORLD_BORDERS_SIMPL-0.3", layer = "TM_WORLD_BORDERS_SIMPL-0.3")
 
 test <- sites[!(is.na(sites$Latitude__decimal_degrees)),]
 
@@ -125,10 +125,20 @@ pts <- SpatialPoints(test[,c('Longitude__Decimal_Degrees','Latitude__decimal_deg
                      proj4string = CRS(proj4string(shape)))
 
 test2 <- pts %over% shape
-biomes <- data.frame(ID = test$ID, biome = test2$BIOME)
+country <- data.frame(ID = test$ID, country = test2$NAME)
+
+sites <- merge(sites, country, by = 'ID', all.x = TRUE)
 
 
+###
+countrytest <- sites[, c('ID', "Site_Name", 'Country', 'country')]
+countrytest$Country <- as.character(countrytest$Country)
+countrytest$country <- as.character(countrytest$country)
 
+countrytest <- countrytest[which(countrytest$Country != countrytest$country),]
+write.csv(countrytest, file = "C:\\restore2\\hp39wasi\\temp\\checkingcountries.csv")
+## I manuall checked all the sites in this file
+## Any mis-matches were because of country borders (after I fixed mistakes)
 #################################################
 # 5. Save data
 #################################################
