@@ -84,6 +84,12 @@ dev.off()
 ######################################################
 sites <- sites[complete.cases(sites$Latitude__decimal_degrees),]
 
+######################################################
+## Remove Sites with WRONG coordinates
+######################################################
+
+sites <- sites[-(which(sites$ID == "000_FonteUnpublished_FonteEcuador_7107")),]
+sites <- sites[-(which(sites$ID == "000_FonteUnpublished_FonteEcuador_7141")),]
 
 ######################################################
 ## 
