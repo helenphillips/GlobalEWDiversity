@@ -83,7 +83,6 @@ sites$ScalePETSD <- scale(sites$PET_SD)
 rm(tif)
 
 ############# BIomes
-library(sp)
 
 shape <- readOGR(dsn = "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\ecoregions\\official_teow\\official", layer = "wwf_terr_ecos")
 
@@ -139,6 +138,17 @@ countrytest <- countrytest[which(countrytest$Country != countrytest$country),]
 write.csv(countrytest, file = "C:\\restore2\\hp39wasi\\temp\\checkingcountries.csv")
 ## I manuall checked all the sites in this file
 ## Any mis-matches were because of country borders (after I fixed mistakes)
+
+
+#### Some sites don't have the country
+nrow(sites[which(is.na(sites$country)),])
+## More than just the ones missing coordinates
+missingcountries <- sites[which(is.na(sites$country)),]
+missingcountries <- missingcountries[,c('ID', "Site_Name", 'Country', 'country', 'Latitude__decimal_degrees', 'Longitude__Decimal_Degrees', 'bio10_1')]
+write.csv(missingcountries, file = "C:\\restore2\\hp39wasi\\temp\\checkingmissingcountries.csv")
+## All fine, just because they are at the edge or on an island
+
+
 #################################################
 # 5. Save data
 #################################################
