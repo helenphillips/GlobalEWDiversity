@@ -243,7 +243,6 @@ any(!(is.na(sites$Site_WetBiomass)) && is.na(sites$Site_WetBiomassUnits)) ## If 
 any(!(is.na(sites$Site_Abundance)) && is.na(sites$Site_AbundanceUnits))
 
 
-
 #################################################
 #  Save file
 #################################################
