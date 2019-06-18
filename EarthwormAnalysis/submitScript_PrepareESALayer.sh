@@ -17,9 +17,9 @@ export LANG=en_US.UTF8
 
 output_dir=/work/$USER/$JOB_NAME/$JOB_ID
 mkdir -p $output_dir
-GLs_dir=/data/idiv_sdiv/sworm/ProcessGLs
-
+esa_dir=/data/idiv_sdiv/sworm/esa
+soil_dir=/data/idiv_sdiv/sworm/GlobalLayers
 
 module load R
  
-Rscript /home/phillips/PrepareESALayer.R $GLs_dir $output_dir
+Rscript /home/phillips/PrepareESALayer.R $esa_dir $output_dir $soil_dir
