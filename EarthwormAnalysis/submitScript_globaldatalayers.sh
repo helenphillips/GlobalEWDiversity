@@ -17,9 +17,9 @@ export LANG=en_US.UTF8
 
 output_dir=/work/$USER/$JOB_NAME/$JOB_ID
 mkdir -p $output_dir
-data_dir=/data/idiv_sdiv/sworm
-date="2018-09-25"
-processed_dir=/data/idiv_sdiv/sworm/ProcessGLs
+data_dir=/data/idiv_sdiv/sworm/GlobalLayers
+date="2019-06-18"
+site_dir=/data/idiv_sdiv/sworm
 module load R
  
-Rscript /home/phillips/PrepareGlobalLayers.R $data_dir $output_dir $date $processed_dir
+Rscript /home/phillips/PrepareGlobalLayers.R $data_dir $output_dir $date $site_dir
