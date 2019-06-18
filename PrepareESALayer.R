@@ -7,6 +7,8 @@ GLs_folder <- args[1] # GLs_dir
 ## Something like "/data/idiv_sdiv/sworm/ProccessGLs"
 savefolder <- args[2] # output_dir
 ## Something like "/data/idiv_sdiv/sworm/ProccessGLs"
+soils_folder <- args[3] # where soil layer is
+
 
 print(GLs_folder)
 print(savefolder)
@@ -21,7 +23,7 @@ r <- raster(file.path(GLs_folder, "ESACCI-LC-L4-LCCS-Map-1000m-P5Y-2010-v1.6.1_N
 # plot(r)
 
 print("Cropping based on soil layer")
-ph <- raster(file.path(GLs_folder,"PHIHOX_weighted.tif"))
+ph <- raster(file.path(soils_folder,"PHIHOX_weighted.tif"))
 r <- crop(r, ph, filename= file.path(savefolder, "ESA_cropped.tif"), overwrite=TRUE)
 
 print("Changing values")
