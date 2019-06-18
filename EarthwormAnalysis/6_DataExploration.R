@@ -50,11 +50,11 @@ sites <- SiteLevels(sites)
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 196 papers
-length(unique(sites$Study_Name)) ##  250 studies
+length(unique(sites$file)) ## 202 papers
+length(unique(sites$Study_Name)) ##  275 studies
 
-length(unique(sites$Country))## 64 Countries
-nrow(sites) # 7805 
+length(unique(sites$Country))## 65 Countries
+nrow(sites) # 8265
 #################################################
 # 5. Create Map
 #################################################
@@ -85,12 +85,23 @@ dev.off()
 sites <- sites[complete.cases(sites$Latitude__decimal_degrees),]
 
 ######################################################
-## Remove Sites with WRONG coordinates
+## Coordinates sanity check
 ######################################################
 
-sites <- sites[-(which(sites$ID == "000_FonteUnpublished_FonteEcuador_7107")),]
-sites <- sites[-(which(sites$ID == "000_FonteUnpublished_FonteEcuador_7141")),]
+any(sites$Latitude__decimal_degrees == sites$Longitude__Decimal_Degrees) ## Apparently a common mistake
+plot(sites$Sites_Abundancem2 ~ sites$bio10_1)
+plot(sites$Sites_Abundancem2 ~ sites$bio10_7)
+plot(sites$Sites_Abundancem2 ~ sites$SnowMonths)
 
+plot(sites$Site_Biomassm2 ~ sites$bio10_1)
+plot(sites$Site_Biomassm2 ~ sites$bio10_7)
+plot(sites$Site_Biomassm2 ~ sites$SnowMonths)
+
+## But there is one study where we identified that some coordiantes may be wrong
+## Meta-data says they are from germany
+## But original coordinates are different
+
+sites <- sites[-(which(sites$Study_Name == "birkhofer2012" & sites$country != "Germany")),] #  8159
 ######################################################
 ## 
 ######################################################
