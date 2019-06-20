@@ -73,9 +73,9 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 # 4. Species Richness
 #################################################
 
-richness <- sites[complete.cases(sites$SpeciesRichness),] #6545
+richness <- sites[complete.cases(sites$SpeciesRichness),] #6089
 richness <- droplevels(richness[richness$ESA != "Unknown",]) # 
-richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),]) # 5974
+richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),]) # 5642
 
 # richness <- richness[complete.cases(richness$scalePH),]
 
@@ -111,41 +111,8 @@ richness$ScalePET <- scale(richness$PETyr)
 richness$ScalePETSD <- scale(richness$PET_SD)
 richness$scaleElevation <- scale(richness$elevation)
 
-# Load pre-revision data and use just the studies we used previously
-old_richness <- read.csv(file.path(data_out,"sitesRichness_2018-09-25.csv")) # 5414
-oldstudies <- old_richness$file 
-
-vars <- c("phFinal","ClayFinal","SiltFinal","^CECSOL$","OCFinal",
-  "^bio10_1$","^bio10_4$","^bio10_7$","^bio10_12$","^bio10_15$",
-  "^Aridity$","PETyr","PET_SD","elevation")
-
-for(v in 1:length(vars)){
-  print(vars[v])
-  ind <- grep(vars[v], names(richness), perl = TRUE)  
-  print(min(richness[,ind]))
-  print(max(richness[,ind]))
-}
-
-## Would I need to re-do my global layers, if I removed new data
-## and just use the same data as before (but with corrected coordinate)
-## I re-did global layers on a corrected and updated (i.e. new data) dataset
-revised_richness <- richness[richness$file  %in% oldstudies,]
-for(v in 1:length(vars)){
-  print(vars[v])
-  ind <- grep(vars[v], names(revised_richness), perl = TRUE)  
-  print(min(revised_richness[,ind]))
-  print(max(revised_richness[,ind]))
-}
-
-
-#### Let's just use the corrected data, but the same
-## studies as previously
-
-richness <- revised_richness
 ## Save the data
 write.csv(richness, file = file.path(data_out, paste("sitesRichness_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
-
-## Yes, would need to remake Aridity and bio15
 
 ## 
 ind <- df_variables(richness)
@@ -197,7 +164,7 @@ plotSimulatedResiduals(simulationOutput = simulationOutput,quantreg = TRUE)
 #################################################
 # 5. Biomass
 #################################################
-biomass <- sites[complete.cases(sites$logBiomass),] # 3751
+biomass <- sites[complete.cases(sites$logBiomass),] # 3689
 biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 
 
 # biomass <- droplevels(biomass[!(is.na(biomass$PHIHOX)),])
@@ -205,14 +172,14 @@ biomass <- droplevels(biomass[!(is.na(biomass$bio10_15)),]) ##
 biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 
 biomass <- droplevels(biomass[!(is.na(biomass$phFinal)),]) ## 
 biomass <- droplevels(biomass[!(is.na(biomass$SnowMonths_cat)),]) ##  
-biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  3421
+biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  3359
 
 
 table(biomass$ESA)
 biomass_notinclude <- c("Tree open", "Sparse vegetation", "Cropland/Other vegetation mosaic",
                         "Urban", "Paddy field")
 
-biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##   3388
+biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##   3326
 summary(biomass$phFinal)
 biomass$scalePH <- as.vector(scale(biomass$phFinal))
 biomass$scaleCLYPPT <- scale(biomass$ClayFinal)
@@ -231,32 +198,6 @@ biomass$scaleAridity <- scale(biomass$Aridity)
 biomass$ScalePET <- scale(biomass$PETyr)
 biomass$ScalePETSD <- scale(biomass$PET_SD)
 biomass$ScaleElevation <- scale(biomass$elevation)
-
-# Load pre-revision data and use just the studies we used previously
-old_biomass <- read.csv(file.path(data_out,"sitesBiomass_2018-09-25.csv")) # 3324
-oldstudies <- old_biomass$file 
-
-
-for(v in 1:length(vars)){
-  print(vars[v])
-  ind <- grep(vars[v], names(biomass), perl = TRUE)  
-  print(min(biomass[,ind]))
-  print(max(biomass[,ind]))
-}
-
-## Would I need to re-do my global layers, if I removed new data
-## and just use the same data as before (but with corrected coordinate)
-## I re-did global layers on a corrected and updated (i.e. new data) dataset
-revised_biomass <- biomass[biomass$file  %in% oldstudies,] #  3326
-for(v in 1:length(vars)){
-  print(vars[v])
-  ind <- grep(vars[v], names(revised_biomass), perl = TRUE)  
-  print(min(revised_biomass[,ind]))
-  print(max(revised_biomass[,ind]))
-}
-
-
-biomass <- revised_biomass
 
 
 ## Save the data
@@ -303,7 +244,7 @@ abline(0, 1)
 # 6. Abundance
 #################################################
 hist(sites$logAbundance)
-abundance <- sites[complete.cases(sites$logAbundance),] # 7191
+abundance <- sites[complete.cases(sites$logAbundance),] # 7111
 abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #
 
 # abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
@@ -311,7 +252,7 @@ abundance <- droplevels(abundance[!(is.na(abundance$bio10_15)),]) ##
 abundance <- droplevels(abundance[!(is.na(abundance$OCFinal)),]) ##  
 abundance <- droplevels(abundance[!(is.na(abundance$phFinal)),]) ##  
 abundance <- droplevels(abundance[!(is.na(abundance$SnowMonths_cat)),]) ##  
-abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6535
+abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6456
 
 
 table(abundance$ESA)
@@ -319,7 +260,7 @@ abundance_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Sparse ve
                          "Bare area (consolidated", "Bare area (unconsolidated",  "Paddy field", "Wetland/Herbaceous",
                          "Water bodies")
 
-abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  6709
+abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  
 
 
 abundance$scalePH <- as.vector(scale(abundance$phFinal))
@@ -338,33 +279,6 @@ abundance$scaleAridity <- scale(abundance$Aridity)
 abundance$ScalePET <- scale(abundance$PETyr)
 abundance$ScalePETSD <- scale(abundance$PET_SD)
 abundance$ScaleElevation  <- scale(abundance$elevation)
-
-
-# Load pre-revision data and use just the studies we used previously
-old_abundance <- read.csv(file.path(data_out,"sitesAbundance_2018-09-25.csv")) # 6508
-oldstudies <- old_abundance$file 
-
-
-for(v in 1:length(vars)){
-  print(vars[v])
-  ind <- grep(vars[v], names(abundance), perl = TRUE)  
-  print(min(abundance[,ind]))
-  print(max(abundance[,ind]))
-}
-
-## Would I need to re-do my global layers, if I removed new data
-## and just use the same data as before (but with corrected coordinate)
-## I re-did global layers on a corrected and updated (i.e. new data) dataset
-revised_abundance <- abundance[abundance$file  %in% oldstudies,] #  6388
-for(v in 1:length(vars)){
-  print(vars[v])
-  ind <- grep(vars[v], names(revised_abundance), perl = TRUE)  
-  print(min(revised_abundance[,ind]))
-  print(max(revised_abundance[,ind]))
-}
-
-
-abundance <- revised_abundance
 
 
 ## Save the data
