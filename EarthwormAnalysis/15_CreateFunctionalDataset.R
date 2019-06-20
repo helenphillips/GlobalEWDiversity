@@ -3,7 +3,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 ########################################################
@@ -16,7 +16,7 @@ if(!dir.exists("15_Data")){
 data_out <- "15_Data"
 
 data_in_fg <- "RevisedSpeciesNames"
-data_in_spp <- "8_Data"
+data_in_spp <- "4_Data"
 ########################################################
 # 3. Libraries
 ########################################################
@@ -58,8 +58,8 @@ spp <- merge(spp, fg, by.x = "SpeciesBinomial", by.y = "original", all.x = TRUE)
 # 5. Straight matches of binomial names
 ########################################################
 
-length(unique(spp$SpeciesBinomial)) # 304
-length(unique(spp$Revised)) # 121
+length(unique(spp$SpeciesBinomial)) # 311
+length(unique(spp$Revised)) # 117
 
 ## There may be some where we have a binomial, but no match
 spp2 <- spp[which(is.na(spp$Revised)),]
@@ -151,7 +151,7 @@ for(species in 1:nrow(complete)){
 # 9. DriloBASE data
 #################################################
 
-drilobase <- "DriloBASE_uniqueSpecies"
+drilobase <- "DriloBASE_uniqueSpecies_sWorm"
 drilobase <- gs_title(drilobase)
 drilo <- as.data.frame(gs_read(drilobase, ws = "Sheet1"))
 
@@ -176,8 +176,8 @@ for(fuzz in 1:nrow(spp2)){
 }
 
 spp2[,c(1, 6)]
-## row 4 and 124 are not good matches
-spp2[which(spp2$SpeciesBinomial == "Allolobophora parva"), 6:7] <- NA
+## some rows are not good matches
+# spp2[which(spp2$SpeciesBinomial == "Allolobophora parva"), 6:7] <- NA
 spp2[which(spp2$SpeciesBinomial == "Prosellodrilus praticola"), 6:7] <- NA
 
 complete <- spp2[which(!(is.na(spp2$FuzzyName))),]

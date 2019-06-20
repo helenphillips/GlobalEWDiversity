@@ -4,7 +4,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 source("Functions/FormatData.R")
@@ -30,7 +30,7 @@ data_out <- "16_Data"
 data_in_spp <-"15_Data"
 files <- list.files(file.path(data_in_spp))
 ## This is a file I made manually, by combining data from George and Maria (also in this folder)
-loadinfg <- "Unique_Species_toSend2018-06-05_Final.csv"
+loadinfg <- "UniqueSpeciestoSend_2019-06-19_Final.csv"
 ## Some species identifications are in press - look at George's final file to identify. 
 # Guillaume Rosseau would need to be contacted to get the ecological categories
 

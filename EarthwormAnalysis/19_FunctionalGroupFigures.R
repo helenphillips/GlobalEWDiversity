@@ -3,7 +3,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 
@@ -83,7 +83,7 @@ richness <- droplevels(richness)
 ## models
 ############################################
 load(file.path(models, "abundancemodel_functionalgroups.rds"))
-load(file.path(models, "biomassmodel_functionalgroups.rds"))
+load(file.path(models, "biomassmodel_functionalgroups_revised.rds"))
 load(file.path(models, "richnessmodel_functionalgroups.rds"))
 
 
@@ -94,7 +94,7 @@ biomassCols <- ColourPicker(biomass$ESA)
 
 
 newdata <- createNewdata(model = biomass_model, modelFixedEffects = c("ESA","variable", "ScaleElevation",  "scalePH", "scaleCLYPPT", "scaleSLTPPT",  
-                                                                "scaleCECSOL", "bio10_7_scaled" , "bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", "ScalePETSD"),
+                                                                "scaleCECSOL", "bio10_4_scaled" , "bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", "ScalePETSD"),
                          mainEffect = c("ESA", "variable"), data = biomass)
 
 

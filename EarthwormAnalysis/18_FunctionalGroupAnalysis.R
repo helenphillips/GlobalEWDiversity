@@ -3,7 +3,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 
@@ -27,7 +27,7 @@ source("MEE3_1_sm_Appendix_S1/HighstatLib.R")
 # 2. Loading in variables
 #################################################
 
-data_in <-"10_Data"
+data_in <-"16_Data"
 
 files <- list.files(file.path(data_in))
 files <- files[grep("Sites", files)]
@@ -45,11 +45,11 @@ rm(date)
 # 2.5 Create folders
 #################################################
 
-if(!dir.exists("11_Data")){
-  dir.create("11_Data")
+if(!dir.exists("18_Data")){
+  dir.create("18_Data")
 }
 
-data_out <- "11_Data"
+data_out <- "18_Data"
 
 if(!dir.exists("Models")){
   dir.create("Models")
@@ -76,8 +76,8 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 #################################################
 # 5. Reorder data frame, column with FG
 #################################################
-## Remove functional group diversity measures
-idvars <- names(sites)[-(112:ncol(sites))]
+## Remove functional group diversity measures to use as idvars
+idvars <- names(sites)[-(113:ncol(sites))]
 
 m_sites <- melt(sites, id.vars = idvars)
 
@@ -122,7 +122,7 @@ dat <- biomass[,c(ind)]
 cor <- findVariables(dat, VIFThreshold = 3)
 
 # Remove
-# Bio 4
+# Bio 7
 # Bio 1
 # Aridity
 # Petyr
@@ -148,7 +148,7 @@ abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6576
 
 table(abundance$ESA, abundance$variable)
 abundance_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Sparse vegetation", "Cropland/Other vegetation mosaic",
-                         "Wetland/Herbaceous",
+                         "Wetland/Herbaceous", "Urban",
                           "Water bodies")
 
 abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  25107
@@ -187,7 +187,7 @@ biomass$logValue <- log(biomass$value + 1)
 hist(biomass$logValue)
 
 b1 <- lmer(logValue ~  (ESA * variable) + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
-             (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePETSD + SnowMonths_cat)^2 + 
+             (bio10_4_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePETSD + SnowMonths_cat)^2 + 
              scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
              ScalePETSD:bio10_12_scaled + ScalePETSD:bio10_15_scaled +
@@ -196,7 +196,7 @@ b1 <- lmer(logValue ~  (ESA * variable) + ScaleElevation + (scalePH  + scaleCLYP
 
 
 biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
-save(biomass_model, file = file.path(models, "biomassmodel_functionalgroups.rds"))
+save(biomass_model, file = file.path(models, "biomassmodel_functionalgroups_revised.rds"))
 # load(file.path(models, "biomassmodel_functionalgroups.rds"))
 
 ############### abundance
@@ -213,7 +213,7 @@ a1 <- lmer(logValue ~  (ESA * variable) + ScaleElevation + (scalePH  + scaleCLYP
            control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
-save(abundance_model, file = file.path(models, "abundancemodel_functionalgroups.rds"))
+save(abundance_model, file = file.path(models, "abundancemodel_functionalgroups_revised.rds"))
 # load(file.path(models, "abundancemodel_functionalgroups.rds"))
 
 
