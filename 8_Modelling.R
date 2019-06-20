@@ -397,6 +397,8 @@ testZeroInflation(simulationOutput_a1, plot = TRUE, alternative = "greater")
 
 abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
 save(abundance_model, file = file.path(models, "abundancemodel_full_revised.rds"))
+# load(file.path(models, "abundancemodel_full.rds"))
+
 
 simulationOutput_a2 <- simulateResiduals(fittedModel = abundance_model, n = 250)
 plotSimulatedResiduals(simulationOutput = simulationOutput_a2,quantreg = TRUE)
