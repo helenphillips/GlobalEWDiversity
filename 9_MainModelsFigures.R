@@ -73,6 +73,8 @@ richness <- droplevels(SiteLevels(richness))
 biomass <- droplevels(SiteLevels(biomass))
 abundance <- droplevels(SiteLevels(abundance))
 
+
+
 #################################################
 # 4. Load in models
 #################################################
@@ -81,8 +83,8 @@ models <- "Models"
 
 
 load(file.path(models, "richnessmodel.rds"))
-load(file.path(models, "biomassmodel_full.rds"))
-load(file.path(models, "abundancemodel_full.rds"))
+load(file.path(models, "biomassmodel_full_revised.rds"))
+load(file.path(models, "abundancemodel_full_revised.rds"))
 
 #################################################
 # 5. Pick colors for figures
