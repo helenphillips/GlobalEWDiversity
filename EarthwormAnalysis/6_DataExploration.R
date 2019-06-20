@@ -47,14 +47,29 @@ sites <- read.csv(file.path(data_in, loadin))
 sites <- SiteLevels(sites) 
 
 #################################################
+# 3.5 Old data  
+#################################################
+# During the revision stage we re-ran analysis
+# But as data had still been added to teh database
+# we don't want to add any new data
+# but things were corrected (coordinates) so we still
+# took a new cut of the database, then subset
+# by the studies in the old
+
+old_sites <- read.csv(file.path(data_in, "sites_2018-09-24.csv"))
+old_studies <- unique(old_sites$file)
+
+
+sites <- sites[sites$file %in% old_studies,]
+#################################################
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 202 papers
-length(unique(sites$Study_Name)) ##  275 studies
+length(unique(sites$file)) ## 196 papers
+length(unique(sites$Study_Name)) ##  250 studies
 
 length(unique(sites$Country))## 65 Countries
-nrow(sites) # 8265
+nrow(sites) # 7805
 #################################################
 # 5. Create Map
 #################################################
@@ -101,7 +116,7 @@ plot(sites$Site_Biomassm2 ~ sites$SnowMonths)
 ## Meta-data says they are from germany
 ## But original coordinates are different
 
-sites <- sites[-(which(sites$Study_Name == "birkhofer2012" & sites$country != "Germany")),] #  8159
+sites <- sites[-(which(sites$Study_Name == "birkhofer2012" & sites$country != "Germany")),] #  7699
 ######################################################
 ## 
 ######################################################
