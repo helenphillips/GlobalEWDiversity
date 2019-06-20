@@ -3,7 +3,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 ########################################################
@@ -51,7 +51,7 @@ bib <- read.csv(file.path(data_in, loadinbib))
 # 6. Quick investigation
 #################################################
 
-length(unique(dat$SpeciesBinomial)) ##  306
+length(unique(dat$SpeciesBinomial)) ##  313
 
 table(dat$Functional_Type) ## Only unknown for  821
 
@@ -173,13 +173,14 @@ current <- as.data.frame(gs_read(output, ws = "sheet1"))
 ## names(current) <- gsub("\\.x", "", names(current))
 
 
-spp <- merge(spp, current, by = "original")
-keep <- c("original","original_fg.x","Country","PaperID", "dataProvider.x", 
-          "drilobase.x", "Authority of species.x", "drilobase_fg.x", "Revised.y",
-          "Revised_fg.y","Revised_Authority.y","sWormMember.y", "X12") 
+spp <- merge(spp, current, by.x = "SpeciesBinomial", by.y = "original")
+keep <- c("SpeciesBinomial", "original","original_fg","Country.y","PaperID", "dataProvider", 
+          "drilobase", "Authority of species", "drilobase_fg", "Revised",
+          "Revised_fg","Revised_Authority","sWormMember", "X12") 
 spp <- spp[,which(names(spp) %in% keep)]
 
-spp$Revised.y[which(spp$sWormMember.y %in% c("Patrick Lavelle", "Patrick") & is.na(spp$Revised.y))] <- as.character(spp$original[which(spp$sWormMember.y %in% c("Patrick Lavelle", "Patrick") & is.na(spp$Revised.y))])
+spp$Revised[which(spp$sWormMember.y %in% c("Patrick Lavelle", "Patrick") & is.na(spp$Revised))] <- 
+  as.character(spp$original[which(spp$sWormMember %in% c("Patrick Lavelle", "Patrick") & is.na(spp$Revised))])
 
 names(spp) <- gsub("\\.y", "", names(spp))
 names(spp) <- gsub("\\.x", "", names(spp))
