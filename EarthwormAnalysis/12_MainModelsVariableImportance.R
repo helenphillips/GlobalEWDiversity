@@ -3,7 +3,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 
@@ -68,7 +68,7 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 biomass <- read.csv(file.path(data_in, loadin))
 
-load(file.path(models, "biomassmodel_full.rds"))
+load(file.path(models, "biomassmodel_full_revised.rds"))
 
 ## Abundance
 files <- list.files(file.path(data_in))
@@ -80,7 +80,7 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 abundance <- read.csv(file.path(data_in, loadin))
 
-load(file.path(models, "abundancemodel_full.rds"))
+load(file.path(models, "abundancemodel_full_revised.rds"))
 
 
 
