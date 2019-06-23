@@ -240,3 +240,4 @@ sites_fg <- merge(sites_fg, t2, by.x = "newID", by.y = "newID", all.x = TRUE)
 
 
 write.csv(sites_fg, file = file.path(data_out, paste("SiteswithFunctionalGroups_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
