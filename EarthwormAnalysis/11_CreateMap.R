@@ -21,7 +21,7 @@ library(viridis)
 ## 'Global'
 ############################################################
 
-bkg <- raster("I:\\sWorm\\ProcessedGLs\\CHELSA_bio10_1_BiomassCutScaled.tif")
+bkg <- raster("I:\\sWorm\\ProcessedGLs_revised\\CHELSA_bio10_1_BiomassCutScaled.tif")
 
 ## The percentage that map is cut off at top and bottom
 
@@ -32,7 +32,7 @@ resdpi <- 300
 ## Species Richness
 ############################################################
 
-results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Richness"
+results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Richness"
 
 # regions <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
 
@@ -133,32 +133,32 @@ dev.off()
 
 # regions <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
 
-results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Biomass"
+results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Biomass"
 
- regions <- c("asia", "africa", "europe", "latin_america", "north_america", "west_asia")
- resultRaster <- "BiomassFinalRaster.tif"
+regions <- c("asia", "africa", "europe", "latin_america", "north_america", "west_asia")
+resultRaster <- "BiomassFinalRaster.tif"
  
- africa <- raster(file.path(results, "africa", resultRaster))
- africa <- exp(africa) - 1
- asia <-  raster(file.path(results, "asia", resultRaster))
- asia <- exp(asia) - 1
- europe <- raster(file.path(results, "europe", resultRaster))
-  europe <- exp(europe) - 1
- latin_america <- raster(file.path(results, "latin_america", resultRaster))
-  latin_america <- exp(latin_america) - 1
- north_america <- raster(file.path(results, "north_america", resultRaster))
-  north_america <- exp(north_america) - 1
- west_asia <- raster(file.path(results, "west_asia", resultRaster))
-  west_asia <- exp(west_asia) - 1
+africa <- raster(file.path(results, "africa", resultRaster))
+africa <- exp(africa) - 1
+asia <-  raster(file.path(results, "asia", resultRaster))
+asia <- exp(asia) - 1
+europe <- raster(file.path(results, "europe", resultRaster))
+europe <- exp(europe) - 1
+latin_america <- raster(file.path(results, "latin_america", resultRaster))
+latin_america <- exp(latin_america) - 1
+north_america <- raster(file.path(results, "north_america", resultRaster))
+north_america <- exp(north_america) - 1
+west_asia <- raster(file.path(results, "west_asia", resultRaster))
+west_asia <- exp(west_asia) - 1
 
   
- # hist(africa, ylim =c(1, 1000))
- # hist(asia, ylim =c(1, 1000))
- # hist(europe, xlim = c(0, 50), breaks = seq(minValue(europe),  maxValue(europe), by = 1))
- # hist(latin_america, ylim =c(1, 1000))
- # hist(north_america, ylim =c(1, 1000))
- # hist(west_asia, ylim =c(1, 1000))
- # 
+  hist(africa, ylim =c(1, 1000))
+ hist(asia, ylim =c(1, 1000))
+ hist(europe, xlim = c(0, 50), breaks = seq(minValue(europe),  maxValue(europe), by = 1))
+  hist(latin_america, ylim =c(1, 1000))
+  hist(north_america, ylim =c(1, 1000))
+  hist(west_asia, ylim =c(1, 1000))
+  
 minV <-min(c(minValue(africa),
              minValue(asia),
              minValue(europe),
@@ -173,19 +173,19 @@ maxV <-max(c(maxValue(africa),
              maxValue(north_america),
              maxValue(west_asia)))
 
-# meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
+ meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
                  cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
-#                 cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
-#                 cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
-#                 cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
-#                 cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
-# 
-# sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
-#               cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
-#               cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
-#               cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
-#               cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
-#               cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
+                 cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
+                 cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                 cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                 cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
+ 
+ sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
+               cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
+               cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
+               cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+               cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+               cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
 # 
  
 
@@ -227,7 +227,7 @@ dev.off()
 
 
 
-results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Abundance"
+results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Abundance"
 
 regions <- c("asia", "afria", "europe", "latin_america", "north_america", "west_asia")
 resultRaster <- "AbundanceFinalRaster.tif"
@@ -266,19 +266,19 @@ maxV <-max(c(maxValue(africa),
 # hist(latin_america)
 # hist(west_asia)
 # 
-# meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
-#                 cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
-#                 cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
-#                 cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
-#                 cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
-#                 cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
-# 
-# sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
-#               cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
-#               cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
-#               cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
-#               cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
-#               cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
+ meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
+                 cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
+                 cellStats(europe, stat='mean', na.rm=TRUE, asSample=TRUE),
+                 cellStats(latin_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                 cellStats(north_america, stat='mean', na.rm=TRUE, asSample=TRUE),
+                 cellStats(west_asia, stat='mean', na.rm=TRUE, asSample=TRUE)))
+ 
+ sdV <- mean(c(cellStats(africa, stat='sd', na.rm=TRUE, asSample=TRUE),
+               cellStats(asia, stat='sd', na.rm=TRUE, asSample=TRUE),
+               cellStats(europe, stat='sd', na.rm=TRUE, asSample=TRUE),
+               cellStats(latin_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+               cellStats(north_america, stat='sd', na.rm=TRUE, asSample=TRUE),
+               cellStats(west_asia, stat='sd', na.rm=TRUE, asSample=TRUE)))
 
 
 
