@@ -85,14 +85,14 @@ sitesbylat <- unique(sitesbylat[c("Study_site", "Latitude__decimal_degrees")])
 
 ### How many sites should each band contain? We had 23 bands before...so keep the same?
 nrow(sitesbylat) / 23
-# 232.7826
+# 232.8696
 
 ## Put in order by latitude
 sitesbylat <- sitesbylat[order(sitesbylat$Latitude__decimal_degrees),]
 
 
 ## Ok, we are fine splitting up studies
-## What we are not fine today, is splitting up sites 
+## What we are not fine with, is splitting up sites 
 ## that have the same coordinates
 
 let <- 1
@@ -102,7 +102,7 @@ sitesbylat$band[1] <- letters[let]
 
 epsilon <- 20 ## This has worked the best so far!
 
-equalband <- (ceiling(nrow(sitesbylat) / 23)) +20 ## This will mean taht we will be closer to the actual value
+equalband <- (ceiling(nrow(sitesbylat) / 23)) +20 ## This will mean that we will be closer to the actual value
 
 for(r in 2:nrow(sitesbylat)){
   ## If there's not many in the band, then we can assign the same letter
@@ -209,34 +209,36 @@ max(bandDat$maxLat)
 
 ## Where would -40 be??
 # 0 =  -40.21667
-# 107.91 = 68.4525
-# so x spans 108.6692 degrees
-# each 1  unit on the x = 1.01 degree
-
+# 108.1 = 68.4525
+# so x spans 108.64 degrees
+# each 1  unit on the x = 1.004 degree
+oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 108.1
 #axis(1, at = c(0), labels = c(1))
-#axis(1, at = c(107.91), labels = c(2))
+#axis(1, at = c(108.1), labels = c(2))
 
 ## So where is -40 degrees
 # -40 degrees is 0.21667 change
-1 / (1.01/0.21667)
+minus40 <- 1 / (oneunit/0.21667)
 
-axis(1, at = 0.214, labels = "-40")
+axis(1, at = minus40, labels = "-40")
 
 # -30
 # 10.21667 degrees change
-# 1 / (1.01 / 10.21667)
-# axis(1, at = 10.115511, labels = "-30")
+# 1 / (oneunit / 10.21667)
+# axis(1, at = 10.16519, labels = "-30")
 
 ## ok, a sequency of every 10 degrees
-# from 0.214 to 108, every (10.11551 - 0.214) = 9.90151
+# from 0.214 to 108, every (10.16519 - minus40) = 9.949612
 
-# / (1.01/ 8.452500) # 8.45 degree change
-#axis(1, at = (99.22910 + 8.368812), labels = "68.4")
+# 1 / (oneunit/ 8.43075) # 8.388272 degree change
+#axis(1, at = (99.949612 + 8.388272), labels = "68.43")
+
+
 
 labs <- as.character(seq(-40, 60, by = 10))
 labs <- c(labs, "68.4")
 
-axis(1, at = c(seq(0.214, 108, by = 9.90151), (99.22910 + 8.368812)), labels = labs)
+axis(1, at = c(seq(minus40, 110, by = (oneunit * 10)), 108), labels = labs)
 
 # axis(1, at = (99.22910 + 9.90151), labels = "70")
 dev.off()
