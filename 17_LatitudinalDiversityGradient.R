@@ -97,7 +97,13 @@ for(i in 1:length(levels(spp$band))){
   }else{
     
     # Number of species binomials
-    bandDat[i, 2] <- length(unique(bnd$Revised))
+    
+    
+    binomials <- unique(bnd$Revised)
+    binomials <- binomials[!(is.na(binomials))]
+    
+    
+    bandDat[i, 2] <- length(binomials)
     
     
     # Number of morphospecies
@@ -206,7 +212,11 @@ for(i in 1:length(levels(spp$band))){
       
       
       # Number of species binomials
-      rarefiedDat[r, 1] <- length(unique(bnd_temp$Revised))
+      binomials <- unique(bnd_temp$Revised)
+      binomials <- binomials[!(is.na(binomials))]
+      
+      
+      rarefiedDat[r, 1] <- length(binomials)
       
       
       # Number of morphospecies
@@ -327,8 +337,12 @@ for(i in 1:length(levels(spp$band))){
       
       
       # Number of species binomials
-      rarefiedDat[r, 1] <- length(unique(bnd_temp$Revised))
+     
+      binomials <- unique(bnd_temp$Revised)
+      binomials <- binomials[!(is.na(binomials))]
       
+      
+      rarefiedDat[r, 1] <- length(binomials)
       
       # Number of morphospecies
       mrphs <- bnd_temp[!(is.na(bnd_temp$MorphospeciesID)),]
