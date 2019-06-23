@@ -155,8 +155,11 @@ for(i in 1:length(levels(spp$band))){
   }else{
     
     # Number of species binomials
-    bandDat[i, 2] <- length(unique(bnd$Revised))
+    binomials <- unique(bnd$Revised)
+    binomials <- binomials[!(is.na(binomials))]
     
+    
+    bandDat[i, 2] <- length(binomials)
     
     # Number of morphospecies
     mrphs <- bnd[!(is.na(bnd$MorphospeciesID)),]
