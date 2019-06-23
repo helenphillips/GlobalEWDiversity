@@ -37,7 +37,7 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 # 3. Load in models
 #################################################
 print("Loading in the biodiversity models")
-load(file.path(models, "richnessmodel.rds"))
+load(file.path(models, "richnessmodel_revised.rds"))
 
 
 

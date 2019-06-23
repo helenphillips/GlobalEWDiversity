@@ -12,7 +12,7 @@ library(lme4)
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
   
   GLs_folder <- "I:\\sWorm\\ProcessedGLs\\Same_resolution\\regions"
   models <- "Models"
@@ -41,7 +41,7 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 # 3. Load in models
 #################################################
 print("Loading in the biodiversity models")
-load(file.path(models, "biomassmodel_full.rds"))
+load(file.path(models, "biomassmodel_full_revised.rds"))
 
 
 #################################################
