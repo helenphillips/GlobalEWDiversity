@@ -56,7 +56,7 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 richness <- read.csv(file.path(data_in, loadin))
 
-load(file.path(models, "richnessmodel.rds"))
+load(file.path(models, "richnessmodel_revised.rds"))
 
 ## Biomass
 files <- list.files(file.path(data_in))
@@ -211,16 +211,7 @@ dat <- melt(a)
 dat$X1 <- factor(dat$X1, levels = c( "Biomass", "Abundance","Species Richness"))
 dat$X2 <- factor(dat$X2, levels = c("Habitat Cover","Elevation", "Soil","Precipitation", "Temperature","Water Retention"))
 
-############################
 
-jpeg(file = file.path(figures, "variableImportance_splitGroups.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-p <- VariableImportancePlot(dat, lowColour = "#BCBDDC", highColour = "#25004b", yLab = "Main Models", deltas = d)
-p <- p + annotate("text", x = c(1,2,3,4,5,6), y=1, label = c(d[3,'Habitat Cover'], d[3, 'Elevation'], d[3,'Soil'], d[3,'Precipitation'], d[3,'Temperature'], d[3,'Water Retention'])) +
-annotate("text", x = c(1,2,3,4,5,6), y=2, label = c(d[2,'Habitat Cover'], d[2, 'Elevation'], d[2,'Soil'], d[2,'Precipitation'], d[2,'Temperature'], d[2,'Water Retention'])) +
-annotate("text", x = c(1,2,3,4,5,6), y=3, label = c(d[1,'Habitat Cover'], d[1, 'Elevation'], d[1,'Soil'], d[1,'Precipitation'], d[1,'Temperature'], d[1,'Water Retention']))
-dev.off()
-
-##### Alternative plot
 
 delta <- melt(d)
 

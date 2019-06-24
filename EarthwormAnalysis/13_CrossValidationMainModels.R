@@ -32,9 +32,9 @@ data_out <- "13_Data"
 models <- "Models"
 
 
-load(file.path(models, "richnessmodel.rds"))
-load(file.path(models, "biomassmodel_full.rds"))
-load(file.path(models, "abundancemodel_full.rds"))
+load(file.path(models, "richnessmodel_revised.rds"))
+load(file.path(models, "biomassmodel_full_revised.rds"))
+load(file.path(models, "abundancemodel_full_revised.rds"))
 
 
 k_fold <- 10
@@ -145,7 +145,7 @@ write.csv(biomass, file = file.path(data_out, "BiomassCrossValidation.csv"), row
 ################################################
 optimizer = "bobyqa"
 Iters = 2e5
-data = richness
+data <- read.csv(file.path("8_Data", "sitesRichness_2019-06-20.csv", sep = ""))
 fam = "poisson"
 r.squaredGLMM(richness_model)
 

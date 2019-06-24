@@ -6,7 +6,7 @@
 ########################################################
 
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
 
@@ -141,7 +141,7 @@ b1 <- lmer(logBiomass ~  ESA + ScaleElevation +
 
 
 biomass_model_SG <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
-save(biomass_model_SG, file = file.path(models, "biomassmodel_SoilGrids.rds"))
+save(biomass_model_SG, file = file.path(models, "biomassmodel_SoilGrids_revision.rds"))
 
 
 
@@ -207,7 +207,7 @@ a1 <- lmer(logAbundance ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scal
            control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 abundance_model_SG <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
-save(abundance_model_SG, file = file.path(models, "abundancemodel_SoilGrids.rds"))
+save(abundance_model_SG, file = file.path(models, "abundancemodel_SoilGrids_revision.rds"))
 
 
 # load(file.path(models, "abundancemodel_full.rds"))

@@ -12,7 +12,7 @@ source(file.path(functions, "ModelSimplification.R"))
 source(file.path(functions, "FormatData.R"))
 
 ##### Data
-## Script 22 does the analysis to find out which variables are needed in the model 
+## Script 14 does the analysis to find out which variables are needed in the model 
 # Variables have also been scaled
 print(paste("Loading the file: ", file.path(data_in, paste("sitesRichness_soilGrids_", date, ".csv", sep = ""))))
 richness <- read.csv(file = file.path(data_in, paste("sitesRichness_soilGrids_", date, ".csv", sep = "")))
@@ -35,6 +35,6 @@ print("First model done. Now for the simplification process...")
 
 
 richness_model <- modelSimplificationAIC(model = r1, data = richness, optimizer = "bobyqa", Iters = 2e5)
-save(richness_model, file = file.path(data_out, "richnessmodel_soilGrids.rds"))
+save(richness_model, file = file.path(data_out, "richnessmodel_soilGrids_revision.rds"))
 
 print("Done!")
