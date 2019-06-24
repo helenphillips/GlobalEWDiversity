@@ -18,7 +18,7 @@ export LANG=en_US.UTF8
 output_dir=/work/$USER/$JOB_NAME/$JOB_ID
 mkdir -p $output_dir
 data_in=/data/idiv_sdiv/sworm
-date="2018-11-08"
+date="2019-06-24"
 functions=/work/$USER/Functions
 
 
