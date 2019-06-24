@@ -155,7 +155,10 @@ testZeroInflation(simulationOutput_r1, plot = TRUE, alternative = "greater")
 
 richness_model <- modelSimplificationAIC(model = r1, data = richness, optimizer = "bobyqa", Iters = 2e5)
 save(richness_model, file = file.path(models, "richnessmodel_full.rds"))
-# load(file.path(models, "richnessmodel_full.rds"))
+# load(file.path(models, "richnessmodel_revised.rds"))
+
+coef(summary(richness_model))[,1]
+
 
 ##  From DHARMa
 simulationOutput <- simulateResiduals(fittedModel = richness_model, n = 250)
@@ -226,7 +229,22 @@ plot(simulationOutput,quantreg = TRUE)
 
 biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
 save(biomass_model, file = file.path(models, "biomassmodel_full_revised.rds"))
-# load(file.path(models, "biomassmodel_full.rds"))
+# load(file.path(models, "biomassmodel_full_revised.rds"))
+
+# 
+# forlmertest_b <- lmer(logBiomass ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleORCDRC +  
+#   scaleCECSOL + bio10_7_scaled + bio10_12_scaled + bio10_15_scaled +  
+#   ScalePET + SnowMonths_cat + scalePH:scaleCLYPPT + scalePH:scaleSLTPPT +  
+#   scalePH:scaleORCDRC + scalePH:scaleCECSOL + scaleCLYPPT:scaleCECSOL +  
+#   scaleORCDRC:scaleCECSOL + bio10_7_scaled:bio10_12_scaled +  
+#   bio10_12_scaled:bio10_15_scaled + bio10_12_scaled:ScalePET +  
+#   bio10_12_scaled:SnowMonths_cat + bio10_15_scaled:ScalePET +  
+#   bio10_15_scaled:SnowMonths_cat + ScalePET:SnowMonths_cat +  
+#   scaleSLTPPT:bio10_12_scaled + scaleCLYPPT:bio10_15_scaled +  
+#   ESA + (1 | file/Study_Name),  data = biomass,
+#   control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+# 
+# summary(forlmertest_b)
 
 simulationOutput_bm <- simulateResiduals(fittedModel = biomass_model, n = 250)
 plotSimulatedResiduals(simulationOutput = simulationOutput_bm,quantreg = TRUE)
@@ -311,7 +329,21 @@ testZeroInflation(simulationOutput_a1, plot = TRUE, alternative = "greater")
 
 abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
 save(abundance_model, file = file.path(models, "abundancemodel_full_revised.rds"))
-# load(file.path(models, "abundancemodel_full.rds"))
+# load(file.path(models, "abundancemodel_full_revised.rds"))
+
+
+# forlmtertest <- lmer(logAbundance ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL +      
+#                        scaleORCDRC + bio10_7_scaled + bio10_15_scaled + SnowMonths_cat +  
+#                        scaleAridity + ScalePET + scalePH:scaleSLTPPT + scalePH:scaleCECSOL +  
+#                        scalePH:scaleORCDRC + scaleCLYPPT:scaleCECSOL + scaleCLYPPT:scaleORCDRC +      
+#                        bio10_7_scaled:bio10_15_scaled + bio10_7_scaled:SnowMonths_cat +  
+#                        bio10_7_scaled:scaleAridity + bio10_15_scaled:ScalePET +      
+#                        SnowMonths_cat:scaleAridity + SnowMonths_cat:ScalePET + scaleAridity:ScalePET +  
+#                        scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET + ESA + ScaleElevation +     (1 | file/Study_Name),
+#                      data = abundance,  control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+# 
+# summary(forlmtertest)
+# 
 
 
 simulationOutput_a2 <- simulateResiduals(fittedModel = abundance_model, n = 250)
