@@ -1,4 +1,4 @@
-setwd("C:/Users/hp39wasi/sWorm/Theory")
+setwd("C:/restore2/hp39wasi/sWorm/Theory")
 
 library(RColorBrewer)
 library(scales)
@@ -11,6 +11,15 @@ figs <- "Figures"
 
 
 dat <- read.csv("LitSearch_data.csv")
+dat2 <- read.csv("LiteratureReview_data_revision.csv")
+dat2[,c(20:ncol(dat2))] <- NULL
+dat2 <- dat2[dat2$Theory != "",]
+
+names(dat) == names(dat2)
+
+
+dat <- rbind(dat, dat2)
+
 table(dat$Grain.size..smallest.sample.unit.)
 table(dat$Grain.size.unit)
 
@@ -36,6 +45,8 @@ dat$Theory <- factor(dat$Theory, levels = c("SER", "TIB", "MCT", "Niche/Neutral"
 
 
 dat$Extent <- as.character(dat$Extent)
+dat$Extent[dat$Extent == "unknown but 10km is my best guess, as apparently all three sites were near a small town"] <- "10km"
+
 dat$Extent[dat$Extent == ""] <- "unknown"
 dat$Extent[is.na(dat$Extent)] <- "unknown"
 dat$Extent <- as.factor(dat$Extent)
@@ -86,6 +97,10 @@ levels(dat$grain)[levels(dat$grain) == "16 cm2"] <- "1cm"
 levels(dat$grain)[levels(dat$grain) == "625 cm2"] <- "10cm"
 levels(dat$grain)[levels(dat$grain) == "512 cm3"] <- "10cm"
 levels(dat$grain)[levels(dat$grain) == "15625 cm3"] <- "10cm"    
+levels(dat$grain)[levels(dat$grain) == "15 cm depth, no data on diameter cm"] <- "10cm"    
+levels(dat$grain)[levels(dat$grain) == "196 cm3"] <- "10cm"    
+levels(dat$grain)[levels(dat$grain) == "462 cm3"] <- "10cm"    
+
 
 dat$grain <- droplevels(dat$grain)
 
@@ -124,6 +139,7 @@ dat$Species[grep("Microarthropods", dat$Species, ignore.case = TRUE, value = FAL
 dat$Species[grep("Macroinvertebrates", dat$Species, ignore.case = TRUE, value = FALSE)] <- "soil invertebrates"
 dat$Species[grep("litter arthropods", dat$Species, ignore.case = TRUE, value = FALSE)] <- "soil invertebrates"
 dat$Species[grep("N Fixers", dat$Species, ignore.case = TRUE, value = FALSE)] <- "Soil microbes"
+dat$Species[grep("ground-dwelling macroarthropods", dat$Species, ignore.case = TRUE, value = FALSE)] <- "soil invertebrates"
 
 
 
@@ -169,7 +185,8 @@ sp <- data.frame(table(dat$SizeGroup, dat$Theory))
 theories <- levels(dat$Theory)
 
 
-pdf(file = file.path(figs, "MegaPlot.pdf"), width = 11)
+# pdf(file = file.path(figs, "MegaPlot.pdf"), width = 11)
+jpeg(file = file.path(figs, "MegaPlot.jpg"), width = 1000, height = 600)
 m <- matrix(c(1, 2, 3, 4, 5, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7), byrow = TRUE, ncol = 5)
 layout(m)
 

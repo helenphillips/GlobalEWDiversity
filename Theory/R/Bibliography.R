@@ -1,4 +1,4 @@
-setwd("C:/Users/hp39wasi/sWorm/Theory")
+setwd("C:/restore2/hp39wasi/sWorm/Theory")
 
 
 dat <- read.csv("Data\\LitSearchFormatted.csv")
@@ -9,6 +9,8 @@ length(unique(dat$Title))
 ds <- duplicated(dat$Title)
 dat <- dat[!(ds),] ## non-duplicated titles
 
+## this file has been manually updated after re-running the lit search for the 
+## revision
 bib <- read.csv("AllSoilSearchResults.csv")
 
 

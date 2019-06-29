@@ -1,4 +1,4 @@
-setwd("C:/Users/hp39wasi/sWorm/Theory")
+setwd("C:/restore2/hp39wasi/sWorm/Theory")
 
 library(RColorBrewer)
 library(scales)
@@ -66,9 +66,44 @@ dat$Supported[grep("yes", dat$Supported)] <- "Yes"
 dat$Supported[grep("yes - m", dat$Supported, ignore.case = TRUE)] <- "Yes"
 
 dat <- dat[dat$Supported != "doesn't mention any, could just delete I think",]
+dat <- dat[dat$Supported != "not very clear",]
+
 
 dat$Supported <- droplevels(dat$Supported)
 
+####################################################3
+# For Table - each theory
+####################################################
+## MCT
+mct <- droplevels(dat[dat$Theory == "MCT",])
+table(mct$Supported)
+table(mct$SizeGroup, mct$Supported)
+
+table(mct$Extent, mct$Supported)
+table(mct$grain, mct$Supported)
+
+## SER
+ser <- droplevels(dat[dat$Theory == "SER",])
+table(ser$Supported)
+table(ser$SizeGroup, ser$Supported)
+
+table(ser$Extent, ser$Supported)
+table(ser$grain, ser$Supported)
+
+
+## TIB
+
+tib <- droplevels(dat[dat$Theory == "TIB",])
+table(tib$Supported)
+table(tib$SizeGroup, tib$Supported)
+
+table(tib$Extent, tib$Supported)
+table(tib$grain, tib$Supported)
+
+######################################################
+
+
+table(dat$Supported, dat$Theory)
 
 jpeg(file.path(figs, "SupportOrNot.jpeg"), width = 3000, height = 2000, pointsize = 30)
 ## IBT
@@ -157,3 +192,23 @@ levels(neutral_only$Supported)[levels(neutral_only$Supported) == "Yes-Neutral"] 
 levels(neutral_only$Supported)[levels(neutral_only$Supported) == "Yes - Neutral"] <- "Yes"
 
 neutral <- rbind(neutral, neutral_only)
+
+
+
+##################33
+# Niche
+
+table(niche$Supported)
+table(niche$SizeGroup, niche$Supported)
+
+table(niche$Extent, niche$Supported)
+table(niche$grain, niche$Supported)
+
+##################33
+# Neutral
+
+table(neutral$Supported)
+table(neutral$SizeGroup, neutral$Supported)
+
+table(neutral$Extent, neutral$Supported)
+table(neutral$grain, neutral$Supported)
