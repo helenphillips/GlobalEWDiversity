@@ -17,7 +17,7 @@ export LANG=en_US.UTF8
 
 output_dir=/work/$USER/$JOB_NAME/$JOB_ID
 mkdir -p $output_dir
-GLs_dir=/data/idiv_sdiv/sworm/ProcessGLs
+GLs_dir=/data/idiv_sdiv/sworm/ProcessGLs/Abundance
 Models_dir=/data/idiv_sdiv/sworm/Models
 region="$@"
 

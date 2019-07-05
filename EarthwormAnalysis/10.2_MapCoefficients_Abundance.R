@@ -43,6 +43,11 @@ load(file.path(models, "abundancemodel_full_revised.rds"))
 #################################################
 # 4. Rerun model with different factor levels for ESA
 #################################################
+if(file.exists(file.path(models, "abundancemodel_full_revised_ESA.rds"))){
+  print("Model already exists")
+  load(file.path(models, "abundancemodel_full_revised_ESA.rds"))
+  
+}else{
 print("Re-running model with new ESA values....")
 data <- abundance_model@frame
 levels(data$ESA)[levels(data$ESA) == 'Broadleaf deciduous forest'] <- "60"
@@ -60,7 +65,10 @@ levels(data$ESA)[levels(data$ESA) == 'Cropland/Other vegetation mosaic'] <- "30"
 mod <-  lmer(formula = abundance_model@call$formula, data = data, 
              control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
 
+save(mod, file = file.path(models, "abundancemodel_full_revised_ESA.rds"))
 
+
+}
 
 if(!dir.exists(file.path(savefolder, reg))){
   dir.create(file.path(savefolder, reg))
@@ -74,7 +82,7 @@ print("Creating abundance raster")
 print("Loading all rasters")
 
 
-bio10_7_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_7_AbundanceCutScaled.tif"))
+bio10_7_scaled <- raster(file.path(GLs_folder, reg, "scaled_Abundance_bio10_7_.tif"))
 
 dimensions <- dim(bio10_7_scaled)
 resol <-res(bio10_7_scaled)
@@ -82,7 +90,7 @@ coordred <- crs(bio10_7_scaled)
 exten <- extent(bio10_7_scaled)
 bio10_7_scaled <- as.vector(bio10_7_scaled)
 
-bio10_15_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_AbundanceCutScaled.tif"))
+bio10_15_scaled <- raster(file.path(GLs_folder, reg, "scaled_Abundance_bio10_15_.tif"))
 bio10_15_scaled <- as.vector(bio10_15_scaled)
 
 SnowMonths_cat <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
@@ -90,28 +98,28 @@ SnowMonths_cat <- as.vector(SnowMonths_cat)
 SnowMonths_cat <- as.factor(SnowMonths_cat)
 levels(SnowMonths_cat)[levels(SnowMonths_cat) == "4"] <- "4plus"
 
-scaleAridity <- raster(file.path(GLs_folder, reg, "Aridity_AbundanceScaled.tif"))
+scaleAridity <- raster(file.path(GLs_folder, reg, "scaled_Abundance_ai_.tif"))
 scaleAridity <- as.vector(scaleAridity)
 
-ScalePET <- raster(file.path(GLs_folder, reg, "PETyr_AbundanceScaled.tif"))
+ScalePET <- raster(file.path(GLs_folder, reg, "scaled_Abundance_pet_.tif"))
 ScalePET <- as.vector(ScalePET)
 
-ScaleElevation <- raster(file.path(GLs_folder, reg, "elevation_AbundanceScaled.tif"))
+ScaleElevation <- raster(file.path(GLs_folder, reg, "scaled_Abundance_elevation_.tif"))
 ScaleElevation <- as.vector(ScaleElevation)
 
-scalePH <- raster(file.path(GLs_folder, reg,"PHIHOX_AbundanceCutScaled.tif"))
+scalePH <- raster(file.path(GLs_folder, reg,"scaled_Abundance_ph_.tif"))
 scalePH <- as.vector(scalePH)
 
-scaleCLYPPT <- raster(file.path(GLs_folder, reg, "CLYPPT_AbundanceCutScaled.tif"))
+scaleCLYPPT <- raster(file.path(GLs_folder, reg, "scaled_Abundance_clay_.tif"))
 scaleCLYPPT <- as.vector(scaleCLYPPT)
 
-scaleSLTPPT <- raster(file.path(GLs_folder, reg, "SLTPPT_AbundanceCutScaled.tif"))
+scaleSLTPPT <- raster(file.path(GLs_folder, reg, "scaled_Abundance_silt_.tif"))
 scaleSLTPPT <- as.vector(scaleSLTPPT)
 
-scaleCECSOL <- raster(file.path(GLs_folder, reg, "CECSOL_AbundanceCutScaled.tif"))
+scaleCECSOL <- raster(file.path(GLs_folder, reg, "scaled_Abundance_cation_.tif"))
 scaleCECSOL <- as.vector(scaleCECSOL)
 
-scaleORCDRC <- raster(file.path(GLs_folder, reg, "ORCDRC_AbundanceCutScaled.tif"))
+scaleORCDRC <- raster(file.path(GLs_folder, reg, "scaled_Abundance_carbon_.tif"))
 scaleORCDRC <- as.vector(scaleORCDRC)
 
 ESA <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))

@@ -47,7 +47,12 @@ load(file.path(models, "biomassmodel_full_revised.rds"))
 #################################################
 # 4. Rerun model with different factor levels for ESA
 #################################################
-print("Re-running model with new ESA values....")
+f(file.exists(file.path(models, "biomassmodel_full_revised_ESA.rds"))){
+  print("Model already exists")
+  load(file.path(models, "biomassmodel_full_revised_ESA.rds"))
+  
+}else{
+  print("Re-running model with new ESA values....")
 data <- biomass_model@frame
 levels(data$ESA)[levels(data$ESA) == 'Broadleaf deciduous forest'] <- "60"
 levels(data$ESA)[levels(data$ESA) == 'Broadleaf evergreen forest'] <- "50"
@@ -65,6 +70,8 @@ levels(data$ESA)[levels(data$ESA) == "Bare area (unconsolidated"] <- "202"
 mod <-  lmer(formula = biomass_model@call$formula, data = data, 
              control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
 
+save(mod, file = file.path(models, "biomassmodel_full_revised_ESA.rds"))
+}
 
 
 ####
@@ -83,22 +90,22 @@ print("Loading all rasters")
 
 print(file.path(GLs_folder, reg))
 
-bio10_12_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_12_BiomassCutScaled.tif"))
+bio10_12_scaled <- raster(file.path(GLs_folder, reg, "scaled_Biomass_bio10_12_.tif"))
 dimensions <- dim(bio10_12_scaled)
 resol <-res(bio10_12_scaled)
 coordred <- crs(bio10_12_scaled)
 exten <- extent(bio10_12_scaled)
 bio10_12_scaled <- as.vector(bio10_12_scaled)
 
-bio10_7_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_7_BiomassCutScaled.tif"))
+bio10_7_scaled <- raster(file.path(GLs_folder, reg, "scaled_Biomass_bio10_7_.tif"))
 bio10_7_scaled <- as.vector(bio10_7_scaled)
 
 
-bio10_15_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_BiomassCutScaled.tif"))
+bio10_15_scaled <- raster(file.path(GLs_folder, reg, "scaled_Biomass_bio10_15_.tif"))
 bio10_15_scaled <- as.vector(bio10_15_scaled)
 
 
-ScalePET <- raster(file.path(GLs_folder, reg, "PETyr_BiomassScaled.tif"))
+ScalePET <- raster(file.path(GLs_folder, reg, "scaled_Biomass_pet_.tif"))
 ScalePET <- as.vector(ScalePET)
 
 
@@ -109,19 +116,19 @@ levels(SnowMonths_cat)[levels(SnowMonths_cat) == "4"] <- "4plus"
 
 
 
-scalePH <- raster(file.path(GLs_folder, reg,"PHIHOX_BiomassCutScaled.tif"))
+scalePH <- raster(file.path(GLs_folder, reg,"scaled_Biomass_ph_.tif"))
 scalePH <- as.vector(scalePH)
 
-scaleCLYPPT <- raster(file.path(GLs_folder, reg, "CLYPPT_BiomassCutScaled.tif"))
+scaleCLYPPT <- raster(file.path(GLs_folder, reg, "scaled_Biomass_clay_.tif"))
 scaleCLYPPT <- as.vector(scaleCLYPPT)
 
-scaleSLTPPT <- raster(file.path(GLs_folder, reg, "SLTPPT_BiomassCutScaled.tif"))
+scaleSLTPPT <- raster(file.path(GLs_folder, reg, "scaled_Biomass_silt_.tif"))
 scaleSLTPPT <- as.vector(scaleSLTPPT)
 
-scaleCECSOL <- raster(file.path(GLs_folder, reg, "CECSOL_BiomassCutScaled.tif"))
+scaleCECSOL <- raster(file.path(GLs_folder, reg, "scaled_Biomass_cation_.tif"))
 scaleCECSOL <- as.vector(scaleCECSOL)
 
-scaleORCDRC <- raster(file.path(GLs_folder, reg, "ORCDRC_BiomassCutScaled.tif"))
+scaleORCDRC <- raster(file.path(GLs_folder, reg, "scaled_Biomass_carbon_.tif"))
 scaleORCDRC <- as.vector(scaleORCDRC)
 
 ESA <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))

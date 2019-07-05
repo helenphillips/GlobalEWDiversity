@@ -52,22 +52,31 @@ if(!dir.exists(file.path(savefolder, reg))){
 #################################################
 # 4. Rerun model with different factor levels for ESA
 #################################################
-print("Re-running model with new ESA values....")
-data <- richness_model@frame
-levels(data$ESA)[levels(data$ESA) == 'Broadleaf deciduous forest'] <- "60"
-levels(data$ESA)[levels(data$ESA) == 'Broadleaf evergreen forest'] <- "50"
-levels(data$ESA)[levels(data$ESA) == 'Needleleaf evergreen forest'] <- "70"
-levels(data$ESA)[levels(data$ESA) == 'Mixed forest'] <- "90"
-levels(data$ESA)[levels(data$ESA) == 'Herbaceous with spare tree/shrub'] <- "110"
-levels(data$ESA)[levels(data$ESA) == 'Shrub'] <- "120"
-levels(data$ESA)[levels(data$ESA) == 'Herbaceous'] <- "130"
-levels(data$ESA)[levels(data$ESA) == 'Production - Herbaceous'] <- "10"
-levels(data$ESA)[levels(data$ESA) == 'Production - Plantation'] <- "12"
-# levels(data$ESA)[levels(data$ESA) == 'Cropland/Other vegetation mosaic'] <- "30"
+if(file.exists(file.path(models, "richnessmodel_revised_ESA.rds"))){
+  print("Model already exists")
+  load(file.path(models, "richnessmodel_revised_ESA.rds"))
+  
+  
+}else{print("Re-running model with new ESA values....")
+  data <- richness_model@frame
+  levels(data$ESA)[levels(data$ESA) == 'Broadleaf deciduous forest'] <- "60"
+  levels(data$ESA)[levels(data$ESA) == 'Broadleaf evergreen forest'] <- "50"
+  levels(data$ESA)[levels(data$ESA) == 'Needleleaf evergreen forest'] <- "70"
+  levels(data$ESA)[levels(data$ESA) == 'Mixed forest'] <- "90"
+  levels(data$ESA)[levels(data$ESA) == 'Herbaceous with spare tree/shrub'] <- "110"
+  levels(data$ESA)[levels(data$ESA) == 'Shrub'] <- "120"
+  levels(data$ESA)[levels(data$ESA) == 'Herbaceous'] <- "130"
+  levels(data$ESA)[levels(data$ESA) == 'Production - Herbaceous'] <- "10"
+  levels(data$ESA)[levels(data$ESA) == 'Production - Plantation'] <- "12"
+  # levels(data$ESA)[levels(data$ESA) == 'Cropland/Other vegetation mosaic'] <- "30"
+  
+  
+  mod <-  glmer(formula = richness_model@call$formula, data = data, family = "poisson",
+                control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  
+  save(mod, file = file.path(models, "richnessmodel_revised_ESA.rds"))
+}
 
-
-mod <-  glmer(formula = richness_model@call$formula, data = data, family = "poisson",
-              control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
 
 #################################################
 # 5. RICHNESS
@@ -75,7 +84,7 @@ mod <-  glmer(formula = richness_model@call$formula, data = data, family = "pois
 print("Creating richness raster")
 print("Loading all rasters")
 
-bio10_7_scaled <- raster(file.path(GLs_folder,reg, "CHELSA_bio10_7_RichnessCutScaled.tif"))
+bio10_7_scaled <- raster(file.path(GLs_folder,reg, "scaled_Richness_bio10_7_.tif"))
 dimensions <- dim(bio10_7_scaled)
 resol <-res(bio10_7_scaled)
 coordred <- crs(bio10_7_scaled)
@@ -84,7 +93,7 @@ bio10_7_scaled <- as.vector(bio10_7_scaled)
 
 
 
-bio10_15_scaled <- raster(file.path(GLs_folder,reg, "CHELSA_bio10_15_RichnessCutScaled.tif"))
+bio10_15_scaled <- raster(file.path(GLs_folder,reg, "scaled_Richness_bio10_15_.tif"))
 bio10_15_scaled <- as.vector(bio10_15_scaled)
 
 SnowMonths_cat <- raster(file.path(GLs_folder,reg, "Snow_newValues_WGS84.tif"))
@@ -92,28 +101,28 @@ SnowMonths_cat <- as.vector(SnowMonths_cat)
 SnowMonths_cat <- as.factor(SnowMonths_cat)
 levels(SnowMonths_cat)[levels(SnowMonths_cat) == "4"] <- "4plus"
 
-scaleAridity <- raster(file.path(GLs_folder,reg, "Aridity_RichnessScaled.tif"))
+scaleAridity <- raster(file.path(GLs_folder,reg, "scaled_Richness_ai_.tif"))
 scaleAridity <- as.vector(scaleAridity)
 
-ScalePET <- raster(file.path(GLs_folder,reg, "PETyr_RichnessScaled.tif"))
+ScalePET <- raster(file.path(GLs_folder,reg, "scaled_Richness_pet_.tif"))
 ScalePET <- as.vector(ScalePET)
 
-scalePH <- raster(file.path(GLs_folder,reg,"PHIHOX_RichnessCutScaled.tif"))
+scalePH <- raster(file.path(GLs_folder,reg,"scaled_Richness_ph_.tif"))
 scalePH <- as.vector(scalePH)
 
-scaleElevation <- raster(file.path(GLs_folder,reg,"elevation_RichnessScaled.tif"))
+scaleElevation <- raster(file.path(GLs_folder,reg,"scaled_Richness_elevation_.tif"))
 scaleElevation <- as.vector(scaleElevation)
 
-scaleCLYPPT <- raster(file.path(GLs_folder,reg,"CLYPPT_RichnessCutScaled.tif"))
+scaleCLYPPT <- raster(file.path(GLs_folder,reg,"scaled_Richness_clay_.tif"))
 scaleCLYPPT <- as.vector(scaleCLYPPT)
 
-scaleSLTPPT <- raster(file.path(GLs_folder,reg,"SLTPPT_RichnessCutScaled.tif"))
+scaleSLTPPT <- raster(file.path(GLs_folder,reg,"scaled_Richness_silt_.tif"))
 scaleSLTPPT <- as.vector(scaleSLTPPT)
 
-scaleCECSOL <- raster(file.path(GLs_folder,reg,"CECSOL_RichnessCutScaled.tif"))
+scaleCECSOL <- raster(file.path(GLs_folder,reg,"scaled_Richness_cation_.tif"))
 scaleCECSOL <- as.vector(scaleCECSOL)
 
-scaleORCDRC <- raster(file.path(GLs_folder,reg,"ORCDRC_RichnessCutScaled.tif"))
+scaleORCDRC <- raster(file.path(GLs_folder,reg,"scaled_Richness_carbon_.tif"))
 scaleORCDRC <- as.vector(scaleORCDRC)
 
 ESA <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))
