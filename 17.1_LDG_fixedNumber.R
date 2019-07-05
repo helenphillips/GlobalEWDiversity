@@ -102,7 +102,7 @@ sitesbylat$band[1] <- letters[let]
 
 epsilon <- 20 ## This has worked the best so far!
 
-equalband <- (ceiling(nrow(sitesbylat) / 23)) +20 ## This will mean that we will be closer to the actual value
+equalband <- (ceiling(nrow(sitesbylat) / 23)) + 25 ## This will mean that we will be closer to the actual value
 
 for(r in 2:nrow(sitesbylat)){
   ## If there's not many in the band, then we can assign the same letter
@@ -125,7 +125,8 @@ for(r in 2:nrow(sitesbylat)){
 sitesbylat$Latitude__decimal_degrees <- NULL
 spp <- merge(spp, sitesbylat, by = "Study_site", all.x = TRUE)
 
-colNames <- c("band", "Number of Binomials", "Number of Morphospecies", "number of genus", "number of sites", "minLat", "maxLat")
+colNames <- c("band", "Number of Binomials", "Number of Morphospecies", "number of genus", 
+              "number of genus no morphs", "number of sites", "minLat", "maxLat")
 bandDat <- data.frame(matrix(rep(NA, times = length(colNames) * length(levels(spp$band))), 
                              ncol = length(colNames), nrow  = length(levels(spp$band))))
 
@@ -143,7 +144,7 @@ for(i in 1:length(levels(spp$band))){
   # Which band
   bandDat[i, 1] <- levels(spp$band)[i]
   # Sampling effort
-  bandDat[i, 5] <- length(unique(bnd$Study_site))
+  bandDat[i, "number of sites"] <- length(unique(bnd$Study_site))
   
   # min lat
   bandDat[i, 'minLat'] <- min(bnd$Latitude__decimal_degrees)
@@ -151,7 +152,7 @@ for(i in 1:length(levels(spp$band))){
   
   
   if(nrow(bnd) == 0){
-    bandDat[i, c(2:4)] <- 0
+    bandDat[i, c(2:5)] <- 0
   }else{
     
     # Number of species binomials
@@ -164,13 +165,15 @@ for(i in 1:length(levels(spp$band))){
     # Number of morphospecies
     mrphs <- bnd[!(is.na(bnd$MorphospeciesID)),]
     if(nrow(mrphs) > 0){
-      bandDat[i, 3] <- length(unique(paste(mrphs$Genus, mrphs$MorphospeciesID)))
-    }else{ bandDat[i, 3] <- 0}
+      bandDat[i, "Number of Morphospecies"] <- length(unique(paste(mrphs$Genus, mrphs$MorphospeciesID)))
+    }else{ bandDat[i, "Number of Morphospecies"] <- 0}
     
     # Number of genus not considered anywhere else
-    gns <- bnd[is.na(bnd$SpeciesBinomial),] 
+    gns <- bnd[is.na(bnd$Revised),] 
     gns <- gns[is.na(gns$MorphospeciesID),] 
-    uni <- as.character(unique(gns$Genus))
+    uni <- unique(gns$Genus)
+    uni <- as.character(uni[!(is.na(uni))])
+    
     if(length(uni) > 0){
       for(g in 1:length(uni)){
         matches <- grep(uni[g], bnd$Revised)
@@ -179,12 +182,34 @@ for(i in 1:length(levels(spp$band))){
         } else {uni[g] <- 1}
       }
       uni <- as.numeric(uni)
-      bandDat[i, 4] <- sum(uni)
-    } else {bandDat[i, 4] <- 0}
+      bandDat[i, "number of genus"] <- sum(uni)
+    } else {bandDat[i, "number of genus"] <- 0}
+    
+    # Number of genus not considered else where, if we forget about morphospecies
+    
+    # Number of genus not considered anywhere else
+    gns <- bnd[is.na(bnd$Revised),] 
+    uni <- unique(gns$Genus)
+    uni <- as.character(uni[!(is.na(uni))])
+    
+    if(length(uni) > 0){
+      for(g in 1:length(uni)){
+        matches <- grep(uni[g], bnd$Revised)
+        if(length(matches) > 0){
+          uni[g] <- 0
+        } else {uni[g] <- 1}
+      }
+      uni <- as.numeric(uni)
+      bandDat[i, "number of genus no morphs"] <- sum(uni)
+    } else {bandDat[i, "number of genus no morphs"] <- 0}
+    
+    
   }
 }
 
-bandDat$total <- rowSums(bandDat[,2:4])
+
+bandDat$total <- rowSums(bandDat[,c("Number of Binomials", "Number of Morphospecies", "number of genus")])
+bandDat$total_no_morphs <- rowSums(bandDat[,c("Number of Binomials", "number of genus no morphs")])
 
 ## Add in all the gaps
 
@@ -193,7 +218,7 @@ bandDat$total <- rowSums(bandDat[,2:4])
 
 bandDat[23, 1] <- "w"
   
-bandDat[23, 2:ncol(bandDat)]<- c(0, 0, 0, 0, -36.999999, -35.399999,  0) # Theres a big gap with no sites
+bandDat[23, 2:ncol(bandDat)]<- c(0, 0, 0, 0, 0, -36.999999, -35.399999, 0, 0) # Theres a big gap with no sites
 
 bandDat$latDiff <- bandDat$maxLat - bandDat$minLat
 
@@ -209,12 +234,12 @@ max(bandDat$maxLat)
 
 ## Where would -40 be??
 # 0 =  -40.21667
-# 108.1 = 68.4525
+# 107 = 68.4525
 # so x spans 108.64 degrees
-# each 1  unit on the x = 1.004 degree
-oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 108.1
+# each 1  unit on the x = 1.015 degree
+oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 107
 #axis(1, at = c(0), labels = c(1))
-#axis(1, at = c(108.1), labels = c(2))
+# axis(1, at = c(107), labels = c(2))
 
 ## So where is -40 degrees
 # -40 degrees is 0.21667 change
@@ -228,7 +253,7 @@ axis(1, at = minus40, labels = "-40")
 # axis(1, at = 10.16519, labels = "-30")
 
 ## ok, a sequency of every 10 degrees
-# from 0.214 to 108, every (10.16519 - minus40) = 9.949612
+# from 0.214 to 107, every (10.16519 - minus40) = 9.949612
 
 # 1 / (oneunit/ 8.43075) # 8.388272 degree change
 #axis(1, at = (99.949612 + 8.388272), labels = "68.43")
@@ -238,10 +263,30 @@ axis(1, at = minus40, labels = "-40")
 labs <- as.character(seq(-40, 60, by = 10))
 labs <- c(labs, "68.4")
 
-axis(1, at = c(seq(minus40, 110, by = (oneunit * 10)), 108), labels = labs)
+axis(1, at = c(seq(minus40, 107, by = ( 10.05974 - minus40) ), 107), labels = labs)
+
 
 # axis(1, at = (99.22910 + 9.90151), labels = "70")
 dev.off()
 
+#######################
+# And with no morphospecies
+#########################
 
+jpeg(file = file.path(figures, "LDG_regional_fixedSites_nomorphs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+
+b <- barplot(bandDat$total_no_morphs, width = bandDat$latDiff, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+min(bandDat$minLat)
+max(bandDat$maxLat)
+oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 107
+minus40 <- 1 / (oneunit/0.21667)
+
+axis(1, at = minus40, labels = "-40")
+
+labs <- as.character(seq(-40, 60, by = 10))
+labs <- c(labs, "68.4")
+
+axis(1, at = c(seq(minus40, 107, by = ( 10.05974 - minus40) ), 107), labels = labs)
+
+dev.off()
 

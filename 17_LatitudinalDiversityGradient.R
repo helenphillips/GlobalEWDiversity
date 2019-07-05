@@ -78,10 +78,12 @@ spp <- spp[spp$Study_site %in% unique(sites$Study_site),]
 brks <- seq(-45, 70, by = 5)
 spp$band <- cut(spp$Latitude__decimal_degrees, breaks = brks, labels = NULL)
 
-bandDat <- data.frame(matrix(rep(NA, times = 5 * length(levels(spp$band))), 
-                             ncol = 5, nrow  = length(levels(spp$band))))
+colNames <- c("band", "Number of Binomials", "Number of Morphospecies", "number of genus","number of genus no morphs", "number of sites")
 
-names(bandDat) <- c("band", "Number of Binomials", "Number of Morphospecies", "number of genus", "number of sites")
+bandDat <- data.frame(matrix(rep(NA, times = length(colNames) * length(levels(spp$band))), 
+                             ncol = length(colNames), nrow  = length(levels(spp$band))))
+
+names(bandDat) <- colNames
 
 for(i in 1:length(levels(spp$band))){
   bnd <- spp[spp$band == levels(spp$band)[i],] 
@@ -90,10 +92,10 @@ for(i in 1:length(levels(spp$band))){
   # Which band
   bandDat[i, 1] <- levels(spp$band)[i]
   # Sampling effort
-  bandDat[i, 5] <- length(unique(bnd$Study_site))
+  bandDat[i, "number of sites"] <- length(unique(bnd$Study_site))
   
   if(nrow(bnd) == 0){
-    bandDat[i, c(2:4)] <- 0
+    bandDat[i, c(2:6)] <- 0
   }else{
     
     # Number of species binomials
@@ -113,9 +115,12 @@ for(i in 1:length(levels(spp$band))){
     }else{ bandDat[i, 3] <- 0}
     
     # Number of genus not considered anywhere else
-    gns <- bnd[is.na(bnd$SpeciesBinomial),] 
+    gns <- bnd[is.na(bnd$Revised),] 
     gns <- gns[is.na(gns$MorphospeciesID),] 
-    uni <- as.character(unique(gns$Genus))
+   
+    uni <- (unique(gns$Genus))
+    uni <- as.character(uni[!(is.na(uni))])
+    
     if(length(uni) > 0){
       for(g in 1:length(uni)){
         matches <- grep(uni[g], bnd$Revised)
@@ -126,11 +131,32 @@ for(i in 1:length(levels(spp$band))){
       uni <- as.numeric(uni)
       bandDat[i, 4] <- sum(uni)
     } else {bandDat[i, 4] <- 0}
+    
+    
+    # Number of genus when we forget about morphospecies
+    gns <- bnd[is.na(bnd$Revised),] 
+
+    uni <- (unique(gns$Genus))
+    uni <- as.character(uni[!(is.na(uni))])
+    
+    
+    if(length(uni) > 0){
+      for(g in 1:length(uni)){
+        matches <- grep(uni[g], bnd$Revised)
+        if(length(matches) > 0){
+          uni[g] <- 0
+        } else {uni[g] <- 1}
+      }
+      uni <- as.numeric(uni)
+      bandDat[i, 5] <- sum(uni)
+    } else {bandDat[i, 5] <- 0}
+    
   }
 }
 
 
 bandDat$total <- rowSums(bandDat[,2:4])
+bandDat$total_nomorphs <- rowSums(bandDat[,c("Number of Binomials", "number of genus no morphs")])
 
 jpeg(file = file.path(figures, "LDG_regional.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 
@@ -138,7 +164,7 @@ par(mar = c(4, 4, 1, 5))
 b <- barplot(bandDat$total, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 barplot(bandDat$total, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 par(new=TRUE)
-plot(b[,1],bandDat[,5],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
+plot(b[,1],bandDat[,6],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
 axis(4,at=seq(0,1200,100), las = 2)
 axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
 mtext("Number of sites", side = 4, line = 3)
@@ -146,14 +172,14 @@ dev.off()
 
 ### Without morphospecies
 
-bandDat$totalnoMorphs <- rowSums(bandDat[,c(2,4)])
+
 jpeg(file = file.path(figures, "LDG_regional_nomorphs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 
 par(mar = c(4, 4, 1, 5))
-b <- barplot(bandDat$totalnoMorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
-barplot(bandDat$totalnoMorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+b <- barplot(bandDat$total_nomorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+barplot(bandDat$total_nomorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 par(new=TRUE)
-plot(b[,1],bandDat[,5],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
+plot(b[,1],bandDat[,6],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
 axis(4,at=seq(0,1200,100), las = 2)
 axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
 mtext("Number of sites", side = 4, line = 3)
@@ -174,24 +200,26 @@ sitesbyband <- unique(sitesbyband[c("Study_site", "band")])
 n_min <- 22 # number of sites in a latitude, that isn't ridiculously low
 n_rarefied <- 1000
 
+colNames <- c("band", "number of sites", "rarefiedRichness", 'rarefiedNoMorphs')
+bandDat <- data.frame(matrix(rep(NA, times = length(colNames) * length(levels(spp$band))), 
+                             ncol = length(colNames), nrow  = length(levels(spp$band))))
 
-bandDat <- data.frame(matrix(rep(NA, times = 4 * length(levels(spp$band))), 
-                             ncol = 4, nrow  = length(levels(spp$band))))
-names(bandDat) <- c("band", "number of sites", "rarefiedRichness", 'rarefiedNoMorphs')
+names(bandDat) <- colNames
 
 
-rarefiedDat <- data.frame(matrix(rep(NA, times = 5 * n_rarefied), 
-                                 ncol = 5, nrow  = n_rarefied))
-names(rarefiedDat) <- c("Number of Binomials", "Number of Morphospecies", "number of genus", "total", "totalnoMorphs")
+colNames <- c("Number of Binomials", "Number of Morphospecies", "number of genus", "number of genus no morphs",  "total", "totalnoMorphs")
+rarefiedDat <- data.frame(matrix(rep(NA, times = length(colNames) * n_rarefied), 
+                                 ncol = length(colNames), nrow  = n_rarefied))
+names(rarefiedDat) <- colNames
 
 for(i in 1:length(levels(spp$band))){
   bnd <- spp[spp$band == levels(spp$band)[i],] 
   print(levels(spp$band)[i])
   
   # Which band
-  bandDat[i, 1] <- levels(spp$band)[i]
+  bandDat[i, "band"] <- levels(spp$band)[i]
   # Sampling effort
-  bandDat[i, 2] <- length(unique(bnd$Study_site))
+  bandDat[i, "number of sites"] <- length(unique(bnd$Study_site))
   
   if(nrow(bnd) == 0){
     bandDat[i, 3] <- 0
@@ -216,38 +244,60 @@ for(i in 1:length(levels(spp$band))){
       binomials <- binomials[!(is.na(binomials))]
       
       
-      rarefiedDat[r, 1] <- length(binomials)
+      rarefiedDat[r, 'Number of Binomials'] <- length(binomials)
       
       
       # Number of morphospecies
       mrphs <- bnd_temp[!(is.na(bnd_temp$MorphospeciesID)),]
       if(nrow(mrphs) > 0){
-        rarefiedDat[r, 2] <- length(unique(paste(mrphs$Genus, mrphs$MorphospeciesID)))
-      }else{ rarefiedDat[r, 2] <- 0}
+        rarefiedDat[r, 'Number of Morphospecies'] <- length(unique(paste(mrphs$Genus, mrphs$MorphospeciesID)))
+      }else{ rarefiedDat[r, 'Number of Morphospecies'] <- 0}
       
       # Number of genus not considered anywhere else
-      gns <- bnd_temp[is.na(bnd_temp$SpeciesBinomial),] 
+      gns <- bnd_temp[is.na(bnd_temp$Revised),] 
       gns <- gns[is.na(gns$MorphospeciesID),] 
-      uni <- as.character(unique(gns$Genus))
+      uni <- unique(gns$Genus)
+      uni <- as.character(uni[!(is.na(uni))])
+      
+      binomials <- as.character(binomials)
+      
       if(length(uni) > 0){
         for(g in 1:length(uni)){
-          matches <- grep(uni[g], bnd_temp$Revised)
+          matches <- grep(uni[g], binomials)
           if(length(matches) > 0){
             uni[g] <- 0
           } else {uni[g] <- 1}
         }
         uni <- as.numeric(uni)
-        rarefiedDat[r, 3] <- sum(uni)
-      } else {rarefiedDat[r, 3] <- 0}
+        rarefiedDat[r, 'number of genus'] <- sum(uni)
+      } else {rarefiedDat[r, "number of genus"] <- 0}
+      
+      # Number of genus not considered else where, if we forget about morphospecies
+      gns <- bnd_temp[is.na(bnd_temp$Revised),] 
+      uni <- unique(gns$Genus)
+      uni <- as.character(uni[!(is.na(uni))])
+      
+      if(length(uni) > 0){
+        for(g in 1:length(uni)){
+          matches <- grep(uni[g], binomials)
+          if(length(matches) > 0){
+            uni[g] <- 0
+          } else {uni[g] <- 1}
+        }
+        uni <- as.numeric(uni)
+        rarefiedDat[r, "number of genus no morphs"] <- sum(uni)
+      } else {rarefiedDat[r, "number of genus no morphs"] <- 0}
+      
       
       # print(mean(rarefiedDat$`Number of Morphospecies`))
       
-      rarefiedDat$total <- rowSums(rarefiedDat[,1:3])
-      rarefiedDat$totalnoMorphs <- rowSums(rarefiedDat[,c(1,3)])
     }
+      rarefiedDat$total <- rowSums(rarefiedDat[,c("Number of Binomials", "Number of Morphospecies", "number of genus")])
+      rarefiedDat$totalnoMorphs <- rowSums(rarefiedDat[,c("Number of Binomials", "number of genus no morphs")])
+      
     ## Done the 1000 samples
-    bandDat[i, 3] <- mean(rarefiedDat$total)
-    bandDat[i, 4] <- mean(rarefiedDat$totalnoMorphs)
+    bandDat[i, 'rarefiedRichness'] <- mean(rarefiedDat$total)
+    bandDat[i, 'rarefiedNoMorphs'] <- mean(rarefiedDat$totalnoMorphs)
   }
 }
 
@@ -257,7 +307,7 @@ par(mar = c(4, 4, 1, 5))
 b <- barplot(RichnessDat$total, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 # barplot(RichnessDat$total, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 par(new=TRUE)
-plot(b[,1],RichnessDat[,5],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
+plot(b[,1],RichnessDat[,'number of sites'],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
 axis(4,at=seq(0,1200,100), las = 2)
 axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
 mtext("Number of sites", side = 4, line = 3)
@@ -273,10 +323,10 @@ dev.off()
 jpeg(file = file.path(figures, "LDG_regional_paired_noMorphs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 par(mfrow = c(1, 2))
 par(mar = c(4, 4, 1, 5))
-b <- barplot(RichnessDat$totalnoMorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+b <- barplot(RichnessDat$total_nomorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 # barplot(RichnessDat$totalnoMorphs, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 par(new=TRUE)
-plot(b[,1],RichnessDat[,5],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
+plot(b[,1],RichnessDat[,'number of sites'],xaxs = "i", xlim=c(0,23),type="l",col="red",axes=FALSE,ylim=c(0,1200),ann=FALSE)
 axis(4,at=seq(0,1200,100), las = 2)
 axis(1, at = 0:23, labels = seq(-45, 70, by = 5))
 mtext("Number of sites", side = 4, line = 3)
@@ -351,9 +401,12 @@ for(i in 1:length(levels(spp$band))){
       }else{ rarefiedDat[r, 2] <- 0}
       
       # Number of genus not considered anywhere else
-      gns <- bnd_temp[is.na(bnd_temp$SpeciesBinomial),] 
+      gns <- bnd_temp[is.na(bnd_temp$Revised),] 
       gns <- gns[is.na(gns$MorphospeciesID),] 
       uni <- as.character(unique(gns$Genus))
+      
+      
+      
       if(length(uni) > 0){
         for(g in 1:length(uni)){
           matches <- grep(uni[g], bnd_temp$Revised)
