@@ -99,7 +99,9 @@ biomass$ESA <-renameESA(biomass)
 # 5. Format data
 #################################################
 neededCols <- c("ID", "Latitude__decimal_degrees", "Longitude__Decimal_Degrees", 
-                "ph_new", "Clay__percent", "Silt__percent", "Organic_Carbon__percent", "ESA")
+                "ph_new", "Clay__percent", "Silt__percent", "Organic_Carbon__percent", "ESA", "SnowMonths_cat",              
+                "phFinal","ClayFinal","SiltFinal", "OCFinal","bio10_1_scaled", "bio10_4_scaled","bio10_7_scaled",
+                "bio10_12_scaled","bio10_15_scaled","scaleElevation" )
 
 
 richness <- richness[,names(richness) %in% c(neededCols, "SpeciesRichness")]
