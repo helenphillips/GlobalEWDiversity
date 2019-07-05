@@ -210,7 +210,51 @@ plotrix::corner.label(label = "(a)", x = -1, y = 1, cex = plotlabcex)
 
 dev.off()
 
+#############################################
+## Alternate map
+##############################################
 
+
+all(coord$X %in% names(table(all_studies$Study_Name)))
+
+studyN <- data.frame(table(all_studies$Study_Name))
+
+coord <- merge(coord, studyN, all.x = TRUE, by.x = "X", by.y = "Var1")
+
+
+# coord$X<-coord$Group.1
+# coord<-coord[2:4]
+# coord$Group.1 <- NULL
+names(coord)<-c("X", "Long", "Lat", "nSites")
+
+
+coord$size <- ((coord$nSites-min(coord$nSites))/(max(coord$nSites)-min(coord$nSites)) * 2) + 0.5
+
+
+dsSPDF<-SpatialPointsDataFrame(coord[,2:3], data.frame(coord[,1:5]))
+proj4string(dsSPDF)<-CRS("+proj=longlat")
+
+transpBlack <- rgb(0, 0, 0, alpha = 0.4, names = NULL, maxColorValue = 1)
+
+jpeg(filename = file.path(figures, "Map_modelledData_nsites.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
+mar=c(0,0,0,0)
+map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
+points(dsSPDF, col=transpBlack, bg = transpBlack, cex= coord$size, pch=19)
+plotrix::corner.label(label = "(a)", x = -1, y = 1, cex = plotlabcex)
+
+
+sizes <- c(1, 50, 100, 150, 200, 250)
+cexsizes <- ((sizes-min(coord$nSites))/(max(coord$nSites)-min(coord$nSites)) * 2) + 0.5
+
+legend(x = -170, y = 2, legend = sizes, pch = 19, pt.cex =cexsizes, bty="n", cex = 0.7, 
+       y.intersp = c(1, 1, 1, 1.05, 1.1, 1.18),
+       x.intersp = c(1.19),
+       title = "Number Of Sites")
+dev.off()
+
+
+
+########################################
 nrow(all_studies)
 length(unique(all_studies$file))
 length(unique(all_studies$Study_Name))
