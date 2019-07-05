@@ -84,7 +84,81 @@ richness <- droplevels(richness)
 ############################################
 load(file.path(models, "abundancemodel_functionalgroups_revised.rds"))
 load(file.path(models, "biomassmodel_functionalgroups_revised.rds"))
-load(file.path(models, "richnessmodel_functionalgroups_revised.rds"))
+# load(file.path(models, "richnessmodel_functionalgroups_revised.rds"))
+
+##########################################
+# ABUNDANCE
+##########################################
+abundanceCols <- ColourPicker(abundance$ESA)
+
+
+newdata <- createNewdata(model = abundance_model, 
+                         modelFixedEffects = c("ESA", "variable", "scalePH", "scaleCLYPPT" ,
+                                               "scaleSLTPPT",  "scaleORCDRC", "scaleCECSOL", "bio10_7_scaled", 
+                                               "bio10_15_scaled", "SnowMonths_cat","scaleAridity", "ScalePET"),
+                         mainEffect = c("ESA", "variable"), data = abundance)
+
+
+## Only reference level for snow
+newdata <- newdata[newdata$SnowMonths_cat == 0,]
+
+## Predict response and variance
+newdata <- predictValues(model = abundance_model, newdata, responseVar = "logValue", 
+                         seMultiplier = 1.96, re.form = NA)
+
+
+#### Get rid of levels not represented by data
+fgtokeep <- c("Epi_abundance","Endo_abundance","Ane_abundance")
+newdata <- newdata[newdata$variable %in% fgtokeep,]
+
+###############################################
+## TRIANGULAR PLOT
+##############################################
+
+labelsESA <- as.factor(c("Broadleaf deciduous forest", "Broadleaf evergreen forest",
+                         "Needleleaf evergreen forest",
+                         "Mixed forest","Herbaceous with spare tree/shrub",
+                         "Shrub","Herbaceous","Production - Herbaceous","Production - Plantation") )
+
+Cols <- abundanceCols
+# Cols <- ColourPicker(labelsESA)
+# This is not in the right order!!
+
+df <- data.frame(epigeic = newdata$logValue[grep("Epi", newdata$variable)], 
+                 endogeics = newdata$logValue[grep("Endo", newdata$variable)],
+                 anecics = newdata$logValue[grep("Ane", newdata$variable)])
+
+
+df$col <- paste0("#", Cols)
+row.names(df) <- labelsESA
+
+df[,1:3] <- exp(df[,1:3]) - 1
+
+# Some less than zero
+df[which(df[,1] < 0), 1] <- 0
+df[which(df[,2] < 0), 2] <- 0
+df[which(df[,3] < 0), 3] <- 0
+
+df$total <- rowSums(df[,1:3])
+
+jpeg(file = file.path(figures, "Biomass+Abundance_FGTriangle.jpeg"), quality = 100, res = 200, width = 2000, height = 2000)
+par(mfrow=c(2, 1))
+# jpeg(file = file.path(figures, "AbundanceFGTriangle.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+par(mar=c(1,1,1,1))
+t <- triangle.plot(df[,1:3], show.position = FALSE, min3 = c(0, 0, 0), max3 = c(1, 1, 1))
+points(t, col = df$col, cex = df$total/5, pch = 19)
+# legend for colours
+legend(0.7,0.8, legend=labelsESA, fill = df$col, cex = 0.8, bty = "n")
+plotrix::corner.label(label = "(a)", x = -1, y = 1, cex = plotlabcex)
+
+# Legend for point size
+pts <- seq(floor(min(df[,5])), ceiling(max(df[,5])), length.out = 4)
+pts <- round(pts)
+legend(-1.5,0.8, legend= pts, pt.cex = pts/5, cex = 0.8, 
+       bty = "n", pch = rep(19, times = 4), y.intersp = 2.7, x.intersp =3)
+mtext(expression("Total Abundance (ind. per" ~ m^{2} ~ ")"), 3, -3, adj=0.07)
+
+# dev.off()
 
 
 #############################################
@@ -143,95 +217,27 @@ df$total <- rowSums(df[,1:3])
 
 
 
-jpeg(file = file.path(figures, "BiomassFGTriangle.jpeg"), quality = 100, res = 200, width = 2000, height = 1000)
-
+# jpeg(file = file.path(figures, "BiomassFGTriangle.jpeg"), quality = 100, res = 200, width = 2000, height = 1000)
+par(mar=c(1, 1, 1, 1))
 t <- triangle.plot(df[,1:3], show.position = FALSE, min3 = c(0, 0, 0), max3 = c(1, 1, 1), cpoint = 0)
-points(t, col = df$col, cex = df$total/5 + 0.5, pch = 19)
+points(t, col = df$col, cex = df$total/5 + 1, pch = 19)
 # Legend for point size
-pts <- seq(floor(min(df[,5])), ceiling(max(df[,5])), length.out = 4)
+pts <- seq(ceiling(min(df[,5])), ceiling(max(df[,5])), length.out = 4)
 pts <- round(pts)
+plotrix::corner.label(label = "(b)", x = -1, y = 1, cex = plotlabcex)
 
+legend(-1.5,0.8, legend= pts, pt.cex = pts/5 + 1, cex = 0.8, 
+       bty = "n", pch = rep(19, times = 4), y.intersp = 2.0, x.intersp =3)
+mtext(expression("Total Biomass (grams per" ~ m^{2} ~ ")"), 3, -3, adj=0.08)
 
-legend(-1.5,1, legend= pts, pt.cex = pts/5 + 0.5, cex = 0.8, 
-       bty = "n", pch = rep(19, times = 4), y.intersp = 2.5, x.intersp =3)
-mtext(expression("Total Biomass (grams per" ~ m^{2} ~ ")"), 3, 1.2, adj=0.08)
 
 # legend for colours
 legend(0.7,0.8, legend=labelsESA, fill = df$col, cex = 0.8, bty = "n")
-dev.off()
+ dev.off()
 
 
-##########################################
-# Abundance
-##########################################
-
-abundanceCols <- ColourPicker(abundance$ESA)
 
 
-newdata <- createNewdata(model = abundance_model, 
-                         modelFixedEffects = c("ESA", "variable", "scalePH", "scaleCLYPPT" ,
-                                               "scaleSLTPPT",  "scaleORCDRC", "scaleCECSOL", "bio10_7_scaled", 
-                                               "bio10_15_scaled", "SnowMonths_cat","scaleAridity", "ScalePET"),
-                         mainEffect = c("ESA", "variable"), data = abundance)
-
-
-## Only reference level for snow
-newdata <- newdata[newdata$SnowMonths_cat == 0,]
-
-## Predict response and variance
-newdata <- predictValues(model = abundance_model, newdata, responseVar = "logValue", 
-                         seMultiplier = 1.96, re.form = NA)
-
-
-#### Get rid of levels not represented by data
-fgtokeep <- c("Epi_abundance","Endo_abundance","Ane_abundance")
-newdata <- newdata[newdata$variable %in% fgtokeep,]
-
-###############################################
-## TRIANGULAR PLOT
-##############################################
-
-labelsESA <- as.factor(c("Broadleaf deciduous forest", "Broadleaf evergreen forest",
-                         "Needleleaf evergreen forest",
-                         "Mixed forest","Herbaceous with spare tree/shrub",
-                         "Shrub","Herbaceous","Production - Herbaceous","Production - Plantation") )
-
-Cols <- abundanceCols
-# Cols <- ColourPicker(labelsESA)
-# This is not in the right order!!
-
-df <- data.frame(epigeic = newdata$logValue[grep("Epi", newdata$variable)], 
-                 endogeics = newdata$logValue[grep("Endo", newdata$variable)],
-                 anecics = newdata$logValue[grep("Ane", newdata$variable)])
-
-
-df$col <- paste0("#", Cols)
-row.names(df) <- labelsESA
-
-df[,1:3] <- exp(df[,1:3]) - 1
-
-# Some less than zero
-df[which(df[,1] < 0), 1] <- 0
-df[which(df[,2] < 0), 2] <- 0
-df[which(df[,3] < 0), 3] <- 0
-
-df$total <- rowSums(df[,1:3])
-
-jpeg(file = file.path(figures, "AbundanceFGTriangle.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-par(mar=c(1,1,1,1))
-t <- triangle.plot(df[,1:3], show.position = FALSE, min3 = c(0, 0, 0), max3 = c(1, 1, 1))
-points(t, col = df$col, cex = df$total/5, pch = 19)
-# legend for colours
-legend(0.7,0.8, legend=labelsESA, fill = df$col, cex = 0.8, bty = "n")
-
-# Legend for point size
-pts <- seq(floor(min(df[,5])), ceiling(max(df[,5])), length.out = 4)
-pts <- round(pts)
-legend(-1.5,0.8, legend= pts, fill = "black",pt.cex = pts/5, cex = 0.8, 
-       bty = "n", pch = rep(19, times = 4), y.intersp = 2.7, x.intersp =3)
-mtext("Total Abundance (ind./m2)", 3, -3, adj=0.1)
-
-dev.off()
 
 
 ##########################################
@@ -304,74 +310,92 @@ dev.off()
 ################# Mean plots
 ############################
 
+jpeg(file = file.path(figures, "HabitatCover_FGAbundance+Biomass.jpg"), quality = 100, res = 200, width = 1800, height = 2000)
+par(mfrow = c(2, 1))
+
 ##############################
-## BIOMASS
+## ABUNDANCE
 ##############################
 # jpeg(file = file.path(figures, "HabitatCover_Richness+Abundance.jpg"), quality = 100, res = 200, width = 1500, height = 2000)
 
-load(file.path(models, "biomassmodel_full_revised.rds"))
+abundanceCols <- ColourPicker(abundance$ESA)
 
-biomassCols <- ColourPicker(biomass_model@frame$ESA)
-
-newdata <- createNewdata(model = biomass_model, modelFixedEffects = c("ESA",  "scalePH", "scaleCLYPPT", "scaleSLTPPT",  
-                                                                      "scaleORCDRC", "scaleCECSOL", "bio10_7_scaled" , "bio10_12_scaled", 
+newdata <- createNewdata(model = abundance_model, modelFixedEffects = c("ESA","variable", "scalePH", "scaleCLYPPT", "scaleSLTPPT",  
+                                                                      "scaleORCDRC", "scaleCECSOL", "bio10_7_scaled" , "scaleAridity",
                                                                       "bio10_15_scaled", "SnowMonths_cat", "ScalePET"),
-                         mainEffect = c("ESA"), data = biomass_model@frame)
-
-## Only reference level for snow
-newdata <- newdata[newdata$SnowMonths_cat == 0,]
-
-## Remove two 
-
-## Predict response and variance
-newdata <- predictValues(model = biomass_model, newdata, responseVar = "logBiomass", 
-                         seMultiplier = 1.96, re.form = NA)
-
-if(length(biomassCols) != length(levels(newdata$ESA))){
-  print("The length of colours does not match the number of factor levels. Some may be removed or duplicated")
-}
-
-pt_cols <- NULL
-pt_cols <- paste("#", biomassCols, sep="")
-
-newdata$Colour <- pt_cols
-# xpos <- (seq(1, length(xpos), by = 4)) # those are the positions the means would go
-# jpeg(file.path(figures, "Biomass_ESA+FG.jpg"), width = 1000, height =750, quality = 200)
-par(mar = c(5, 4, 2, 2))
-plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
-     xlim = c(0.9, nrow(newdata) * 4),  ylab = "log Biomass", xlab = "", xaxt='n')
-
-xpos <- 1:(nrow(newdata) * 4)
-xpos <- seq(1, length(xpos), by = 4)
-
-errbar(xpos, newdata$logBiomass, newdata$upper, newdata$lower,
-       add = TRUE, col = newdata$Colour, errbar.col = newdata$Colour, cex = 2,
-       pch = 19)
-
-labelsNew <- c("Broadleaf \n deciduous \n forest","Broadleaf \n evergreen \n forest", "Needleleaf \n evergreen \n forest",
-               "Mixed forest","Herbaceous \n with spare \n tree/shrub",
-               "Shrub","Herbaceous","Production - \n Herbaceous","Production - \n Plantation", "Bare area") 
-# axis(1, at = c(2, 5, 8, 11, 14, 17, 20, 23), labelsNew, padj=0.5) 
-
-
-biomass_main <- biomass_model
-## FG Model
-load(file.path(models, "biomassmodel_functionalgroups_revised.rds"))
-biomass_fg <- biomass_model
-
-
-biomassCols <- ColourPicker(biomass$ESA)
-
-newdata <- createNewdata(model = biomass_fg, modelFixedEffects = c("ESA","variable", "ScaleElevation",  "scalePH", "scaleCLYPPT", "scaleSLTPPT",  
-                                                                   "scaleORCDRC", "scaleCECSOL", "bio10_4_scaled" , "bio10_12_scaled", 
-                                                                   "bio10_15_scaled", "SnowMonths_cat", "ScalePETSD"),
                          mainEffect = c("ESA", "variable"), data = biomass)
 
 ## Only reference level for snow
 newdata <- newdata[newdata$SnowMonths_cat == 0,]
 
 ## Predict response and variance
-newdata <- predictValues(model = biomass_fg, newdata, responseVar = "logValue", 
+newdata <- predictValues(model = abundance_model, newdata, responseVar = "logValue", 
+                         seMultiplier = 1.96, re.form = NA)
+
+if(length(abundanceCols) != length(levels(newdata$ESA))){
+  print("The length of colours does not match the number of factor levels. Some may be removed or duplicated")
+}
+
+cols <- abundanceCols[1:length(levels(newdata$ESA))]
+
+cols <- rep(cols, times = length(levels(newdata$variable)))
+pt_cols <- paste("#", cols, sep="")
+
+newdata$Colour <- pt_cols
+
+#### Get rid of levels not represented by data
+fgtokeep <- c("Epi_abundance","Endo_abundance","Ane_abundance")
+newdata <- newdata[newdata$variable %in% fgtokeep,]
+
+
+##### Group by Effect1
+order <- c()
+for(i in (levels(abundance$ESA))){
+  order <- c(order, which(newdata$ESA == i))
+}
+
+
+newdata <- newdata[order,]
+# jpeg(file.path(figures, "Biomass_ESA+FG.jpg"), width = 1000, height =750, quality = 200)
+par(mar = c(6, 4, 2, 2))
+plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
+     xlim = c(0.9, nrow(newdata)),  ylab = "(ln-) Abundance", xlab = "", xaxt='n', axes = FALSE)
+Axis(side = 2, cex.axis = 1)
+
+xpos <- 1:nrow(newdata)
+adj1 <- c(0.2, 0, -0.2)
+xpos <- xpos + adj1
+
+errbar(xpos, newdata$logValue, newdata$upper, newdata$lower,
+       add = TRUE, col = newdata$Colour, errbar.col = newdata$Colour, cex = 2,
+       pch = rep(c(16, 17, 15), times = length(levels(newdata$ESA))))
+
+mtext("(a)", side = 3, line = 0, at = 0, adj = 0.1)
+
+labelsNew <- c("Broadleaf\ndeciduous\nforest", "Broadleaf\nevergreen\nforest", "Needleleaf\nevergreen\nforest",
+               "Mixed forest","Herbaceous\nwith spare\ntree/shrub",
+               "Shrub","Herbaceous","Production -\nHerbaceous","Production -\nPlantation") 
+axis(1, at = c(2, 5, 8, 11, 14, 17, 20, 23, 26), labelsNew, padj=0.5, las = 2) 
+
+
+##############################
+## BIOMASS
+##############################
+
+
+
+biomassCols <- ColourPicker(biomass$ESA)
+
+newdata <- createNewdata(model = biomass_model, modelFixedEffects = c("ESA","variable", "ScaleElevation",  "scalePH", "scaleCLYPPT", "scaleSLTPPT",  
+                                                                      "scaleORCDRC", "scaleCECSOL", "bio10_4_scaled" , "bio10_12_scaled", 
+                                                                      "bio10_15_scaled", "SnowMonths_cat", "ScalePETSD"),
+                         mainEffect = c("ESA", "variable"), data = biomass)
+
+## Only reference level for snow
+newdata <- newdata[newdata$SnowMonths_cat == 0,]
+
+## Predict response and variance
+newdata <- predictValues(model = biomass_model, newdata, responseVar = "logValue", 
                          seMultiplier = 1.96, re.form = NA)
 
 if(length(biomassCols) != length(levels(newdata$ESA))){
@@ -381,7 +405,7 @@ if(length(biomassCols) != length(levels(newdata$ESA))){
 cols <- biomassCols[1:length(levels(newdata$ESA))]
 
 cols <- rep(cols, times = length(levels(newdata$variable)))
-pt_cols <- paste("#", cols, "80", sep="")
+pt_cols <- paste("#", cols, sep="")
 
 newdata$Colour <- pt_cols
 
@@ -398,21 +422,38 @@ for(i in (levels(biomass$ESA))){
 
 
 newdata <- newdata[order,]
+# jpeg(file.path(figures, "Biomass_ESA+FG.jpg"), width = 1000, height =750, quality = 200)
+par(mar = c(6, 4, 2, 2))
+plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
+     xlim = c(0.9, nrow(newdata)),  ylab = "(ln-) Biomass", xlab = "", xaxt='n',axes = FALSE)
+Axis(side = 2, cex.axis = 1)
 
-## Longer xlim than data
-## To add in the mean abundance value
+mtext("(b)", side = 3, line = 0, at = 0, adj = 0.1)
 
-xpos <- 1:40
-xpos <- xpos[-seq(1, 40, by = 4)]
-xpos <- xpos[-(4:6)]
-xpos <- xpos[-(25:27)]
+
+xpos <- 1:nrow(newdata)
+adj1 <- c(0.2, 0, -0.2)
+xpos <- xpos + adj1
+
 errbar(xpos, newdata$logValue, newdata$upper, newdata$lower,
        add = TRUE, col = newdata$Colour, errbar.col = newdata$Colour, cex = 2,
        pch = rep(c(16, 17, 15), times = length(levels(newdata$ESA))))
 
 
-### Add in the mean values
+labelsNew <- c("Broadleaf\ndeciduous\nforest", "Needleleaf\nevergreen\nforest",
+               "Mixed forest","Herbaceous\nwith spare\ntree/shrub",
+               "Shrub","Herbaceous","Production -\nHerbaceous","Production -\nPlantation") 
+axis(1, at = c(2, 5, 8, 11, 14, 17, 20, 23), labelsNew, padj=0.5, las = 2) 
 
 
-legend("topleft", legend = c("Epigeics", "Endogeics", "Anecics"), col = "Black", pch = c(16, 17, 15),  lwd = 2, bty = "n", cex = 2)
+
+# legend("topleft", legend = c("Epigeics", "Endogeics", "Anecics"), col = "Black", pch = c(16, 17, 15),  lwd = 2, bty = "n", cex = 2)
 # dev.off()
+
+
+
+
+
+# legend("topleft", legend = c("Epigeics", "Endogeics", "Anecics"), col = "Black", pch = c(16, 17, 15),  lwd = 2, bty = "n", cex = 2)
+ dev.off()
+
