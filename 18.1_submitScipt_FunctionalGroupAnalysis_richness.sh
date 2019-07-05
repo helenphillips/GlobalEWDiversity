@@ -18,10 +18,10 @@ export LANG=en_US.UTF8
 output_dir=/work/$USER/$JOB_NAME/$JOB_ID
 mkdir -p $output_dir
 data_in=/data/idiv_sdiv/sworm/FG_Data
-date="2018-08-08"
+date="2019-06-25"
 functions=/work/$USER/Functions
 
 
 module load R
  
-Rscript /home/phillips/11.1_FunctionalGroupAnalysis_richness.R $output_dir $data_in $date $functions
+Rscript /home/phillips/18.1_FunctionalGroupAnalysis_richness.R $output_dir $data_in $date $functions
