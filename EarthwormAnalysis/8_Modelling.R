@@ -369,9 +369,11 @@ abline(0, 1)
 plot(abundance$logAbundance ~ abundance$logBiomass)
 
 abundancevBiomass <- lmer(logAbundance ~  logBiomass + 
-             (1|file/Study_Name), data = abundance,
+             (1 + logBiomass|file/Study_Name), data = abundance,
            control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
 
 summary(abundancevBiomass)
+r.squaredGLMM(abundancevBiomass)
 
+coef(abundancevBiomass)$Study_Name
