@@ -364,11 +364,11 @@ calculateMSEofQuantiles(abundance)
 write.csv(abundance, file = file.path(data_out, "AbundanceSoilGridsCrossValidation.csv"), row.names = FALSE)
 
 ####### RICHNESS
-load(file.path(models, "richnessmodel_SoilGrids.rds"))
+load(file.path(models, "richnessmodel_SoilGrids_revision.rds"))
 richness_model_SG <- richness_model
 
-data_in <- "8_Data"
-date <- "2018-11-08" # For now
+data_in <- "14_Data"
+date <- "2019-06-24" # For now
 richness <- read.csv(file = file.path(data_in, paste("sitesRichness_soilGrids_", date, ".csv", sep = "")))
 optimizer = "bobyqa"
 Iters = 2e5
