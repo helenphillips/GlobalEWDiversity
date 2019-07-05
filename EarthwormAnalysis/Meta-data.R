@@ -1,5 +1,5 @@
 if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 #################################################
 # 1. Libraries
@@ -18,12 +18,13 @@ library(lme4)
 models <- "Models"
 
 
-load(file.path(models, "richnessmodel.rds"))
-load(file.path(models, "biomassmodel_full.rds"))
-load(file.path(models, "abundancemodel_full.rds"))
+load(file.path(models, "richnessmodel_revised.rds"))
+load(file.path(models, "biomassmodel_full_revised.rds"))
+load(file.path(models, "abundancemodel_full_revised.rds"))
 # load(file.path(models, "fgrichnessmodel.rds"))
 
 data_in <- "8_Data"
+
 
 
 #################################################
@@ -66,15 +67,20 @@ names(richness)[names(richness) == "scaleElevation"] <- "ScaleElevation"
 
 alldat <- rbind(richness, biomass, abundance)
 
+alldat$Study_Name <- as.character(alldat$Study_Name)
+alldat$Study_Name[alldat$file == "4836_Hurisso2011"] <- "hurisso"
+alldat$Study_Name <- as.factor(alldat$Study_Name)
+
+
 ## unique sites
 length(unique(alldat$ID))
-## 7051
+## 6931
 length(unique(alldat$Study_site))
-## 7048
+## 6928
 
 
-length(unique(alldat$Study_Name)) # 229
-length(unique(alldat$file)) # 181
+length(unique(alldat$Study_Name)) # 228
+length(unique(alldat$file)) # 180
 
 
 countries <- unique(alldat$Country)
@@ -91,9 +97,9 @@ countries <- unique(countries)
 
 countries <- droplevels(as.factor(countries))
 levels(countries)
+countries <- sort(countries)
 
-
-
+levels(alldat$country)
 
 
 ###############################################
@@ -167,10 +173,6 @@ summary(uniqueDat$Soil_Organic_Matter__percent)
 library(plyr)
 library(dplyr)
 
-########
-##Studies with identical climate variables
-#######
-
 soil.df <- uniqueDat %>% # Start by defining the original dataframe, AND THEN...
   group_by(Study_Name) %>% # Define the grouping variable, AND THEN...
   summarise( # Now you define your summary variables with a name and a function...
@@ -186,6 +188,7 @@ soildf <- as.data.frame(soil.df)
 
 someSoil <- soildf[apply(soildf[c('PH','CEC','Organic_Carbon__percent', 'Soil_Organic_Matter__percent', 'C.N_ratio', 'Sand__percent')],1,function(x) any(x > 0)),]
 length(unique(someSoil$Study_Name)) ## 182 with one NA
+
 #######################
 ## Studies with no variation in climate
 ########################
