@@ -2,6 +2,9 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "TSGIS02"){
+  setwd("C:/sWorm/EarthwormAnalysis")
+}
 
 if(!dir.exists("Figures")){
   dir.create("Figures")
@@ -21,8 +24,8 @@ library(viridis)
 ## 'Global'
 ############################################################
 
-bkg <- raster("I:\\sWorm\\ProcessedGLs_revised\\CHELSA_bio10_1_BiomassCutScaled.tif")
-
+# bkg <- raster("I:\\sWorm\\ProcessedGLs_revised\\CHELSA_bio10_1_BiomassCutScaled.tif")
+bkg <- raster("D:\\sWorm\\ProcessedGL\\Datasets\\bio10_1.tif")
 ## The percentage that map is cut off at top and bottom
 
 
@@ -32,7 +35,8 @@ resdpi <- 300
 ## Species Richness
 ############################################################
 
-results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Richness"
+# results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Richness"
+results <- "D:\\sWorm\\Results\\Richness"
 
 # regions <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
 
@@ -93,7 +97,8 @@ colbrks <-  c(minV, seq(1, 6, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
-png(file.path(figures, "Richness.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+# png(file.path(figures, "Richness.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+pdf(file.path(figures, "Richness.pdf"),width=(17.5/2),height=(8.75/2))
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
@@ -133,8 +138,8 @@ dev.off()
 
 # regions <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
 
-results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Biomass"
-
+# results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Biomass"
+results <- "D:\\sWorm\\Results\\Biomass"
 regions <- c("asia", "africa", "europe", "latin_america", "north_america", "west_asia")
 resultRaster <- "BiomassFinalRaster.tif"
  
@@ -152,12 +157,12 @@ west_asia <- raster(file.path(results, "west_asia", resultRaster))
 west_asia <- exp(west_asia) - 1
 
   
-  hist(africa, ylim =c(1, 1000))
- hist(asia, ylim =c(1, 1000))
- hist(europe, xlim = c(0, 50), breaks = seq(minValue(europe),  maxValue(europe), by = 1))
-  hist(latin_america, ylim =c(1, 1000))
-  hist(north_america, ylim =c(1, 1000))
-  hist(west_asia, ylim =c(1, 1000))
+hist(africa, ylim =c(1, 1000))
+hist(asia, ylim =c(1, 1000))
+hist(europe, xlim = c(0, 50), breaks = seq(minValue(europe),  maxValue(europe), by = 1))
+hist(latin_america, ylim =c(1, 1000))
+hist(north_america, ylim =c(1, 1000))
+hist(west_asia, ylim =c(1, 1000))
   
 minV <-min(c(minValue(africa),
              minValue(asia),
@@ -193,7 +198,9 @@ colbrks <-  c(minV, seq(1, 150, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
-png(file.path(figures, "Biomass.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+#png(file.path(figures, "Biomass.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+pdf(file.path(figures, "Biomass.pdf"),width=(17.5/2),height=(8.75/2))
+
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
@@ -227,7 +234,8 @@ dev.off()
 
 
 
-results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Abundance"
+# results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Abundance"
+results <- "D:\\sWorm\\Results\\Abundance"
 
 regions <- c("asia", "afria", "europe", "latin_america", "north_america", "west_asia")
 resultRaster <- "AbundanceFinalRaster.tif"
@@ -259,12 +267,12 @@ maxV <-max(c(maxValue(africa),
              maxValue(north_america),
              maxValue(west_asia)))
 
-# hist(asia)
-# hist(africa)
-# hist(europe)
-# hist(north_america)
-# hist(latin_america)
-# hist(west_asia)
+hist(asia)
+hist(africa)
+hist(europe)
+hist(north_america)
+hist(latin_america)
+hist(west_asia)
 # 
  meanV <- mean(c(cellStats(africa, stat='mean', na.rm=TRUE, asSample=TRUE),
                  cellStats(asia, stat='mean', na.rm=TRUE, asSample=TRUE),
@@ -288,7 +296,9 @@ colbrks <-  c(minV, seq(5, 150, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
-png(file.path(figures, "Abundance.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+#png(file.path(figures, "Abundance.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+pdf(file.path(figures, "Abundance.pdf"),width=(17.5/2),height=(8.75/2))
+
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
