@@ -6,6 +6,10 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "TSGIS02"){
+  setwd("C:/sWorm/EarthwormAnalysis")
+}
+
 
 
 #################################################
@@ -20,6 +24,15 @@ library(Hmisc)
 library(maps)
 library(maptools)
 
+#######################################
+# variables
+######################################
+
+wide_cm <- 12
+wide_inch <- 4.75
+point_size <- 7
+plotlabcex <- 0.5
+resdpi <- 300
 
 #################################################
 # 2. Loading in variables
@@ -236,7 +249,9 @@ proj4string(dsSPDF)<-CRS("+proj=longlat")
 
 transpBlack <- rgb(0, 0, 0, alpha = 0.4, names = NULL, maxColorValue = 1)
 
-jpeg(filename = file.path(figures, "Map_modelledData_nsites.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
+# jpeg(filename = file.path(figures, "Map_modelledData_nsites.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
+pdf(file.path(figures, "Map_modelledData_nsites.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+
 mar=c(0,0,0,0)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
 points(dsSPDF, col=transpBlack, bg = transpBlack, cex= coord$size, pch=19)
