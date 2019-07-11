@@ -53,7 +53,7 @@ sites <- SiteLevels(sites)
 ph1 <- lm(ph_new ~ PHIHOX, data = sites)
 plot(ph1)
 plot(ph_new ~ PHIHOX, data = sites)
-# r2 = 0.38
+# r2 = 0.27
 
 ## Just sites where coordinates varied within a study 
 ## (we know that if coordiantes don't vary the fit won't be good!)
