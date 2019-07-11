@@ -148,9 +148,9 @@ nrow(uniqueDat)
 
 
 summary(uniqueDat$PH)
-nrow(uniqueDat) - 2628
+nrow(uniqueDat) - 2504
 summary(uniqueDat$CEC)
-nrow(uniqueDat) -  6546
+nrow(uniqueDat) -  6426
 
 
 summary(uniqueDat$Base_Saturation_percent)
@@ -263,3 +263,17 @@ unique(means) # 20
 # [15] "4204_Uribe2012"         # 30cm        "4362_Castellanos-Navarrete2012"   #30 cm
 # [17] "4414_Rahman2012"      #30cm          "4963_Ayuke2011"           # 30cm     
 # [19] "5746_Ernst2009"         # 30cm        "4213_Virto2012"    # 30cm
+
+
+
+
+## Where we don't have ph, are other soil variables coming from sampled data?
+## 
+
+noPh <- uniqueDat[is.na(uniqueDat$ph_new),]
+summary(noPh$Organic_Carbon__percent)
+summary(noPh$Silt__percent)
+summary(noPh$Clay__percent)
+
+haveClay <- droplevels(noPh[which(!(is.na(noPh$Silt__percent))),])
+table(haveClay$Country)
