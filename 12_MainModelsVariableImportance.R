@@ -6,6 +6,9 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "TSGIS02"){
+  setwd("C:/sWorm/EarthwormAnalysis")
+}
 
 
 #################################################
@@ -29,6 +32,12 @@ source("Functions/Plots.R")
 # 2. Variables
 #################################################
 
+wide_cm <- 12
+wide_inch <- 4.75
+wide_inch_small <- 2.25
+point_size <- 7
+plotlabcex <- 0.5
+resdpi <- 300
 
 data_in <- "8_Data"
 models <- "Models"
@@ -241,7 +250,9 @@ all_dat <- rbind(spR, abund, bmass)
 
 labs <- c("Habitat Cover","Elevation","Soil","Precipitation","Temperature","Water\nRetention")
 
-jpeg(file = file.path(figures, "variableImportance_splitGroups_circles.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+# jpeg(file = file.path(figures, "variableImportance_splitGroups_circles.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+pdf(file.path(figures, "variableImportance_splitGroups_circles.pdf"),width= wide_inch_small, height= wide_inch_small/2, pointsize = point_size)
+
 par(mar = c(3, 9.5, 1, 5))
 plot(-1e+05, -1e+05, ylim = c(0, 4), xlim = c(0.5, 6.5),  
      ylab = "", xlab = "",  xaxt='n', axes = FALSE)
