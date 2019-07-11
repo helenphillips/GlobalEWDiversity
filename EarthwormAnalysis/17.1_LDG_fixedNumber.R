@@ -11,6 +11,20 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "TSGIS02"){
+  setwd("C:/sWorm/EarthwormAnalysis")
+}
+
+#######################################
+# variables
+######################################
+
+wide_cm <- 12
+wide_inch <- 4.75
+wide_inch_small <- 2.25
+point_size <- 7
+plotlabcex <- 0.5
+resdpi <- 300
 
 
 #################################################
@@ -225,7 +239,8 @@ bandDat$latDiff <- bandDat$maxLat - bandDat$minLat
 bandDat <- bandDat[order(bandDat$minLat),]
 
 
-jpeg(file = file.path(figures, "LDG_regional_fixedSites.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+# jpeg(file = file.path(figures, "LDG_regional_fixedSites.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+pdf(file.path(figures, "LDG_regional_fixedSites.pdf"),width= wide_inch_small, height= wide_inch_small/2, pointsize = point_size)
 
 b <- barplot(bandDat$total, width = bandDat$latDiff, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 
