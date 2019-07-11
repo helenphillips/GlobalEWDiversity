@@ -47,7 +47,7 @@ load(file.path(models, "biomassmodel_full_revised.rds"))
 #################################################
 # 4. Rerun model with different factor levels for ESA
 #################################################
-f(file.exists(file.path(models, "biomassmodel_full_revised_ESA.rds"))){
+if(file.exists(file.path(models, "biomassmodel_full_revised_ESA.rds"))){
   print("Model already exists")
   load(file.path(models, "biomassmodel_full_revised_ESA.rds"))
   
