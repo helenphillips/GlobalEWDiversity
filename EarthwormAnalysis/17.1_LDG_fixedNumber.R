@@ -102,7 +102,7 @@ sitesbylat$band[1] <- letters[let]
 
 epsilon <- 20 ## This has worked the best so far!
 
-equalband <- (ceiling(nrow(sitesbylat) / 23)) + 25 ## This will mean that we will be closer to the actual value
+equalband <- 250 + 25 ## This will mean that we will be closer to the actual value
 
 for(r in 2:nrow(sitesbylat)){
   ## If there's not many in the band, then we can assign the same letter
@@ -211,14 +211,23 @@ for(i in 1:length(levels(spp$band))){
 bandDat$total <- rowSums(bandDat[,c("Number of Binomials", "Number of Morphospecies", "number of genus")])
 bandDat$total_no_morphs <- rowSums(bandDat[,c("Number of Binomials", "number of genus no morphs")])
 
+## How well did we split
+min(bandDat[,'number of sites'])
+max(bandDat[,'number of sites'])
+mean(bandDat[,'number of sites'])
+
+min(bandDat[,'Number of Morphospecies'])
+max(bandDat[,'Number of Morphospecies'])
+mean(bandDat[,'Number of Morphospecies'])
+
 ## Add in all the gaps
 
 
 
 
-bandDat[23, 1] <- "w"
+bandDat[nrow(bandDat) + 1, 1] <- "w"
   
-bandDat[23, 2:ncol(bandDat)]<- c(0, 0, 0, 0, 0, -36.999999, -35.399999, 0, 0) # Theres a big gap with no sites
+bandDat[nrow(bandDat), 2:ncol(bandDat)]<- c(0, 0, 0, 0, 0, -37.000000, -35.381500, 0, 0) # Theres a big gap with no sites
 
 bandDat$latDiff <- bandDat$maxLat - bandDat$minLat
 
@@ -275,7 +284,7 @@ dev.off()
 
 jpeg(file = file.path(figures, "LDG_regional_fixedSites_nomorphs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 
-b <- barplot(bandDat$total_no_morphs, width = bandDat$latDiff, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
+b <- barplot(bandDat$total_no_morphs, width = bandDat$latDiff, space = 0, xaxs = "i", ylab = "Number of Species (excluding morphospecies)", xlab = "Latitude")
 min(bandDat$minLat)
 max(bandDat$maxLat)
 oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 107
@@ -290,3 +299,5 @@ axis(1, at = c(seq(minus40, 107, by = ( 10.05974 - minus40) ), 107), labels = la
 
 dev.off()
 
+
+bandDat
