@@ -20,14 +20,17 @@ library(maptools)
 library(sp)
 library(viridis)
 
+source("Functions/cornerlabel2.R")
+
 #######################################
 # variables
 ######################################
 
 wide_cm <- 12
 wide_inch <- 4.75
-point_size <- 7
-plotlabcex <- 0.5
+point_size <- 10
+plotlabcex <- 1
+legendcex <- 0.8
 resdpi <- 300
 ############################################################
 ## 'Global'
@@ -107,7 +110,7 @@ image(north_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n",
 image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 
 
-plotrix::corner.label(label = "(b)", x = -1, y = 1, cex=0.1)
+corner.label2(label = "B", x = -1, y = 1, cex=plotlabcex, font = 2)
 
 ## Legend
 par(mar=c(0.1,13,1,13))
@@ -117,9 +120,9 @@ b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 # abline(v = 20, col = "white")
 # abline(v = b[418], col = "black")
 
-mtext(1, at = b[20], cex = 0.8)
-mtext(6, at = b[418],cex = 0.8)
-mtext("Number of species", at = 250, cex = 0.8)
+mtext(1, at = b[20], cex = legendcex)
+mtext(6, at = b[418],cex = legendcex)
+mtext("Number of species", at = 250, cex = legendcex)
 dev.off()
 
 
@@ -192,16 +195,16 @@ image(latin_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n",
 image(north_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 
-plotrix::corner.label(label = "(d)", x = -1, y = 1, cex = plotlabcex)
+corner.label2(label = "D", x = -1, y = 1, cex = plotlabcex, font = 2)
 
 
 ## Legend
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("1", at =b[20], cex = 0.8)
-mtext("150", at = b[418], cex = 0.8)
-mtext(expression("Biomass (grams per" ~ m^{2} ~ ")"), at = 250, cex = 0.8)
+mtext("1", at =b[20], cex = legendcex)
+mtext("150", at = b[418], cex = legendcex)
+mtext(expression("Biomass (grams per" ~ m^{2} ~ ")"), at = 250, cex = legendcex)
 dev.off()
 
 
@@ -277,16 +280,16 @@ image(latin_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n",
 image(north_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 
-plotrix::corner.label(label = "(c)", x = -1, y = 1, cex = plotlabcex)
+corner.label2(label = "C", x = -1, y = 1, cex = plotlabcex, font = 2)
 
 
 ## Legend
 par(mar=c(1,13,1,13))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
-mtext("5", at = b[20], cex = 0.8)
-mtext("150", at = b[418], cex = 0.8)
-mtext(expression("Abundance (individuals per" ~ m^{2} ~ ")"), at = 250, cex = 0.8)
+mtext("5", at = b[20], cex = legendcex)
+mtext("150", at = b[418], cex = legendcex)
+mtext(expression("Abundance (individuals per" ~ m^{2} ~ ")"), at = 250, cex = legendcex)
 
 dev.off()
 
