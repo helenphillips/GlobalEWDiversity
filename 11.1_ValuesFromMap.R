@@ -4,12 +4,17 @@ if(Sys.info()["nodename"] == "TSGIS02"){
 }
 
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:/Users/hp39wasi/WORK/sWorm/EarthwormAnalysis")
+}
+
+
 library(data.table)
 
 
 #results <- "D:\\sWorm\\Results\\Richness"
-# results <- "D:\\sWorm\\Results\\Abundance"
-results <- "D:\\sWorm\\Results\\Biomass"
+ results <- "D:\\sWorm\\Results\\Abundance"
+# results <- "D:\\sWorm\\Results\\Biomass"
 
 # regions <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
 
