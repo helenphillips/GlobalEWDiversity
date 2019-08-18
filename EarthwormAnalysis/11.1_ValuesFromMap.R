@@ -7,7 +7,7 @@ if(Sys.info()["nodename"] == "TSGIS02"){
 library(data.table)
 
 
-#results <- "D:\\sWorm\\Results\\Richness"
+# results <- "D:\\sWorm\\Results\\Richness"
 # results <- "D:\\sWorm\\Results\\Abundance"
 results <- "D:\\sWorm\\Results\\Biomass"
 
@@ -97,3 +97,17 @@ min(all$V1)
 max(all$V1)
 median(all$V1)
 
+quantile(all$V1, probs = seq(0.98, 1, by = 0.001))
+
+
+## For BIOMASS
+
+unrealistic <-2000 # i.e. an unrealistic sample of earthworms is 2kg
+## In Lavelle's book (soil Ecology), he said abundance could be 2000ind m-2
+## Assuming 1g per individual 
+## His biomass estimates are max 160g m-2
+
+(length(which(all$V1 > unrealistic ))) / length(all$V1) * 100
+
+all50 <- all$V1[all$V1 < 150]
+hist(all50, breaks = seq(min(all50, na.rm = TRUE),  151, by = 1))
