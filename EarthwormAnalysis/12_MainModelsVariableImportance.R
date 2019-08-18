@@ -248,18 +248,22 @@ abund<- circleSize(abund)
 
 all_dat <- rbind(spR, abund, bmass)
 
-labs <- c("Habitat Cover","Elevation","Soil","Precipitation","Temperature","Water\nRetention")
+labs <- c("Habitat \nCover","Elevation","Soil","Precipitation","Temperature","Water\nRetention")
 
 # jpeg(file = file.path(figures, "variableImportance_splitGroups_circles.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-pdf(file.path(figures, "variableImportance_splitGroups_circles.pdf"),width= wide_inch_small, height= wide_inch_small/2, pointsize = point_size)
+pdf(file.path(figures, "variableImportance_splitGroups_circles.pdf"),width= wide_inch, height= wide_inch*0.55, pointsize = point_size)
 
-par(mar = c(3, 9.5, 1, 5))
+par(mar = c(5, 8, 0.1, 0.1))
 plot(-1e+05, -1e+05, ylim = c(0, 4), xlim = c(0.5, 6.5),  
      ylab = "", xlab = "",  xaxt='n', axes = FALSE)
 axis(side = 2, cex.axis = 1, labels = levels(all_dat$X1), 
      at = c(1:3), las = 2)
 points(all_dat$x, all_dat$y, pch = 19, cex = all_dat$size, ylim = c(0, 5))
-axis(side=1, at = 1:6, labels = labs, las=1, cex.axis = 1, padj=1, mgp = c(3, 0, 0)) 
+#axis(side=1, at = 1:6, labels = labs, las=1, cex.axis = 1, padj=1, mgp = c(3, 0, 0)) 
+axis(1, at = 1:6, labels = FALSE)
+text(1:6, par("usr")[3] - 0.5, labels = labs, srt = 45, pos = 1, xpd = TRUE)
+
+
 # padj put all labels on the same line, and mgp puts labels closer to the axis
 mtext("Model", side = 2, line = 6, cex = 2)
 dev.off()
