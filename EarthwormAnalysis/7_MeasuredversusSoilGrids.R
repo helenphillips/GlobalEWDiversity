@@ -2,8 +2,8 @@
 # 0. Set Working Directory
 ########################################################
 
-if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
 }
 
 
@@ -160,6 +160,14 @@ t <- summary.df$Study_Name[intersect(which(summary.df$coords > 0), which(summary
 # scaleORCDRC
 
 sites$OCFinal <- sites$Organic_Carbon__percent
+## Clarification:
+## Sampled values are in percentages
+## SoilGrids data is in g/kg.
+## However, SoilGrids I divided by 10
+## Which is equivalent to converting into a percentage.
+## ((g / 1000)*100)
+## So they are on the same units
+
 ## Where there are NAs, use SoilGrids
 sites$OCFinal[which(is.na(sites$OCFinal))] <- sites$ORCDRC[which(is.na(sites$OCFinal))]
 ## Where coordinates vary but ph stays the same
