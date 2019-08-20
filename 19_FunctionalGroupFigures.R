@@ -6,6 +6,10 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:/USers/hp39wasi/WORK/sWorm/EarthwormAnalysis")
+}
+
 
 
 #################################################
@@ -14,15 +18,15 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 library(maptools)
 library(maps)
 library(lme4)
-library(car)
-library(DHARMa)
-library(reshape)
 library(Hmisc)
 library(ade4)
 source(file.path("Functions", "FormatData.R"))
 source(file.path("Functions", "Plots.R"))
 source(file.path("Functions", "ColourPicker.R"))
+source(file.path("Functions", "cornerlabel2.R"))
 
+
+plotlabcex <- 1
 
 #################################################
 # 2. Loading in variables
@@ -149,7 +153,7 @@ t <- triangle.plot(df[,1:3], show.position = FALSE, min3 = c(0, 0, 0), max3 = c(
 points(t, col = df$col, cex = df$total/5, pch = 19)
 # legend for colours
 legend(0.7,0.8, legend=labelsESA, fill = df$col, cex = 0.8, bty = "n")
-plotrix::corner.label(label = "(a)", x = -1, y = 1, cex = plotlabcex)
+corner.label2(label = "A", x = -1, y = 1, cex = plotlabcex, font = 2)
 
 # Legend for point size
 pts <- seq(floor(min(df[,5])), ceiling(max(df[,5])), length.out = 4)
@@ -224,7 +228,7 @@ points(t, col = df$col, cex = df$total/5 + 1, pch = 19)
 # Legend for point size
 pts <- seq(ceiling(min(df[,5])), ceiling(max(df[,5])), length.out = 4)
 pts <- round(pts)
-plotrix::corner.label(label = "(b)", x = -1, y = 1, cex = plotlabcex)
+corner.label2(label = "B", x = -1, y = 1, cex = plotlabcex, font = 2)
 
 legend(-1.5,0.8, legend= pts, pt.cex = pts/5 + 1, cex = 0.8, 
        bty = "n", pch = rep(19, times = 4), y.intersp = 2.0, x.intersp =3)
