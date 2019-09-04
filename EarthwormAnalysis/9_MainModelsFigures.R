@@ -1,17 +1,13 @@
 ########################################################
 # 0. Set Working Directory
 ########################################################
-
 if(Sys.info()["nodename"] == "IDIVNB179"){
-  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+   setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
 }
 
 if(Sys.info()["nodename"] == "TSGIS02"){
-  setwd("C:/sWorm/EarthwormAnalysis")
+   setwd("C:/sWorm/EarthwormAnalysis")
 }
-
-
-
 #################################################
 # 1. Loading libraries
 #################################################
@@ -19,8 +15,8 @@ source(file.path("Functions", "Plots.R"))
 source(file.path("Functions", "ColourPicker.R"))
 source(file.path("Functions", "FormatData.R"))
 source(file.path("Functions", "cornerlabel2.R"))
-
-
+ 
+ 
 library(lme4)
 library(Hmisc)
 library(maps)
@@ -29,7 +25,7 @@ library(maptools)
 #######################################
 # variables
 ######################################
-
+ 
 wide_cm <- 12
 wide_inch <- 4.75
 point_size <- 7
@@ -78,6 +74,11 @@ if(!dir.exists("Figures")){
   dir.create("Figures")
 }
 figures <- "Figures"
+
+if(!dir.exists("9_Data")){
+  dir.create("9_Data")
+}
+data_out <- "9_Data"
 
 #################################################
 # 3. Load in data
@@ -205,6 +206,9 @@ all_studies <- all_data[all_data$Study_Name %in% all_studies,]
 
 
 
+## Save for future use
+write.csv(all_studies, file = file.path(data_out, "sWorm_CompleteDataSet.csv"), row.names = FALSE)
+## 
 
 coord<-aggregate(cbind(all_studies$Longitude__Decimal_Degrees, all_studies$Latitude__decimal_degrees), list(all_studies$Study_Name), mean)
 coord$X<-coord$Group.1
