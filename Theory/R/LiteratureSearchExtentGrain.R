@@ -1,4 +1,5 @@
-setwd("C:/restore2/hp39wasi/sWorm/Theory")
+## setwd("C:/restore2/hp39wasi/sWorm/Theory")
+setwd("C:/Users/hp39wasi/WORK/sWorm/Theory")
 
 library(RColorBrewer)
 library(scales)
@@ -185,20 +186,30 @@ sp <- data.frame(table(dat$SizeGroup, dat$Theory))
 theories <- levels(dat$Theory)
 
 
-# pdf(file = file.path(figs, "MegaPlot.pdf"), width = 11)
-jpeg(file = file.path(figs, "MegaPlot.jpg"), width = 1000, height = 600)
+pdf(file = file.path(figs, "MegaPlot.pdf"), width = 11)
+# jpeg(file = file.path(figs, "MegaPlot.jpg"), width = 1000, height = 600)
 m <- matrix(c(1, 2, 3, 4, 5, 6, 6, 6, 6, 7, 6, 6, 6, 6, 7), byrow = TRUE, ncol = 5)
 layout(m)
 
 par(mar=c(0.1, 0.1, 0.1, 0.1))
+
+
+
+#   https://lukemiller.org/index.php/2012/10/adding-p-values-and-r-squared-values-to-a-plot-using-expression/
+
 pie(sp$Freq[sp$Var2 == theories[1]], labels = "", clockwise = TRUE, col=colors)
-mtext(paste("n = ", nrow(dat[dat$Theory == theories[1],]), sep =""), 1)
+N_var <-  bquote(italic(N) == .(paste(nrow(dat[dat$Theory == theories[1],]))))
+mtext(N_var, 1) 
+
 pie(sp$Freq[sp$Var2 == theories[2]], labels = "", clockwise = TRUE, col=colors)
-mtext(paste("n = ", nrow(dat[dat$Theory == theories[2],]), sep =""), 1)
+N_var <-  bquote(italic(N) == .(paste(nrow(dat[dat$Theory == theories[2],]))))
+mtext(N_var, 1) 
 pie(sp$Freq[sp$Var2 == theories[3]], labels = "", clockwise = TRUE, col=colors)
-mtext(paste("n = ", nrow(dat[dat$Theory == theories[3],]), sep =""), 1)
+N_var <-  bquote(italic(N) == .(paste(nrow(dat[dat$Theory == theories[3],]))))
+mtext(N_var, 1) 
 pie(sp$Freq[sp$Var2 == theories[4]], labels = "", clockwise = TRUE, col=colors)
-mtext(paste("n = ", nrow(dat[dat$Theory == theories[4],]), sep =""), 1)
+N_var <-  bquote(italic(N) == .(paste(nrow(dat[dat$Theory == theories[4],]))))
+mtext(N_var, 1) 
 
 plot(0,xaxt='n',yaxt='n',bty='n',pch='',ylab='',xlab='', xlim = c(1, 4.5), ylim = c(0,4))
 points(rep(1, length = 4), 4:1, col = colors, pch = 19, cex = 2)
@@ -221,7 +232,9 @@ points(rep(4.4, length = nrow(y[y$Var2 == theories[4],])), y$Var1[y$Var2 == theo
 
 abline(v=c(1.7, 2.7, 3.7), lty = 2)
 
-axis(1, at = c(1.2, 2.2, 3.2, 4.2), labels = theories)
+# axis(1, at = c(1.2, 2.2, 3.2, 4.2), labels = theories)
+mtext(theories, side = 1, line = -2, at = c(1.2, 2.2, 3.2, 4.2))
+
 axis(2, at = 1:length(unique(dat$grainN)), labels = levels(dat$grain), las = 2)
 axis(4, at = 1:length(unique(dat$ExtentN)), labels = levels(dat$Extent), las = 2)
 
