@@ -1,6 +1,11 @@
 if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
+
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis")
+}
+
 #################################################
 # 1. Libraries
 #################################################
@@ -211,16 +216,22 @@ par(mfrow = c(1, 3))
 plot(richness$predicted ~ jitter(richness$observed), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
 # text(x = -0.5, y = 12, labels = "Species Richness", pos = 4)
-mtext("(a) Species Richness", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("Species Richness", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("A", side = 3, line = 0.5, at = 0, adj = 3, font = 2)
+
 plot(log(abundance$predicted + 1) ~ log(abundance$observed + 1), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
 # text(x = -0.2, y = 6, labels = "(log)Abundance", pos = 4)
-mtext("(b) (ln-) Abundance", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("(ln-) Abundance", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("B", side = 3, line = 0.5, at = 0, adj = 3, font = 2)
+
 
 plot(log(biomass$predicted+1) ~ log(biomass$observed + 1), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
 #text(x = -0.2, y = 5, labels = "(log)Biomass", pos = 4)
-mtext("(c) (ln-) Biomass", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("(ln-) Biomass", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("C", side = 3, line = 0.5, at = 0, adj = 3, font = 2)
+
 mtext('Predicted values', side = 2, outer = TRUE, line = -0, las = 0, cex = 1.5)
 mtext('Observed values', side = 1, outer = TRUE, line = -0, las = 0, cex = 1.5)
 
@@ -368,16 +379,21 @@ par(mfrow = c(1, 3))
 plot(richness$predicted ~ jitter(richness$observed), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
 # text(x = -0.5, y = 12, labels = "Species Richness", pos = 4)
-mtext("(a) Species Richness", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("Species Richness", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("A", side = 3, line = 0.5, at = 0, adj = 3, font = 2)
+
 plot(log(abundance$predicted + 1) ~ log(abundance$observed + 1), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
 # text(x = -0.2, y = 6, labels = "(log)Abundance", pos = 4)
-mtext("(b) (ln-) Abundance", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("(ln-) Abundance", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("B", side = 3, line = 0.5, at = 0, adj = 3, font = 2)
 
 plot(log(biomass$predicted+1) ~ log(biomass$observed + 1), ylab = "", xlab = "", pch = 19, cex = 0.5)
 abline(0, 1) 
 #text(x = -0.2, y = 5, labels = "(log)Biomass", pos = 4)
-mtext("(c) (ln-) Biomass", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("(ln-) Biomass", side = 3, line = 0.5, at = 0, adj = 0.1)
+mtext("C", side = 3, line = 0.5, at = 0, adj = 3, font = 2)
+
 mtext('Predicted values', side = 2, outer = TRUE, line = -0, las = 0, cex = 1.5)
 mtext('Observed values', side = 1, outer = TRUE, line = -0, las = 0, cex = 1.5)
 

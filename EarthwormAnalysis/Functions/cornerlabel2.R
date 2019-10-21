@@ -1,4 +1,3 @@
-
 corner.label2 <- function(label = NULL, x = -1, y = 1, xoff = NA, yoff = NA, 
                           figcorner = FALSE, ...) {
   if (is.na(xoff)) 
