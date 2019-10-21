@@ -30,7 +30,7 @@ wide_cm <- 12
 wide_inch <- 4.75
 point_size <- 10
 plotlabcex <- 1
-legendcex <- 0.8
+legendcex <- 0.9
 resdpi <- 300
 ############################################################
 ## 'Global'
@@ -94,7 +94,9 @@ colbrks <-  c(minV, seq(1, 6, length.out = 198), maxV)
 r.cols <- magma(199)
 
 # png(file.path(figures, "Richness.png"),width=17.5,height=8.75,units="cm",res=resdpi)
-pdf(file.path(figures, "Richness.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+# pdf(file.path(figures, "Richness.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+pdf(file.path(figures, "Richness_noLabel.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
@@ -110,10 +112,10 @@ image(north_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n",
 image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 
 
-corner.label2(label = "B", x = -1, y = 1, cex=plotlabcex, font = 2)
+# corner.label2(label = "B", x = -1, y = 1, cex=plotlabcex, font = 2)
 
 ## Legend
-par(mar=c(0.1,13,1,13))
+par(mar=c(1,10,1,10))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 # b
@@ -122,7 +124,7 @@ b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 
 mtext(1, at = b[20], cex = legendcex)
 mtext(6, at = b[418],cex = legendcex)
-mtext("Number of species", at = 250, cex = legendcex)
+mtext("Number of species", side = 1, at = 250, cex = legendcex - 0.2)
 dev.off()
 
 
@@ -199,12 +201,12 @@ corner.label2(label = "D", x = -1, y = 1, cex = plotlabcex, font = 2)
 
 
 ## Legend
-par(mar=c(1,13,1,13))
+par(mar=c(1,10,1,10))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 mtext("1", at =b[20], cex = legendcex)
 mtext("150", at = b[418], cex = legendcex)
-mtext(expression("Biomass (grams per" ~ m^{2} ~ ")"), at = 250, cex = legendcex)
+mtext(expression("Biomass (grams per" ~ m^{2} ~ ")"), side = 1, at = 250, cex = legendcex - 0.2)
 dev.off()
 
 
@@ -284,12 +286,12 @@ corner.label2(label = "C", x = -1, y = 1, cex = plotlabcex, font = 2)
 
 
 ## Legend
-par(mar=c(1,13,1,13))
+par(mar=c(1,10,1,10))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 mtext("5", at = b[20], cex = legendcex)
 mtext("150", at = b[418], cex = legendcex)
-mtext(expression("Abundance (individuals per" ~ m^{2} ~ ")"), at = 250, cex = legendcex)
+mtext(expression("Abundance (individuals per" ~ m^{2} ~ ")"), side = 1, at = 250, cex = legendcex - 0.2)
 
 dev.off()
 
