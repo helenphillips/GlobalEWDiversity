@@ -136,6 +136,6 @@ Also, thanks to Johan van der Hoogen, Devin Roth and Thomas Crowther, who used t
 
 ## License
 
-MIT License.
+Apache License.
 
 If you use this code, it would be great if you could link back to my account. 
