@@ -228,8 +228,10 @@ tapply(sites$Site_Biomassm2, sites$LU_Mgmt, summary)
 sites$logBiomass <- log(sites$Site_Biomassm2 +1)
 hist(sites$logBiomass)
 ###########################################################
-## CONTROVERSIAL!! - Altering ph values
+## Altering ph values
 #############################################################
+
+# Checked with the experts
 table(sites$PH_Collection_Method)
 
 
