@@ -6,6 +6,10 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
+
 #################################################
 # 1. Loading libraries
 #################################################
@@ -84,7 +88,7 @@ rm(tif)
 
 ############# BIomes
 
-shape <- readOGR(dsn = "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\ecoregions\\official_teow\\official", layer = "wwf_terr_ecos")
+shape <- readOGR(dsn = "I:\\sDiv\\Phillips\\sWorm\\SpatialAnalysis\\ecoregions\\official_teow\\official", layer = "wwf_terr_ecos")
 
 test <- sites[!(is.na(sites$Latitude__decimal_degrees)),]
 
@@ -116,7 +120,7 @@ sites <- merge(sites, biomes, by = 'ID', all.x = TRUE)
 
 ############## Country name
 
-shape <- readOGR(dsn = "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\world\\TM_WORLD_BORDERS_SIMPL-0.3", layer = "TM_WORLD_BORDERS_SIMPL-0.3")
+shape <- readOGR(dsn = "I:\\sDiv\\Phillips\\sWorm\\SpatialAnalysis\\world\\TM_WORLD_BORDERS_SIMPL-0.3", layer = "TM_WORLD_BORDERS_SIMPL-0.3")
 
 test <- sites[!(is.na(sites$Latitude__decimal_degrees)),]
 
@@ -135,7 +139,7 @@ countrytest$Country <- as.character(countrytest$Country)
 countrytest$country <- as.character(countrytest$country)
 
 countrytest <- countrytest[which(countrytest$Country != countrytest$country),]
-write.csv(countrytest, file = "C:\\restore2\\hp39wasi\\temp\\checkingcountries.csv")
+write.csv(countrytest, file = "C:\\Users\\hp39wasi\\temp\\checkingcountries.csv")
 ## I manuall checked all the sites in this file
 ## Any mis-matches were because of country borders (after I fixed mistakes)
 
@@ -145,7 +149,7 @@ nrow(sites[which(is.na(sites$country)),])
 ## More than just the ones missing coordinates
 missingcountries <- sites[which(is.na(sites$country)),]
 missingcountries <- missingcountries[,c('ID', "Site_Name", 'Country', 'country', 'Latitude__decimal_degrees', 'Longitude__Decimal_Degrees', 'bio10_1')]
-write.csv(missingcountries, file = "C:\\restore2\\hp39wasi\\temp\\checkingmissingcountries.csv")
+write.csv(missingcountries, file = "C:\\Users\\hp39wasi\\temp\\checkingmissingcountries.csv")
 ## All fine, just because they are at the edge or on an island
 
 

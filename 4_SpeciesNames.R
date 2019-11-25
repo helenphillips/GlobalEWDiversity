@@ -6,6 +6,10 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
+
 ########################################################
 # 2. Create folder if it doesn't exist to save data into
 ########################################################
@@ -51,9 +55,9 @@ bib <- read.csv(file.path(data_in, loadinbib))
 # 6. Quick investigation
 #################################################
 
-length(unique(dat$SpeciesBinomial)) ##  313
+length(unique(dat$SpeciesBinomial)) ##  301
 
-table(dat$Functional_Type) ## Only unknown for  821
+table(dat$Functional_Type) ## Only unknown for  869
 
 ## Check that all are binomials
 which(
