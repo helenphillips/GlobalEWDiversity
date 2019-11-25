@@ -7,6 +7,11 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
+
 source("Functions/FormatData.R")
 ########################################################
 # 2. Create folder if it doesn't exist to save data into
@@ -52,6 +57,53 @@ loadinbib <- loadin[grep("Metadata_", loadin)]
 
 sites <- read.csv(file.path(data_in, loadinsites))
 bib <- read.csv(file.path(bib_in, loadinbib))
+
+
+#################################################
+# 4.5 Load in older/missing-zero data
+#################################################
+
+# just the data that was used in (one) of the three models
+data_folder <- "8_Data"
+
+richness <- read.csv(file.path(data_folder, "sitesRichness_2019-06-20.csv"))
+abundance <- read.csv(file.path(data_folder, "sitesAbundance_2019-06-20.csv"))
+biomass <- read.csv(file.path(data_folder, "sitesBiomass_2019-06-20.csv"))
+
+
+sites$studyID <- paste(sites$file, sites$Study_Name, sep = "_")
+richness$studyID <- paste(richness$file, richness$Study_Name, sep = "_")
+abundance$studyID <- paste(abundance$file, abundance$Study_Name, sep = "_")
+biomass$studyID <- paste(biomass$file, biomass$Study_Name, sep = "_")
+
+all(richness$studyID %in% sites$studyID) # FALSE
+richness$studyID[which(!(richness$studyID %in% sites$studyID))]
+# [1] "000_Matveeva1983_Moscow_1983"    "000_Pokarzhevskii2007_Satino_1" 
+# [3] "000_Shcheglov2006_Kamenn_Step_1" "7399_Coors2016_coors2016a"   
+# That's fine
+all(abundance$studyID %in% sites$studyID) # FALSE
+abundance$studyID[which(!(abundance$studyID %in% sites$studyID))]
+## All fine. the four above, plus one study missing a study name
+
+
+all(biomass$studyID %in% sites$studyID) # FALSE
+biomass$studyID[which(!(biomass$studyID %in% sites$studyID))]
+# Missing study name issue again
+
+## Unique list of studies
+
+
+
+studies1 <- as.vector(unique(richness$studyID))
+studies2 <- as.vector(unique(abundance$studyID))
+studies3 <- as.vector(unique(biomass$studyID))
+
+all_studies <- c(studies1, studies2, studies3, "4836_Hurisso2011_hurisso")
+all_studies <- unique(all_studies)
+
+sites <- sites[sites$studyID %in% all_studies,]
+
+sites <- droplevels(sites)
 
 #################################################
 # 5. Get rid of studies with selected species 
@@ -127,7 +179,8 @@ summary(sites$Site_Abundance)
 
 sites$file[which(sites$Sites_Abundancem2 > 3000)]
 
-sites <- droplevels(sites[sites$file != "949_Johnson-Maynard2002",]) # 7805
+sites <- droplevels(sites[sites$file != "949_Johnson-Maynard2002",]) # 7805 #This no longer in the analysis
+## But a different study now has this many
 hist(sites$Site_Biomassm2)
 hist(sites$Sites_Abundancem2)
 summary(sites$Site_Biomassm2)
