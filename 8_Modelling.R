@@ -6,6 +6,9 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
 
 
 #################################################
@@ -73,9 +76,9 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 # 4. Species Richness
 #################################################
 
-richness <- sites[complete.cases(sites$SpeciesRichness),] #6089
+richness <- sites[complete.cases(sites$SpeciesRichness),] #6089 # 7789
 richness <- droplevels(richness[richness$ESA != "Unknown",]) # 
-richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),]) # 5642
+richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),]) # 5642 # 7539
 
 # richness <- richness[complete.cases(richness$scalePH),]
 
@@ -84,7 +87,7 @@ richness <- droplevels(richness[!(is.na(richness$bio10_15)),]) ##
 richness <- droplevels(richness[!(is.na(richness$OCFinal)),]) ## 
 richness <- droplevels(richness[!(is.na(richness$phFinal)),]) ## 
 richness <- droplevels(richness[!(is.na(richness$scaleAridity)),]) ## 
-richness <- droplevels(richness[!(is.na(richness$SnowMonths_cat)),]) ## 5799
+richness <- droplevels(richness[!(is.na(richness$SnowMonths_cat)),]) ## 5799 # 7419
 
 
 table(richness$ESA)
@@ -92,7 +95,7 @@ richness_notinclude <- c("Needleleaf deciduous forest", "Tree open",
                          "Sparse vegetation",  "Cropland/Other vegetation mosaic", "Urban",
                          "Bare area (consolidated", "Paddy field", "Wetland/Herbaceous", "Water bodies")
 
-richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##    5737
+richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##    5737 #  7386
 summary(richness$phFinal)
 richness$scalePH <- as.vector(scale(richness$phFinal))
 richness$scaleCLYPPT <- scale(richness$ClayFinal)
@@ -120,7 +123,7 @@ dat <- richness[,c(ind)]
 cor <- findVariables(dat, VIFThreshold = 3)
 
 # bio10_7,bio10_15,CECSOL,elevation,Aridity,PETyr,phFinal,ClayFinal,SiltFinal,OCFinal
-
+# same during correction
 r1 <- glmer(SpeciesRichness ~  ESA + scaleElevation + (scalePH  + 
              scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
              (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
@@ -131,18 +134,57 @@ r1 <- glmer(SpeciesRichness ~  ESA + scaleElevation + (scalePH  +
              (1|file/Study_Name), data = richness, family = poisson,
             control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
+## negative binomial
+r1_nb <- glmer.nb(SpeciesRichness ~  ESA + scaleElevation + (scalePH  + 
+                                                         scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+              (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                 ScalePET)^2 + 
+              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+              scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+              scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
+              (1|file/Study_Name), data = richness, 
+              #family = be,
+            nb.control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+r1_nb_tmb <- glmmTMB(SpeciesRichness ~  ESA + scaleElevation + (scalePH  + 
+                                                               scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+                    (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                       ScalePET)^2 + 
+                    scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                    scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+                    scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
+                    (1|file/Study_Name), data = richness, family = nbinom1,
+                  
+                  control = glmmTMBControl(optCtrl = list(iter.max = 2e5, eval.max=2e5), 
+                                           #profile = TRUE,
+                                           profile=quote(length(parameters$beta)>=5)))# optimizer ="bobyqa"))
+# no convergence issues
+# not clear what the other warning is.
+
+simulationOutput_r1_nb_tmb <- simulateResiduals(fittedModel = r1_nb_tmb, n = 250)
+plot(simulationOutput_r1_nb_tmb,quantreg = TRUE)
+testZeroInflation(simulationOutput_r1_nb_tmb, plot = TRUE, alternative = "greater")
+
 
 summary(r1)
-save(r1, file = file.path(models, "richnessmodel_initialmodel_revised.rds"))
-# load(file.path(models, "richnessmodel_initialmodel.rds"))
+save(r1, file = file.path(models, "richnessmodel_initialmodel_correction.rds"))
+
+#save(r1, file = file.path(models, "richnessmodel_initialmodel_revised.rds"))
+# load(file.path(models, "richnessmodel_initialmodel_revised.rds"))
+# load(file.path(models, "richnessmodel_initialmodel_correction.rds"))
 
 
 simulationOutput_r1 <- simulateResiduals(fittedModel = r1, n = 250)
 plotSimulatedResiduals(simulationOutput = simulationOutput_r1,quantreg = TRUE)
+plot(simulationOutput_r1)
+
+testResiduals(simulationOutput_r1)
+
 # simulationOutput_r1b <- simulateResiduals(fittedModel = r1, refit = TRUE)
 testDispersion(simulationOutput_r1, alternative = "greater", plot = TRUE)
 testZeroInflation(simulationOutput_r1, plot = TRUE, alternative = "greater")
-## No zero inflation or overdispersion
+## No zero inflation or overdispersion - old models
+## new models - yes! But not a huge amount
 
 #tt <- getME(r1,"theta")
 #ll <- getME(r1,"lower")
@@ -167,7 +209,7 @@ plotSimulatedResiduals(simulationOutput = simulationOutput,quantreg = TRUE)
 #################################################
 # 5. Biomass
 #################################################
-biomass <- sites[complete.cases(sites$logBiomass),] # 3689
+biomass <- sites[complete.cases(sites$logBiomass),] # 3689 # 4207 
 biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 
 
 # biomass <- droplevels(biomass[!(is.na(biomass$PHIHOX)),])
@@ -175,14 +217,14 @@ biomass <- droplevels(biomass[!(is.na(biomass$bio10_15)),]) ##
 biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 
 biomass <- droplevels(biomass[!(is.na(biomass$phFinal)),]) ## 
 biomass <- droplevels(biomass[!(is.na(biomass$SnowMonths_cat)),]) ##  
-biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  3359
+biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  4200
 
 
 table(biomass$ESA)
 biomass_notinclude <- c("Tree open", "Sparse vegetation", "Cropland/Other vegetation mosaic",
                         "Urban", "Paddy field")
 
-biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##   3326
+biomass <- droplevels(biomass[!(biomass$ESA %in% biomass_notinclude),]) ##   3326 # 4167
 summary(biomass$phFinal)
 biomass$scalePH <- as.vector(scale(biomass$phFinal))
 biomass$scaleCLYPPT <- scale(biomass$ClayFinal)
@@ -215,7 +257,7 @@ cor <- findVariables(dat, VIFThreshold = 3)
 # elevation, PETyr,phFinal,ClayFinal,SiltFinal,OCFinal
 
 ## All fine
-
+# Same variables during correciton phase
 b1 <- lmer(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
                 (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat)^2 + 
             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
@@ -227,10 +269,32 @@ simulationOutput <- simulateResiduals(fittedModel = b1, n = 250)
 plot(simulationOutput,quantreg = TRUE)
 # pretty good
 
-biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
-save(biomass_model, file = file.path(models, "biomassmodel_full_revised.rds"))
-# load(file.path(models, "biomassmodel_full_revised.rds"))
+testResiduals(simulationOutput)
+# I think this is ok
 
+
+## Try with glmmTMB
+b1_tmb <- glmmTMB(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+             (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat)^2 + 
+             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+             (1|file/Study_Name), data = biomass, 
+             ziformula = ~ESA + ScaleElevation + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL +
+               bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat,
+             control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5))) #, optimizer ="bobyqa"))
+## Checking for 'larger hessians'. Small (~0) numbers give non-postivie Hessian matrix warning
+ff <- fixef(b1_tmb)$zi
+round(exp(c(sppGP=unname(ff[1]),ff[-1]+ff[1])),3)
+
+biomass$prediction <- predict(b1_tmb)
+
+plot(biomass$logBiomass ~ biomass$prediction)
+
+biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
+# save(biomass_model, file = file.path(models, "biomassmodel_full_revised.rds"))
+# load(file.path(models, "biomassmodel_full_revised.rds"))
+save(biomass_model, file = file.path(models, "biomassmodel_full_correction.rds"))
+# load(file.path(models, "biomassmodel_full_correction.rds"))
 # 
 # forlmertest_b <- lmer(logBiomass ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleORCDRC +  
 #   scaleCECSOL + bio10_7_scaled + bio10_12_scaled + bio10_15_scaled +  
@@ -248,7 +312,7 @@ save(biomass_model, file = file.path(models, "biomassmodel_full_revised.rds"))
 
 simulationOutput_bm <- simulateResiduals(fittedModel = biomass_model, n = 250)
 plotSimulatedResiduals(simulationOutput = simulationOutput_bm,quantreg = TRUE)
-testDispersion(simulationOutput_bm, alternative = "greater", plot = FALSE)
+testDispersion(simulationOutput_bm, alternative = "greater", plot = TRUE)
 # Not overdispersed
 testZeroInflation(simulationOutput_bm, plot = TRUE, alternative = "greater")
 ## But zeroinflated
@@ -262,7 +326,7 @@ abline(0, 1)
 # 6. Abundance
 #################################################
 hist(sites$logAbundance)
-abundance <- sites[complete.cases(sites$logAbundance),] # 7111
+abundance <- sites[complete.cases(sites$logAbundance),] # 7111 # 9089
 abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #
 
 # abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
@@ -270,7 +334,7 @@ abundance <- droplevels(abundance[!(is.na(abundance$bio10_15)),]) ##
 abundance <- droplevels(abundance[!(is.na(abundance$OCFinal)),]) ##  
 abundance <- droplevels(abundance[!(is.na(abundance$phFinal)),]) ##  
 abundance <- droplevels(abundance[!(is.na(abundance$SnowMonths_cat)),]) ##  
-abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6456
+abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6456 # 8724
 
 
 table(abundance$ESA)
@@ -278,7 +342,7 @@ abundance_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Sparse ve
                          "Bare area (consolidated", "Bare area (unconsolidated",  "Paddy field", "Wetland/Herbaceous",
                          "Water bodies")
 
-abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  
+abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #    8677
 
 
 abundance$scalePH <- as.vector(scale(abundance$phFinal))
@@ -320,7 +384,8 @@ a1 <- lmer(logAbundance ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scal
 
 plot(a1)
 simulationOutput_a1 <- simulateResiduals(fittedModel = a1, n = 250)
-plot(simulationOutput = simulationOutput_a1,quantreg = TRUE)
+
+plot(simulationOutput_a1,quantreg = TRUE)
 # simulationOutput_a1b <- simulateResiduals(fittedModel = a1, refit = TRUE)
 
 testZeroInflation(simulationOutput_a1, plot = TRUE, alternative = "greater")
