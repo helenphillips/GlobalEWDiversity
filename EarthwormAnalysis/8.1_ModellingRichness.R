@@ -34,6 +34,6 @@ print("First model done. Now for the simplification process...")
 
 
 richness_model <- modelSimplificationAIC(model = r1, data = richness, optimizer = "bobyqa", Iters = 2e5)
-save(richness_model, file = file.path(data_out, "richnessmodel.rds"))
+save(richness_model, file = file.path(data_out, "richnessmodel_correction.rds"))
 
 print("Done!")
