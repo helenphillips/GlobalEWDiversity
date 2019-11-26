@@ -17,6 +17,7 @@ if(Sys.info()["nodename"] == "IDIVNB179"){
 library(maptools)
 library(maps)
 library(lme4)
+library(glmmTMB)
 library(car)
 library(DHARMa)
 source("Functions/FormatData.R")
@@ -258,23 +259,23 @@ cor <- findVariables(dat, VIFThreshold = 3)
 
 ## All fine
 # Same variables during correciton phase
-b1 <- lmer(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
-                (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat)^2 + 
-            scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
-             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-                (1|file/Study_Name), data = biomass,
-              control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-
-simulationOutput <- simulateResiduals(fittedModel = b1, n = 250)
-plot(simulationOutput,quantreg = TRUE)
-# pretty good
-
-testResiduals(simulationOutput)
-# I think this is ok
+# b1 <- lmer(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+#                 (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat)^2 + 
+#             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+#              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+#                 (1|file/Study_Name), data = biomass,
+#               control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+# 
+# simulationOutput <- simulateResiduals(fittedModel = b1, n = 250)
+# plot(simulationOutput,quantreg = TRUE)
+# # pretty good
+# 
+# testResiduals(simulationOutput)
+# # I think this is ok
 
 
 ## Try with glmmTMB
-b1_tmb <- glmmTMB(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+b1 <- glmmTMB(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
              (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat)^2 + 
              scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
@@ -283,13 +284,31 @@ b1_tmb <- glmmTMB(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT +
                bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat,
              control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5))) #, optimizer ="bobyqa"))
 ## Checking for 'larger hessians'. Small (~0) numbers give non-postivie Hessian matrix warning
-ff <- fixef(b1_tmb)$zi
-round(exp(c(sppGP=unname(ff[1]),ff[-1]+ff[1])),3)
+ff <- fixef(b1)$zi
+round(exp(c(intercept=unname(ff[1]),ff[-1]+ff[1])),3)
 
-biomass$prediction <- predict(b1_tmb)
+# biomass$prediction <- predict(b1)
+# plot(biomass$logBiomass ~ biomass$prediction)
 
-plot(biomass$logBiomass ~ biomass$prediction)
 
+simulationOutput_bm <- simulateResiduals(fittedModel = b1, n = 250)
+plot(simulationOutput_bm,quantreg = TRUE)
+# It seems you are diagnosing a glmmTMB model. There are still a few minor limitations associated with this package. 
+# The most important is that glmmTMB doesn't implement an option to create unconditional predictions from the model, 
+# which means that predicted values (in res ~ pred) plots include the random effects. With strong random effects, 
+# this can sometimes create diagonal patterns from bottom left to top right in the res ~ pred plot. 
+# All other tests and plots should work as desired. 
+# Please see https://github.com/florianhartig/DHARMa/issues/16 for further details.
+
+# so ignore the res versus pred plot, but look at others
+testDispersion(simulationOutput_bm, alternative = "greater", plot = TRUE)
+# A bit overdispersed
+testZeroInflation(simulationOutput_bm, plot = TRUE, alternative = "greater")
+## But zeroinflated
+
+
+biomass_model <- modelSimplificationAIC_glmmTMB(model = b1, itermax = 2e5, evalmax=2e5, dat = biomass)
+  
 biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
 # save(biomass_model, file = file.path(models, "biomassmodel_full_revised.rds"))
 # load(file.path(models, "biomassmodel_full_revised.rds"))
@@ -372,25 +391,28 @@ dat <- abundance[,c(ind)]
 cor <- findVariables(dat, VIFThreshold = 3)
 
 # bio10_7, bio10_15,CECSOL,elevation,Aridity,PETyr,  phFinal,ClayFinal,SiltFinal, OCFinal   
-
-a1 <- lmer(logAbundance ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+# same variables as before
+a1 <- glmmTMB(logAbundance ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
              (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
                 ScalePET)^2 +
              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
              scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET + 
              scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity + 
-             (1|file/Study_Name), data = abundance,
-           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-
+             (1|file/Study_Name), data = abundance, 
+             zi = ~ESA + ScaleElevation + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC +
+               bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + ScalePET,
+           control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5)))
+# no convergence issues
 plot(a1)
 simulationOutput_a1 <- simulateResiduals(fittedModel = a1, n = 250)
 
 plot(simulationOutput_a1,quantreg = TRUE)
 # simulationOutput_a1b <- simulateResiduals(fittedModel = a1, refit = TRUE)
-
+# ignore these plots
 testZeroInflation(simulationOutput_a1, plot = TRUE, alternative = "greater")
-## But zeroinflated
-
+## not zeroinflated
+testDispersion(simulationOutput_a1, alternative = "greater", plot = TRUE)
+# A bit overdispersed
 
 abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
 save(abundance_model, file = file.path(models, "abundancemodel_full_revised.rds"))
