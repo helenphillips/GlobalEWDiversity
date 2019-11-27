@@ -1,5 +1,5 @@
 library(lme4)
-
+library("glmmTMB")
 
 modelSimplification <- function(model = model, optimizer = "bobyqa", Iters = 2e5,  data, alpha = 0.05){
   
@@ -369,6 +369,10 @@ modelSimplificationAIC_glmmTMB <- function(model = model, itermax = 2e5, evalmax
   randEffect <- paste("+", strsplit(form,"\\s+(?=[\\(][^a-z])",perl=TRUE)[[1]][2]) # split at the random effects (ASSUMES INTERCEPT ONLY)
   
   
+  fam <- model$modelInfo$family
+  fam <- fam$family
+  
+  
   #fam <- as.character(model@call$family)
   ## lmers don't have a family, so....
   #if(length(fam) == 0) {fam <- "notpoisson"}
@@ -413,6 +417,7 @@ modelSimplificationAIC_glmmTMB <- function(model = model, itermax = 2e5, evalmax
         new_mod <- glmmTMB(formula = formula(call),
                   dat = dat,
                   ziformula = zi,
+                  family = fam,
                   control = glmmTMBControl(optCtrl = list(iter.max = itermax,eval.max=evalmax))) 
         
         res[inter, 'AIC'] <- AIC(new_mod)
@@ -439,6 +444,7 @@ modelSimplificationAIC_glmmTMB <- function(model = model, itermax = 2e5, evalmax
       refModel <- glmmTMB(formula = formula(call),
                          dat = dat,
                          ziformula = zi,
+                         family = fam,
                          control = glmmTMBControl(optCtrl = list(iter.max = itermax,eval.max=evalmax))) 
       AICRefModel <- AIC(refModel)
     }
@@ -499,6 +505,7 @@ modelSimplificationAIC_glmmTMB <- function(model = model, itermax = 2e5, evalmax
       model2 <- glmmTMB(formula = formula(call),
                         dat = dat,
                         ziformula = formula(zi),
+                        family = fam,
                         control = glmmTMBControl(optCtrl = list(iter.max = itermax,eval.max=evalmax))) 
       
       
@@ -530,6 +537,7 @@ modelSimplificationAIC_glmmTMB <- function(model = model, itermax = 2e5, evalmax
     refModel <- glmmTMB(formula = formula(call),
                       dat = dat,
                       ziformula = formula(zi),
+                      family = fam,
                       control = glmmTMBControl(optCtrl = list(iter.max = itermax,eval.max=evalmax))) 
     
   }
