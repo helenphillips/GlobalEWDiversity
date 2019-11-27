@@ -35,15 +35,15 @@ scaleGL <- function(layername, data, load = ".", save = "."){
   
 
 
-  print("Scaling tif")
-  fun <- function(x, mean_val) { x - mean_val }
-  tif <- calc(tif, fun)
-
-  fun <- function(x, sd_val) { x / sd_val }
-  tif <- calc(tif, fun)
+ print("Scaling tif")
+  #fun <- function(x, mean_val) { x - mean_val }
+  #tif <- calc(tif, fun)
+  tif <- tif - mean_val
   
+  #fun <- function(x, sd_val) { x / sd_val }
+  #tif <- calc(tif, fun)
+  tif <- tif / sd_val
 
-  
   
   
   print("Saving tif")
@@ -115,8 +115,8 @@ list.files(folder)
 
 print("Loading datasets")
 # richness <- read.csv(file.path(site_dir, paste('sitesRichness_', date, '.csv', sep="")))
-abundance <- read.csv(file.path(site_dir, paste('sitesAbundance_', date, '.csv', sep="")))
-# biomass <- read.csv(file.path(site_dir, paste('sitesBiomass_', date, '.csv', sep="")))
+# abundance <- read.csv(file.path(site_dir, paste('sitesAbundance_', date, '.csv', sep="")))
+biomass <- read.csv(file.path(site_dir, paste('sitesBiomass_', date, '.csv', sep="")))
 
 # print("Calculating the weighted mean of soil data")
 # calculateWeightedMeanGL(folder, savefolder)

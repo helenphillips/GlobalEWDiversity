@@ -35,15 +35,15 @@ scaleGL <- function(layername, data, load = ".", save = "."){
   
 
 
-  print("Scaling tif")
-  fun <- function(x, mean_val) { x - mean_val }
-  tif <- calc(tif, fun)
-
-  fun <- function(x, sd_val) { x / sd_val }
-  tif <- calc(tif, fun)
+ print("Scaling tif")
+  #fun <- function(x, mean_val) { x - mean_val }
+  #tif <- calc(tif, fun)
+  tif <- tif - mean_val
   
+  #fun <- function(x, sd_val) { x / sd_val }
+  #tif <- calc(tif, fun)
+  tif <- tif / sd_val
 
-  
   
   
   print("Saving tif")
