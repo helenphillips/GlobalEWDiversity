@@ -11,11 +11,12 @@ functions <- args[4] # folder containing my functions
 source(file.path(functions, "ModelSimplification.R"))
 source(file.path(functions, "FormatData.R"))
 
+
 ##### Data
 ## Script 8 does the analysis to find out which variables are needed in the model 
 # Variables have also been scaled
 print(paste("Loading the file: ", file.path(data_in, paste("sitesAbundance_", date, ".csv", sep = ""))))
-richness <- read.csv(file = file.path(data_in, paste("sitesAbundance_", date, ".csv", sep = "")))
+abundance <- read.csv(file = file.path(data_in, paste("sitesAbundance_", date, ".csv", sep = "")))
 
 ##### Modelling
 print("Doing the first model")
