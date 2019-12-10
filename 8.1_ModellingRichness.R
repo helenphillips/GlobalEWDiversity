@@ -5,7 +5,7 @@ data_in <- args[2] # data folder
 date <- args[3] # date for dataset
 functions <- args[4] # folder containing my functions
 ##############
-
+print(functions)
 ##### Functions
 library(glmmTMB)
 source(file.path(functions, "ModelSimplification.R"))

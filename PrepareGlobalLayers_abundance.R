@@ -159,30 +159,30 @@ abundance <- read.csv(file.path(site_dir, paste('sitesAbundance_', date, '.csv',
  
  ## Abundance
 print("Calculating abundance layers")
-  scaleGL(layername = "ORCDRC", data = abundance, load =  file.path(folder, "ORCDRC_weighted.tif"), 
-         save = file.path(savefolder, 'ORCDRC_AbundanceCutScaled.tif'))
-  scaleGL(layername = "PHIHOX", data = abundance, load =  file.path(folder, "PHIHOX_weighted.tif"), 
-         save = file.path(savefolder, 'PHIHOX_AbundanceCutScaled.tif'))
-  scaleGL(layername = "CLYPPT", data = abundance, load =  file.path(folder, "CLYPPT_weighted.tif"), 
-         save = file.path(savefolder, 'CLYPPT_AbundanceCutScaled.tif'))
-  scaleGL(layername = "SLTPPT", data = abundance, load =  file.path(folder, "SLTPPT_weighted.tif"), 
-         save = file.path(savefolder, 'SLTPPT_AbundanceCutScaled.tif'))
-  scaleGL(layername = "CECSOL", data = abundance, load =  file.path(folder, "CECSOL_weighted.tif"), 
-         save = file.path(savefolder, 'CECSOL_AbundanceCutScaled.tif'))
- 
-   scaleGL(layername = 'bio10_1', data = abundance, load = file.path(folder, 'CHELSA_bio10_1.tif'), 
-         save = file.path(savefolder, 'CHELSA_bio10_1_AbundanceCutScaled.tif'))
-  scaleGL(layername = 'bio10_4', data = abundance, load = file.path(folder, 'CHELSA_bio10_4.tif'), 
-         save = file.path(savefolder, 'CHELSA_bio10_4_AbundanceCutScaled.tif'))
-  scaleGL(layername = 'bio10_7', data = abundance, load = file.path(folder, 'CHELSA_bio10_7.tif'), 
-         save = file.path(savefolder, 'CHELSA_bio10_7_AbundanceCutScaled.tif'))
-  scaleGL(layername = 'bio10_12', data = abundance, load = file.path(folder, 'CHELSA_bio10_12.tif'), 
-         save = file.path(savefolder, 'CHELSA_bio10_12_AbundanceCutScaled.tif'))
- scaleGL(layername = 'bio10_15', data = abundance, load = file.path(folder, 'CHELSA_bio10_15.tif'), 
-         save = file.path(savefolder, 'CHELSA_bio10_15_AbundanceCutScaled.tif'))
- 
- scaleGL(layername = 'Aridity', data = abundance, load = file.path(folder, 'ai_yr_TIF.tif'),
-         save = file.path(savefolder, 'Aridity_AbundanceScaled.tif'))
+  # scaleGL(layername = "ORCDRC", data = abundance, load =  file.path(folder, "ORCDRC_weighted.tif"), 
+  #        save = file.path(savefolder, 'ORCDRC_AbundanceCutScaled.tif'))
+  # scaleGL(layername = "PHIHOX", data = abundance, load =  file.path(folder, "PHIHOX_weighted.tif"), 
+  #        save = file.path(savefolder, 'PHIHOX_AbundanceCutScaled.tif'))
+  # scaleGL(layername = "CLYPPT", data = abundance, load =  file.path(folder, "CLYPPT_weighted.tif"), 
+  #        save = file.path(savefolder, 'CLYPPT_AbundanceCutScaled.tif'))
+  # scaleGL(layername = "SLTPPT", data = abundance, load =  file.path(folder, "SLTPPT_weighted.tif"), 
+  #        save = file.path(savefolder, 'SLTPPT_AbundanceCutScaled.tif'))
+  # scaleGL(layername = "CECSOL", data = abundance, load =  file.path(folder, "CECSOL_weighted.tif"), 
+  #        save = file.path(savefolder, 'CECSOL_AbundanceCutScaled.tif'))
+  # 
+  #  scaleGL(layername = 'bio10_1', data = abundance, load = file.path(folder, 'CHELSA_bio10_1.tif'), 
+  #        save = file.path(savefolder, 'CHELSA_bio10_1_AbundanceCutScaled.tif'))
+  # scaleGL(layername = 'bio10_4', data = abundance, load = file.path(folder, 'CHELSA_bio10_4.tif'), 
+  #        save = file.path(savefolder, 'CHELSA_bio10_4_AbundanceCutScaled.tif'))
+ #  scaleGL(layername = 'bio10_7', data = abundance, load = file.path(folder, 'CHELSA_bio10_7.tif'), 
+ #         save = file.path(savefolder, 'CHELSA_bio10_7_AbundanceCutScaled.tif'))
+ #  scaleGL(layername = 'bio10_12', data = abundance, load = file.path(folder, 'CHELSA_bio10_12.tif'), 
+ #         save = file.path(savefolder, 'CHELSA_bio10_12_AbundanceCutScaled.tif'))
+ # scaleGL(layername = 'bio10_15', data = abundance, load = file.path(folder, 'CHELSA_bio10_15.tif'), 
+ #         save = file.path(savefolder, 'CHELSA_bio10_15_AbundanceCutScaled.tif'))
+ # 
+ # scaleGL(layername = 'Aridity', data = abundance, load = file.path(folder, 'ai_yr_TIF.tif'),
+ #         save = file.path(savefolder, 'Aridity_AbundanceScaled.tif'))
  scaleGL(layername = 'PETyr', data = abundance, load = file.path(folder, 'pet_he_yr_TIF.tif'),
          save = file.path(savefolder, 'PETyr_AbundanceScaled.tif'))
  scaleGL(layername = 'PET_SD', data = abundance, load = file.path(folder, 'pet_he_SD.tif'),
