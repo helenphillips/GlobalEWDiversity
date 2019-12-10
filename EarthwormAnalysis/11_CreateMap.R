@@ -267,7 +267,9 @@ colbrks <-  c(minV, seq(5, 150, length.out = 198), maxV)
 r.cols <- magma(199)
 
 #png(file.path(figures, "Abundance.png"),width=17.5,height=8.75,units="cm",res=resdpi)
-pdf(file.path(figures, "Abundance.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+# pdf(file.path(figures, "Abundance.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+pdf(file.path(figures, "Abundance_noLabel.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+
 
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
@@ -282,7 +284,7 @@ image(latin_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n",
 image(north_america, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 image(west_asia, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
 
-corner.label2(label = "C", x = -1, y = 1, cex = plotlabcex, font = 2)
+# corner.label2(label = "C", x = -1, y = 1, cex = plotlabcex, font = 2)
 
 
 ## Legend
