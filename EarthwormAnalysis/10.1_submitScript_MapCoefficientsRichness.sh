@@ -6,7 +6,7 @@
 #$ -o /work/$USER/$JOB_NAME-$JOB_ID.log
 #$ -j y
 
-#$ -l h_rt=10:00:00
+#$ -l h_rt=100:00:00
 #$ -l h_vmem=150G,highmem
  
 #$ -binding linear:1

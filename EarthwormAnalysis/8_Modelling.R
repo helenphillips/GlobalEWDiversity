@@ -126,128 +126,6 @@ cor <- findVariables(dat, VIFThreshold = 3)
 
 # bio10_7,bio10_15,CECSOL,elevation,Aridity,PETyr,phFinal,ClayFinal,SiltFinal,OCFinal
 # same during correction
-r1 <- glmer(SpeciesRichness ~  ESA + scaleElevation + (scalePH  + 
-             scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                ScalePET)^2 + 
-              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-              scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
-              scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
-             (1|file/Study_Name), data = richness, family = poisson,
-            control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-
-
-simulationOutput_r1 <- simulateResiduals(fittedModel = r1, n = 250)
-plotSimulatedResiduals(simulationOutput = simulationOutput_r1,quantreg = TRUE)
-plot(simulationOutput_r1)
-
-testResiduals(simulationOutput_r1)
-
-# simulationOutput_r1b <- simulateResiduals(fittedModel = r1, refit = TRUE)
-testDispersion(simulationOutput_r1, alternative = "greater", plot = TRUE)
-testZeroInflation(simulationOutput_r1, plot = TRUE, alternative = "greater")
-## No zero inflation or overdispersion - old models
-## new models - yes! But not a huge amount
-
-
-
-## negative binomial
-r1_nb <- glmer.nb(SpeciesRichness ~  ESA + scaleElevation + (scalePH  + 
-                                                         scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-              (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                 ScalePET)^2 + 
-              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-              scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
-              scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
-              (1|file/Study_Name), data = richness, 
-              #family = be,
-            nb.control = glmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-
-# Took forever. Maybe some convergence issues - partly because the number of iterations wasn't changed. Wrong code?
-
-
-r1_nb_tmb <- glmmTMB(SpeciesRichness ~  ESA + scaleElevation + (scalePH  + 
-                                                               scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-                    (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                       ScalePET)^2 + 
-                    scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-                    scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
-                    scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
-                    (1|file/Study_Name), data = richness, family = nbinom1,# verbose= TRUE,
-                    zi = ~ESA + scaleElevation + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC, # +
-                    #bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                    #  ScalePET,
-                  control = glmmTMBControl(optCtrl = list(iter.max = 2e5, eval.max=2e5)))
-                                           #profile = TRUE))
-                                           # profile=quote(length(parameters$beta)>=5)))# optimizer ="bobyqa"))
-# with nbiom2 - false convergence issues
-# with nbiom1 - doesn't complete. completes with false convergence when using github version
-# not clear what the other warning is.
-## The NA/NaN warning is ok - just mean some iterations went into NA space
-
-
-simulationOutput_r1_nb_tmb <- simulateResiduals(fittedModel = r1_nb_tmb, n = 250)
-plot(simulationOutput_r1_nb_tmb,quantreg = TRUE)
-testZeroInflation(simulationOutput_r1_nb_tmb, plot = TRUE, alternative = "greater")
-testDispersion(simulationOutput_r1_nb_tmb, alternative = "greater", plot = TRUE)
-# A bit zero-inflated and a bit over dispersed
-
-
-r1_nb_tmb <- glmmTMB(SpeciesRichness ~  ESA + scaleElevation + 
-                       (scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-                       (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                          ScalePET)^2 + 
-                       scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-                       #scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
-                       #scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
-                       (1|file/Study_Name), data = richness, family = poisson,# verbose= TRUE,
-                     zi = ~ESA + scaleElevation + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC, # +
-                       #bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                        #  ScalePET,
-                     control = glmmTMBControl(optCtrl = list(iter.max = 2e5, eval.max=2e5)))
-
-# zero-inflated poisson model
-
-
-r1_zipoiss <- glmmadmb(SpeciesRichness ~  ESA + scaleElevation + (scalePH  + 
-                                                                    scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-                         (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                            ScalePET)^2 + 
-                         scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-                         scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
-                         scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
-                         (1|file/Study_Name), data = richness,
-                        zeroInflation=TRUE,
-                        family="poisson")
-
-simulationOutput_r1_zipoiss <- simulateResiduals(fittedModel = r1_zipoiss, n = 250)
-# Dharma can't be used??
-plot(simulationOutput_r1_zipoiss,quantreg = TRUE)
-testZeroInflation(simulationOutput_r1_zipoiss, plot = TRUE, alternative = "greater")
-testDispersion(simulationOutput_r1_zipoiss, alternative = "greater", plot = TRUE)
-# A bit zero-inflated and a bit over dispersed
-
-
-r1_zi_gau <- glmmTMB(log(SpeciesRichness + 1) ~  ESA + scaleElevation + 
-                       (scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-                       (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                          ScalePET)^2 + 
-                       scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-                       scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
-                       scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
-                       (1|file/Study_Name), data = richness, # family = poisson,# verbose= TRUE,
-                     zi = ~ESA + scaleElevation + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC +
-                     bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                       ScalePET,
-                     control = glmmTMBControl(optCtrl = list(iter.max = 2e5, eval.max=2e5)))
-
-
-simulationOutput_r1_zi_gau <- simulateResiduals(fittedModel = r1_zi_gau, n = 250)
-plot(simulationOutput_r1_zi_gau,quantreg = TRUE)
-testZeroInflation(simulationOutput_r1_zi_gau, plot = TRUE, alternative = "greater")
-testDispersion(simulationOutput_r1_zi_gau, alternative = "greater", plot = TRUE)
-
-
 
 r1_hurdle <- glmmTMB(SpeciesRichness ~  ESA + scaleElevation + 
                        (scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
@@ -261,23 +139,19 @@ r1_hurdle <- glmmTMB(SpeciesRichness ~  ESA + scaleElevation +
                       bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
                      ScalePET,
                      control = glmmTMBControl(optCtrl = list(iter.max = 2e5, eval.max=2e5)))
+save(r1_hurdle, file = file.path(models, "richnessmodel_initialmodel_correction.rds"))
+
+
 
 simulationOutput_r1_hurdle <- simulateResiduals(fittedModel = r1_hurdle, n = 250)
 plot(simulationOutput_r1_hurdle,quantreg = TRUE)
 testZeroInflation(simulationOutput_r1_hurdle, plot = TRUE, alternative = "greater")
 testDispersion(simulationOutput_r1_hurdle, alternative = "greater", plot = TRUE)
 
-richness_model <- modelSimplificationAIC_glmmTMB(model = r1_hurdle, itermax = 2e5, evalmax=2e5, dat = richness)
-
-
-
-summary(r1)
-save(r1, file = file.path(models, "richnessmodel_initialmodel_correction.rds"))
-
-#save(r1, file = file.path(models, "richnessmodel_initialmodel_revised.rds"))
-# load(file.path(models, "richnessmodel_initialmodel_revised.rds"))
-# load(file.path(models, "richnessmodel_initialmodel_correction.rds"))
-
+# Run on cluster
+# richness_model <- modelSimplificationAIC_glmmTMB(model = r1_hurdle, itermax = 2e5, evalmax=2e5, dat = richness)
+load(file.path(models, "richnessmodel_correction.rds"))
+summary(richness_model)
 
 #tt <- getME(r1,"theta")
 #ll <- getME(r1,"lower")
@@ -288,16 +162,6 @@ save(r1, file = file.path(models, "richnessmodel_initialmodel_correction.rds"))
 # max(abs(sc_grad1))
 # max(pmin(abs(sc_grad1),abs(derivs1$gradient)))
 
-richness_model <- modelSimplificationAIC(model = r1, data = richness, optimizer = "bobyqa", Iters = 2e5)
-save(richness_model, file = file.path(models, "richnessmodel_full.rds"))
-# load(file.path(models, "richnessmodel_revised.rds"))
-
-coef(summary(richness_model))[,1]
-
-
-##  From DHARMa
-simulationOutput <- simulateResiduals(fittedModel = richness_model, n = 250)
-plotSimulatedResiduals(simulationOutput = simulationOutput,quantreg = TRUE)
 
 #################################################
 # 5. Biomass
@@ -351,19 +215,6 @@ cor <- findVariables(dat, VIFThreshold = 3)
 
 ## All fine
 # Same variables during correciton phase
-# b1 <- lmer(logBiomass ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
-#                 (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat)^2 + 
-#             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
-#              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-#                 (1|file/Study_Name), data = biomass,
-#               control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-# 
-# simulationOutput <- simulateResiduals(fittedModel = b1, n = 250)
-# plot(simulationOutput,quantreg = TRUE)
-# # pretty good
-# 
-# testResiduals(simulationOutput)
-# # I think this is ok
 
 
 ## Try with glmmTMB
@@ -407,19 +258,6 @@ biomass_model <- modelSimplificationAIC_glmmTMB(model = b1, itermax = 2e5, evalm
 save(biomass_model, file = file.path(models, "biomassmodel_full_correction.rds"))
 # load(file.path(models, "biomassmodel_full_correction.rds"))
 # 
-# forlmertest_b <- lmer(logBiomass ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleORCDRC +  
-#   scaleCECSOL + bio10_7_scaled + bio10_12_scaled + bio10_15_scaled +  
-#   ScalePET + SnowMonths_cat + scalePH:scaleCLYPPT + scalePH:scaleSLTPPT +  
-#   scalePH:scaleORCDRC + scalePH:scaleCECSOL + scaleCLYPPT:scaleCECSOL +  
-#   scaleORCDRC:scaleCECSOL + bio10_7_scaled:bio10_12_scaled +  
-#   bio10_12_scaled:bio10_15_scaled + bio10_12_scaled:ScalePET +  
-#   bio10_12_scaled:SnowMonths_cat + bio10_15_scaled:ScalePET +  
-#   bio10_15_scaled:SnowMonths_cat + ScalePET:SnowMonths_cat +  
-#   scaleSLTPPT:bio10_12_scaled + scaleCLYPPT:bio10_15_scaled +  
-#   ESA + (1 | file/Study_Name),  data = biomass,
-#   control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-# 
-# summary(forlmertest_b)
 
 simulationOutput_bm <- simulateResiduals(fittedModel = biomass_model, n = 250)
 plot(simulationOutput_bm,quantreg = TRUE)
@@ -506,37 +344,23 @@ testZeroInflation(simulationOutput_a1, plot = TRUE, alternative = "greater")
 testDispersion(simulationOutput_a1, alternative = "greater", plot = TRUE)
 # A bit overdispersed
 
-abundance_model <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
-save(abundance_model, file = file.path(models, "abundancemodel_full_revised.rds"))
-# load(file.path(models, "abundancemodel_full_revised.rds"))
 
+# Run on cluster
 
-# forlmtertest <- lmer(logAbundance ~ scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL +      
-#                        scaleORCDRC + bio10_7_scaled + bio10_15_scaled + SnowMonths_cat +  
-#                        scaleAridity + ScalePET + scalePH:scaleSLTPPT + scalePH:scaleCECSOL +  
-#                        scalePH:scaleORCDRC + scaleCLYPPT:scaleCECSOL + scaleCLYPPT:scaleORCDRC +      
-#                        bio10_7_scaled:bio10_15_scaled + bio10_7_scaled:SnowMonths_cat +  
-#                        bio10_7_scaled:scaleAridity + bio10_15_scaled:ScalePET +      
-#                        SnowMonths_cat:scaleAridity + SnowMonths_cat:ScalePET + scaleAridity:ScalePET +  
-#                        scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET + ESA + ScaleElevation +     (1 | file/Study_Name),
-#                      data = abundance,  control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
-# 
-# summary(forlmtertest)
-# 
+abundance_model <- modelSimplificationAIC_glmmTMB(model = a1, itermax = 2e5, evalmax=2e5, dat = abundance)
+
+# load(file.path(models, "abundancemodel_full_correction.rds"))
 
 
 simulationOutput_a2 <- simulateResiduals(fittedModel = abundance_model, n = 250)
-plotSimulatedResiduals(simulationOutput = simulationOutput_a2,quantreg = TRUE)
-testZeroInflation(simulationOutput_a2, plot = FALSE, alternative = "more")
-## But zeroinflated
+plot(simulationOutput = simulationOutput_a2,quantreg = TRUE)
+testZeroInflation(simulationOutput_a2, plot = TRUE, alternative = "greater")
+# Nope. none basically
 
 dat <- abundance_model@frame
 dat$predicted <- predict(abundance_model, dat)
-plot(dat$logAbundance, dat$predicted)
+plot(dat$logAbundance, dat$predicted2)
 abline(0, 1)
-
-
-
 #########################################################
 # Correlation between abundance and biomass
 ######################################################
