@@ -7,6 +7,12 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 }
 
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+  
+}
+
+
 
 #################################################
 # 1. Loading libraries
@@ -14,6 +20,7 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 library(maptools)
 library(maps)
 library(lme4)
+library(glmmTMB)
 library(car)
 library(DHARMa)
 library(reshape)
@@ -66,6 +73,10 @@ sites <- read.csv(file.path(data_in, loadin))
 rm(loadin)
 
 
+## This data has already been subset to the data that was used
+## in the original manuscript
+
+
 #################################################
 # 4. Set reference levels
 #################################################
@@ -77,7 +88,7 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 # 5. Reorder data frame, column with FG
 #################################################
 ## Remove functional group diversity measures to use as idvars
-idvars <- names(sites)[-(113:ncol(sites))]
+idvars <- names(sites)[-(114:ncol(sites))]
 
 m_sites <- melt(sites, id.vars = idvars)
 
@@ -88,18 +99,18 @@ biomass <- m_sites[grep("biomass", m_sites$variable),]
 biomass <- droplevels(biomass[which(!(is.na(biomass$value))),])
 nobiomass <- aggregate(biomass$value ~ biomass$Study_Name, FUN = var)
 nobiomass <- nobiomass[which(nobiomass[,2] == 0 | is.na(nobiomass[,2])),1]
-biomass <- droplevels(biomass[!(biomass$Study_Name %in% nobiomass),]) # 8817
+biomass <- droplevels(biomass[!(biomass$Study_Name %in% nobiomass),]) # 8817 # 8035
 
 
-biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 7927
+biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 7927 # 7960
 
 #  biomass <- biomass[complete.cases(biomass$value),]
 
 biomass <- droplevels(biomass[!(is.na(biomass$bio10_15)),]) ## 3365
-biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 3364
+biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 3364 # 7960
 biomass <- droplevels(biomass[!(is.na(biomass$phFinal)),]) ## 3364
 biomass <- droplevels(biomass[!(is.na(biomass$SnowMonths_cat)),]) ##  3361
-biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  3357
+biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  3357 # 7955
 
 
 
@@ -115,6 +126,12 @@ biomass <- scaleVariables(biomass)
 
 ## Save the data
 write.csv(biomass, file = file.path(data_out, paste("sitesFGBiomass_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+
+## Check the data
+
+randomIDs <- sample(biomass$ID, size = 10)
+testB <- droplevels(biomass[biomass$ID %in% randomIDs,])
+# Manual check of original data
 
 # findVariables(biomass, VIFThreshold = 3)
 ind <- df_variables(biomass)
@@ -133,9 +150,9 @@ abundance <- m_sites[grep("abundance", m_sites$variable),]
 abundance <- droplevels(abundance[which(!(is.na(abundance$value))),])
 noabundance <- aggregate(abundance$value ~ abundance$Study_Name, FUN = var)
 noabundance <- noabundance[which(noabundance[,2] == 0 | is.na(noabundance[,2])),1]
-abundance <- droplevels(abundance[!(abundance$Study_Name %in% noabundance),]) # 25384
+abundance <- droplevels(abundance[!(abundance$Study_Name %in% noabundance),]) # 25384 #  25995
 
-abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #6759
+abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #6759 # 25065
 
 
 # abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
@@ -143,7 +160,7 @@ abundance <- droplevels(abundance[!(is.na(abundance$bio10_15)),]) ##
 abundance <- droplevels(abundance[!(is.na(abundance$OCFinal)),]) ##  
 abundance <- droplevels(abundance[!(is.na(abundance$phFinal)),]) ##  6731
 abundance <- droplevels(abundance[!(is.na(abundance$SnowMonths_cat)),]) ##  6657
-abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6576
+abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6576 # 24590
 
 
 table(abundance$ESA, abundance$variable)
@@ -151,7 +168,7 @@ abundance_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Sparse ve
                          "Wetland/Herbaceous", "Urban",
                           "Water bodies")
 
-abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  25107
+abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  25107 # 24490
 
 fg_abundance <- abundance
 
@@ -180,20 +197,38 @@ cor <- findVariables(dat, VIFThreshold = 3)
 #################################################
 
 
-biomass$value[which(biomass$value < 0)] <- 0
+# biomass$value[which(biomass$value < 0)] <- 0
 # For now
 
 biomass$logValue <- log(biomass$value + 1)
 hist(biomass$logValue)
 
-b1 <- lmer(logValue ~  (ESA * variable) + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
-             (bio10_4_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePETSD + SnowMonths_cat)^2 + 
-             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
-             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-             ScalePETSD:bio10_12_scaled + ScalePETSD:bio10_15_scaled +
-             (1|file/Study_Name), data = biomass,
-           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+b1 <- glmmTMB(logBiomass ~  (ESA * variable) + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+                (bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat)^2 + 
+                scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+                scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                (1|file/Study_Name), data = biomass, 
+              ziformula = ~ESA + variable + ScaleElevation + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL +
+                bio10_7_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePET + SnowMonths_cat,
+              control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5))) #, optimizer ="bobyqa"))
 
+simulationOutput_bm <- simulateResiduals(fittedModel = b1, n = 250)
+plot(simulationOutput_bm,quantreg = TRUE)
+# so ignore the res versus pred plot, but look at others
+testDispersion(simulationOutput_bm, alternative = "greater", plot = TRUE)
+# A bit overdispersed
+testZeroInflation(simulationOutput_bm, plot = TRUE, alternative = "greater")
+## But zeroinflated
+
+
+# b1 <- lmer(logValue ~  (ESA * ) + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+#              (bio10_4_scaled + bio10_12_scaled  + bio10_15_scaled + ScalePETSD + SnowMonths_cat)^2 + 
+#              scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+#              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+#              ScalePETSD:bio10_12_scaled + ScalePETSD:bio10_15_scaled +
+#              (1|file/Study_Name), data = biomass,
+#            control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+# 
 
 biomass_model <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
 save(biomass_model, file = file.path(models, "biomassmodel_functionalgroups_revised.rds"))

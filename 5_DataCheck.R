@@ -13,6 +13,8 @@ if(Sys.info()["nodename"] == "IDIVNB179"){
 }
 
 source("Functions/FormatData.R")
+source("Functions/createMap.R")
+
 ########################################################
 # 2. Create folder if it doesn't exist to save data into
 ########################################################
@@ -21,6 +23,11 @@ if(!dir.exists("5_Data")){
   dir.create("5_Data")
 }
 data_out <- "5_Data"
+
+if(!dir.exists("Figures")){
+  dir.create("Figures")
+}
+figures <- "Figures"
 
 #################################################
 # 3. Loading in variables
@@ -90,6 +97,66 @@ all(biomass$studyID %in% sites$studyID) # FALSE
 biomass$studyID[which(!(biomass$studyID %in% sites$studyID))]
 # Missing study name issue again
 
+#################################################3
+## COMPARISON MAP 
+###################################################3
+
+new_richness <- sites[sites$studyID %in% richness$studyID,]
+new_abundance <- sites[sites$studyID %in% abundance$studyID,]
+new_biomass <- sites[sites$studyID %in% biomass$studyID,]
+
+
+
+oldD <- data.frame(table(richness$studyID))
+newD <- data.frame(table(new_richness$studyID))
+compareRichness <- merge(oldD, newD, by = "Var1", all = TRUE)
+names(compareRichness) <- c("studyID", "oldN", "newN")
+compareRichness$diff <- compareRichness$newN - compareRichness$oldN
+compareRichness$percentChange <- (compareRichness$diff / compareRichness$oldN) * 100
+
+
+doubled <- compareRichness[compareRichness$percentChange > 100,]
+
+
+## Remove sites that were previously used - leaving just the zeros 
+new_richness <- new_richness[!(new_richness$Study_site %in% unique(richness$Study_site)),]
+new_abundance <- new_abundance[!(new_abundance$Study_site %in% unique(abundance$Study_site)),]
+new_biomass <- new_biomass[!(new_biomass$Study_site %in% unique(biomass$Study_site)),]
+
+
+
+
+
+
+library(maps)
+library(maptools)
+
+## remove NAs from teh two studies that have a couple of coordinates missing
+new_richness <- new_richness[!(is.na(new_richness$Latitude__decimal_degrees)),]
+new_abundance <- new_abundance[!(is.na(new_abundance$Latitude__decimal_degrees)),]
+new_biomass <- new_biomass[!(is.na(new_biomass$Latitude__decimal_degrees)),]
+
+
+#png(file = file.path(figures, "Maps+newZeroData_correction.png"), res = 300, width = 1000, height = 3000)
+png(file.path(figures, "Maps+newZeroData_correction.png"),width=(3 * 17.5),height=(3*8.75),units="cm",res=300)
+par(oma = c(0, 0, 1, 0))
+
+par(mar = c(1, 1, 1, 1))
+par(mfrow = c(3,1))
+
+createSizedMap(new_richness)
+mtext("Richness", side = 3, line = -1)
+createSizedMap(new_abundance)
+mtext("Abundance", side = 3, line = -1)
+createSizedMap(new_biomass)
+mtext("Biomass", side = 3, line = -1)
+
+dev.off()
+
+
+
+
+######################################################3
 ## Unique list of studies
 
 
