@@ -7,6 +7,13 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+  
+}
+
+
 source("Functions/FormatData.R")
 
 library(dplyr)
@@ -69,7 +76,7 @@ loadin_spp <- files[grep(date, files)]
 
 sites <- read.csv(file.path(data_in_sites, loadin))
 spp <- read.csv(file.path(data_in_spp, loadinfg))
-spp_dat <- read.csv(file.path(data_in_spp2, loadin_spp)) # 20726
+spp_dat <- read.csv(file.path(data_in_spp2, loadin_spp)) # 21210
 
 #################################################
 # 5. Tidy up categories in spp
