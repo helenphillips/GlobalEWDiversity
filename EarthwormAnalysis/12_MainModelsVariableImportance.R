@@ -256,7 +256,8 @@ all_dat <- rbind(spR, abund, bmass)
 labs <- c("Habitat \nCover","Elevation","Soil","Precipitation","Temperature","Water\nRetention")
 
 # jpeg(file = file.path(figures, "variableImportance_splitGroups_circles.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-pdf(file.path(figures, "variableImportance_splitGroups_circles_correction.pdf"),width= wide_inch, height= wide_inch*0.55, pointsize = point_size)
+#pdf(file.path(figures, "variableImportance_splitGroups_circles_correction.pdf"),width= wide_inch, height= wide_inch*0.55, pointsize = point_size)
+png(file.path(figures, "variableImportance_splitGroups_circles_correction.png"), res = 200, width = 1000, height = 500, pointsize = point_size)
 
 par(mar = c(5, 8, 0.1, 0.1))
 plot(-1e+05, -1e+05, ylim = c(0, 4), xlim = c(0.5, 6.5),  
