@@ -93,6 +93,12 @@ for(r in 1:length(regions)){
 
 }
 
+min(allValues, na.rm = TRUE) # 0.007290587
+max(allValues, na.rm = TRUE) #  249.52
+mean(allValues, na.rm = TRUE) # 0.95
+median(allValues, na.rm = TRUE) # 0.79
+sd(allValues, na.rm = TRUE) # 0.96
+
 hist(allValues)
 hist(allValues, xlim = c(0, 20), breaks = seq(0,  round(max(allValues, na.rm = TRUE)), by = 1))
 
@@ -111,13 +117,17 @@ maxV <- max(maxValues, na.rm = TRUE)
 
 
 
-colbrks <-  c(minV, seq(1, 4, length.out = 198), maxV)
+colbrks <-  c(minV, seq(0.5, 4, length.out = 198), maxV)
 # Changing the breaks
-r.cols <- magma(199)
+# r.cols <- magma(199)
+
+#r.cols <- viridis(199)
+
 
 # png(file.path(figures, "Richness.png"),width=17.5,height=8.75,units="cm",res=resdpi)
 # pdf(file.path(figures, "Richness.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
-pdf(file.path(figures, "Richness_noLabel.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+# pdf(file.path(figures, "Richness_noLabel.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+png(file.path(figures, "Richness_corrected_05.png"),width=17.5,height=8.75,units="cm",res=resdpi)
 
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
@@ -142,8 +152,8 @@ b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 # abline(v = 20, col = "white")
 # abline(v = b[418], col = "black")
 
-mtext(1, at = b[20], cex = legendcex)
-mtext(6, at = b[418],cex = legendcex)
+mtext(0.5, at = b[20], cex = legendcex)
+mtext(4, at = b[418],cex = legendcex)
 mtext("Number of species", side = 1, at = 250, cex = legendcex - 0.2)
 dev.off()
 
@@ -171,19 +181,32 @@ maxValues <- c()
 allValues <- c()
 
 for(r in 1:length(regions)){
-  
+ 
   print(r)
   tempR <- read.csv(file.path(results, regions[r], "predictedValues.csv"))
   
-  #back transform!
-  minValues[r] <- min(tempR, na.rm = TRUE)
-  maxValues[r] <- max(tempR, na.rm = TRUE)
+  if( !(all(is.na(tempR)))){
+    
+    minValues[r] <- min(tempR, na.rm = TRUE)
+    maxValues[r] <- max(tempR, na.rm = TRUE)
+    
+    tempR <- na.omit(tempR)
+    
+    tempR[,1] <- exp(tempR[,1]) -1
+    
+    allValues <- c(allValues, as.vector(tempR[,1]))
+  }else{print("All values are NAs")}
   
-  tempR <- na.omit(tempR)
-  
-  allValues <- c(allValues, as.vector(tempR))
   
 }
+
+
+min(allValues, na.rm = TRUE)
+max(allValues, na.rm = TRUE)
+mean(allValues, na.rm = TRUE)
+median(allValues, na.rm = TRUE)
+sd(allValues, na.rm = TRUE)
+
 
 hist(allValues)
 hist(allValues, xlim = c(0, 20), breaks = seq(0,  round(max(allValues, na.rm = TRUE)), by = 1))
@@ -268,9 +291,18 @@ for(r in 1:length(regions)){
   
 }
 
+
+min(allValues, na.rm = TRUE)
+max(allValues, na.rm = TRUE)
+mean(allValues, na.rm = TRUE)
+median(allValues, na.rm = TRUE)
+sd(allValues, na.rm = TRUE)
+
+
 allValues <- exp(allValues ) - 1
 hist(allValues)
 hist(allValues, xlim = c(0, 500), breaks = seq(floor(min(allValues, na.rm = TRUE)),  ceiling(max(allValues, na.rm = TRUE)), by = 1))
+
 
 
 minV <- min(minValues, na.rm = TRUE)
