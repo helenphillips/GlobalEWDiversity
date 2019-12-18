@@ -34,11 +34,17 @@ createSizedMap <- function(dat)
   points(dsSPDF, col=transpBlack, bg = transpBlack, cex= coord$size, pch=19)
   # corner.label2(label = "A", x = -1, y = 1, cex = plotlabcex, font = 2)
   
-  sizes <- c(1, 50, 100, 150, 200, 250)
+  
+  library(plyr)            
+  Upper <- round_any(max(coord$nSites), 50, f = ceiling) 
+  
+  sizes <- seq(0, Upper, by =50)
+  sizes[1] <- 1
+
   cexsizes <- ((sizes-min(coord$nSites))/(max(coord$nSites)-min(coord$nSites)) * 2) + 0.5
   
-  legend(x = -170, y = 2, legend = sizes, pch = 19, pt.cex =cexsizes, bty="n", cex = 0.7, 
-         y.intersp = c(1, 1, 1, 1.05, 1.1, 1.18),
+  legend(x = -170, y = 20, legend = sizes, pch = 19, pt.cex =cexsizes, bty="n", cex = 0.7, 
+         y.intersp = seq(from =0.8, to = 1.2, length.out = length(sizes)),
          x.intersp = c(1.19),
          title = "Number Of Sites")
   
