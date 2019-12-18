@@ -208,6 +208,9 @@ median(allValues, na.rm = TRUE)
 sd(allValues, na.rm = TRUE)
 
 
+quantile(allValues, probs = seq(0.8, 1, by = 0.01))
+quantile(allValues, probs = seq(0.9, 1, by = 0.001))
+
 hist(allValues)
 hist(allValues, xlim = c(0, 20), breaks = seq(0,  round(max(allValues, na.rm = TRUE)), by = 1))
 
