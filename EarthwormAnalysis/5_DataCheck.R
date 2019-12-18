@@ -106,7 +106,7 @@ new_abundance <- sites[sites$studyID %in% abundance$studyID,]
 new_biomass <- sites[sites$studyID %in% biomass$studyID,]
 
 
-
+## Doubling of sites - Richness
 oldD <- data.frame(table(richness$studyID))
 newD <- data.frame(table(new_richness$studyID))
 compareRichness <- merge(oldD, newD, by = "Var1", all = TRUE)
@@ -114,8 +114,31 @@ names(compareRichness) <- c("studyID", "oldN", "newN")
 compareRichness$diff <- compareRichness$newN - compareRichness$oldN
 compareRichness$percentChange <- (compareRichness$diff / compareRichness$oldN) * 100
 
-
 doubled <- compareRichness[compareRichness$percentChange > 100,]
+
+## Doubling of sites - Abundance
+oldD <- data.frame(table(abundance$studyID))
+newD <- data.frame(table(new_abundance$studyID))
+compareAbundance <- merge(oldD, newD, by = "Var1", all = TRUE)
+names(compareAbundance) <- c("studyID", "oldN", "newN")
+compareAbundance$diff <- compareAbundance$newN - compareAbundance$oldN
+compareAbundance$percentChange <- (compareAbundance$diff / compareAbundance$oldN) * 100
+
+doubled <- compareAbundance[compareAbundance$percentChange > 100,]
+
+## Doubling of sites - Biomass
+oldD <- data.frame(table(biomass$studyID))
+newD <- data.frame(table(new_biomass$studyID))
+compareBiomass <- merge(oldD, newD, by = "Var1", all = TRUE)
+names(compareBiomass) <- c("studyID", "oldN", "newN")
+compareBiomass$diff <- compareBiomass$newN - compareBiomass$oldN
+compareBiomass$percentChange <- (compareBiomass$diff / compareBiomass$oldN) * 100
+
+doubled <- compareBiomass[compareBiomass$percentChange > 100,]
+
+
+
+
 
 
 ## Remove sites that were previously used - leaving just the zeros 
@@ -123,15 +146,21 @@ new_richness <- new_richness[!(new_richness$Study_site %in% unique(richness$Stud
 new_abundance <- new_abundance[!(new_abundance$Study_site %in% unique(abundance$Study_site)),]
 new_biomass <- new_biomass[!(new_biomass$Study_site %in% unique(biomass$Study_site)),]
 
+length(unique(new_richness$file))
+length(unique(new_richness$studyID))
 
+length(unique(new_abundance$file))
+length(unique(new_abundance$studyID))
 
+length(unique(new_biomass$file))
+length(unique(new_biomass$studyID))
 
 
 
 library(maps)
 library(maptools)
 
-## remove NAs from teh two studies that have a couple of coordinates missing
+## remove NAs from the two studies that have a couple of coordinates missing
 new_richness <- new_richness[!(is.na(new_richness$Latitude__decimal_degrees)),]
 new_abundance <- new_abundance[!(is.na(new_abundance$Latitude__decimal_degrees)),]
 new_biomass <- new_biomass[!(is.na(new_biomass$Latitude__decimal_degrees)),]
@@ -142,12 +171,17 @@ png(file.path(figures, "Maps+newZeroData_correction.png"),width=(3 * 17.5),heigh
 par(oma = c(0, 0, 1, 0))
 
 par(mar = c(1, 1, 1, 1))
-par(mfrow = c(3,1))
-
+par(mfrow = c(3,2))
+createSizedMap(richness)
+mtext("Richness", side = 3, line = -1)
 createSizedMap(new_richness)
 mtext("Richness", side = 3, line = -1)
+createSizedMap(abundance)
+mtext("Abundance", side = 3, line = -1)
 createSizedMap(new_abundance)
 mtext("Abundance", side = 3, line = -1)
+createSizedMap(biomass)
+mtext("Biomass", side = 3, line = -1)
 createSizedMap(new_biomass)
 mtext("Biomass", side = 3, line = -1)
 
