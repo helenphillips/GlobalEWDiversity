@@ -1,8 +1,122 @@
+
+plotSingle_TMB <- function(model, backTransform = FALSE, modelFixedEffs, Effect1, responseVar, seMultiplier = 1.96, data, cols = "000000", legend.position, 
+                       ylabel = "", xlabel = "", otherContEffectsFun = "median", pt_cex = 1.5, pt_lwd = 1, axis_size =1){
+  
+  newdata <- createNewdata(model = model, modelFixedEffects = modelFixedEffs, mainEffect = Effect1, data = data)
+  
+  ### Get rid of any unnesecary variable levels
+  ## From model, which columns are additional variables?
+  othervars <- model$frame[,names(model$frame) %in% modelFixedEffs[!(modelFixedEffs %in% Effect1)]]
+  for(col in 1:ncol(othervars))
+  {
+    a <- which(names(newdata) == names(othervars)[col])
+    
+    if(class(othervars[,col]) == "factor"){
+      # Use the reference level
+      ref <- levels(data[,names(data) == names(othervars)[col]])[1]
+      
+      newdata <- newdata[newdata[,a] == ref,]
+    }
+  }
+  ## Predict response and se values
+  
+    newdata$file <- NA
+    newdata$Study_Name <- NA
+    
+    ## Predict response and variance
+    temp <- predict(model, newdata, se.fit=TRUE, type = "response")  
+    
+    newdata$predFE <- temp$fit
+    newdata$lower <- temp$fit-seMultiplier*temp$se.fit
+    newdata$upper <- temp$fit+seMultiplier*temp$se.fit
+    
+
+  
+  
+  r <- which(names(newdata) == "predFE")
+  p <- which(names(newdata) == Effect1)
+  
+  ## Backtransform?
+  if(backTransform){
+   
+    print("Backtranforming assuming a exp function")
+      newdata[,r] <- exp(newdata[,r]) - 1
+      newdata$lower <- exp(newdata$predFE.min) - 1
+      newdata$upper <- exp(newdata$predFE.max) - 1
+    
+  }
+  
+  
+  #####COLOURS
+  ####
+  
+  newdata$ESA <- factor(newdata$ESA, levels = c(
+    "Broadleaf deciduous forest", "Broadleaf evergreen forest", "Needleleaf deciduous forest",
+    "Needleleaf evergreen forest", "Mixed forest", "Tree open", "Herbaceous with spare tree/shrub",
+    "Shrub", "Herbaceous", "Sparse vegetation", "Production - Herbaceous", "Production - Plantation",
+    "Cropland/Other vegetation mosaic",  "Urban", "Bare area (consolidated",
+    "Bare area (unconsolidated", "Unknown", "Paddy field", "Wetland/Herbaceous", "Water bodies"))
+  newdata <- droplevels(newdata)
+  
+  if(Effect1 == "ESA"){
+    newdata <- newdata[order(newdata$ESA),]
+  }
+  
+  
+  ## If predictor is numeric
+  if(class(newdata[,p]) == "numeric"){
+    pt_cols <- paste("#", cols, sep="")
+    
+    ci_cols <- adjustcolor(pt_cols, alpha.f = 0.3)
+    
+    plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE)),
+         xlim = c(min(newdata[,p],na.rm = TRUE), max(newdata[,p], na.rm = TRUE)),  ylab = ylabel, xlab = xlabel)
+    
+    X.Vec <- c(newdata[,p], max(newdata[,p]), 
+               rev(newdata[,p]), min(newdata[,p]))
+    Y.Vec <- c(newdata$lower, tail(newdata$upper, 1), rev(newdata$upper), newdata$lower[1])
+    
+    polygon(X.Vec, Y.Vec, col = ci_cols, border = NA)
+    
+    points(newdata[,p], newdata[,r], 
+           col = pt_cols,  type = "l", lwd = 5)
+    
+    
+  }
+  
+  ## If predictor is factor
+  if(class(newdata[,p]) == "factor"){
+    
+    if(length(cols) != length(levels(newdata[,p]))){
+      print("The length of colours does not match the number of factor levels. Some may be removed or duplicated")
+    }
+    cols <- rep(cols, length.out = length(levels(newdata[,p])))
+    pt_cols <- paste("#", cols, sep="")
+    
+    
+    par(mar=c(15, 4, 1, 1))
+    plot(-1e+05, -1e+05, ylim = c(min(newdata$lower,na.rm = TRUE), max(newdata$upper, na.rm = TRUE) + 0.2),
+         xlim = c(0, (nrow(newdata)-1)),  ylab = ylabel, xlab = xlabel,  xaxt='n', axes = FALSE)
+    Axis(side = 2, cex.axis = axis_size)
+    errbar(0:(nrow(newdata)-1), newdata[,r], newdata$upper, newdata$lower,
+           add = TRUE, col = pt_cols, errbar.col = pt_cols, cex = pt_cex, lwd = pt_lwd)
+    axis(side=1, at = 0:(nrow(newdata)-1), labels = levels(newdata[,p]), las=2, cex.axis = axis_size)
+    
+  }
+  # legend(legend.position, legend = fac, col = pt_cols, lwd = 2, bty = "n")
+
+}
+
+
+
+
+
+
 ########################################################
 # 0. Set Working Directory
 ########################################################
 if(Sys.info()["nodename"] == "IDIVNB179"){
-   setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+   setwd("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
 }
 
 if(Sys.info()["nodename"] == "TSGIS02"){
@@ -98,9 +212,9 @@ abundance <- droplevels(SiteLevels(abundance))
 models <- "Models"
 
 
-load(file.path(models, "richnessmodel_revised.rds"))
-load(file.path(models, "biomassmodel_full_revised.rds"))
-load(file.path(models, "abundancemodel_full_revised.rds"))
+load(file.path(models, "richnessmodel_correction.rds"))
+load(file.path(models, "biomassmodel_full_correction.rds"))
+load(file.path(models, "abundancemodel_full_correction.rds"))
 
 #################################################
 # 5. Pick colors for figures
@@ -117,10 +231,10 @@ abundanceCols <- ColourPicker(abundance$ESA)
 
 
 jpeg(file = file.path(figures, "richness_ESA.jpg"), quality = 100, res = 200, width = 2000, height = 1300)
-plotSingle(model= richness_model, backTransform = TRUE, family = "poisson",
+plotSingle_TMB(model= richness_model, backTransform = FALSE, 
            modelFixedEffs = c("scalePH","scaleCLYPPT", "scaleSLTPPT" , "scaleCECSOL" ,
-                                "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" , "SnowMonths_cat",  
-                                "scaleAridity", "ScalePET", "ESA", "scaleElevation"),
+                              "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" , "SnowMonths_cat",  
+                              "scaleAridity", "ScalePET", "ESA", "scaleElevation"),
            Effect1 = "ESA", 
            responseVar = "SpeciesRichness", seMultiplier = 1, data = richness, cols = richnessCols, 
            legend.position, ylabel = "Species Richness", xlabel = "", otherContEffectsFun = "median")
@@ -155,20 +269,20 @@ dev.off()
 ##############################################
 ## FOr the manuscript
 ##############################################
-jpeg(file = file.path(figures, "HabitatCover_Richness+Abundance.jpg"), quality = 100, res = 200, width = 1500, height = 2000)
+jpeg(file = file.path(figures, "HabitatCover_Richness+Abundance_correction.jpg"), quality = 100, res = 200, width = 1500, height = 2000)
 
 par(mfrow = c(2, 1))
 par(mar = c(15, 3, 1, 1))
-plotSingle(model= richness_model, backTransform = TRUE, family = "poisson",
+plotSingle_TMB(model= richness_model,
            modelFixedEffs = c("scalePH","scaleCLYPPT", "scaleSLTPPT" , "scaleCECSOL" ,
                               "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" , "SnowMonths_cat",  
                               "scaleAridity", "ScalePET", "ESA", "scaleElevation"),
            Effect1 = "ESA", 
            responseVar = "SpeciesRichness", seMultiplier = 1, data = richness, cols = richnessCols, 
-           legend.position, ylabel = "Species Richness", xlabel = "", otherContEffectsFun = "median")
+           legend.position = NA, ylabel = "Species Richness", xlabel = "", otherContEffectsFun = "median")
 mtext("A", side = 3, line = 0, at = 0, adj = 0.1, font = 2)
 
-plotSingle(model= abundance_model, Effect1 = "ESA",
+plotSingle_TMB(model= abundance_model, Effect1 = "ESA",
            modelFixedEffs = c("scalePH", "scaleCLYPPT", "scaleSLTPPT" , "scaleCECSOL" ,
                               "scaleORCDRC", "bio10_7_scaled" , "bio10_15_scaled" ,"SnowMonths_cat",  
                               "scaleAridity" , "ScalePET", "ESA" , "ScaleElevation"),
