@@ -1,6 +1,12 @@
 if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
+
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+  
+}
+
 #################################################
 # 1. Libraries
 #################################################
@@ -18,10 +24,12 @@ library(lme4)
 models <- "Models"
 
 
-load(file.path(models, "richnessmodel_revised.rds"))
-load(file.path(models, "biomassmodel_full_revised.rds"))
-load(file.path(models, "abundancemodel_full_revised.rds"))
+load(file.path(models, "richnessmodel_correction.rds"))
+load(file.path(models, "biomassmodel_full_correction.rds"))
+load(file.path(models, "abundancemodel_full_correction.rds"))
 # load(file.path(models, "fgrichnessmodel.rds"))
+
+
 
 data_in <- "8_Data"
 
@@ -74,9 +82,9 @@ alldat$Study_Name <- as.factor(alldat$Study_Name)
 
 ## unique sites
 length(unique(alldat$ID))
-## 6931
+## 6931 # 9212
 length(unique(alldat$Study_site))
-## 6928
+## 6928 # 9207
 
 
 length(unique(alldat$Study_Name)) # 228
@@ -136,7 +144,7 @@ t <- rbind(one, two, three)
 
 length(unique(t$file))
 
-
+# 16
 ######################################################
 ## A UNIQUE DATASET
 ########################################################
