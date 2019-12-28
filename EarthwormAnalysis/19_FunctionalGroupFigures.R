@@ -20,6 +20,7 @@ library(maps)
 library(lme4)
 library(Hmisc)
 library(ade4)
+library('glmmTMB')
 source(file.path("Functions", "FormatData.R"))
 source(file.path("Functions", "Plots.R"))
 source(file.path("Functions", "ColourPicker.R"))
@@ -86,8 +87,13 @@ richness <- droplevels(richness)
 #############################################
 ## models
 ############################################
-load(file.path(models, "abundancemodel_functionalgroups_revised.rds"))
-load(file.path(models, "biomassmodel_functionalgroups_revised.rds"))
+
+load(file.path(models, "abundancemodel_functionalgroups_correction.rds"))
+load(file.path(models, "biomassmodel_functionalgroups_correction.rds"))
+
+
+# load(file.path(models, "abundancemodel_functionalgroups_revised.rds"))
+# load(file.path(models, "biomassmodel_functionalgroups_revised.rds"))
 # load(file.path(models, "richnessmodel_functionalgroups_revised.rds"))
 
 ##########################################
@@ -106,9 +112,11 @@ newdata <- createNewdata(model = abundance_model,
 ## Only reference level for snow
 newdata <- newdata[newdata$SnowMonths_cat == 0,]
 
+newdata$file <- NA
+newdata$Study_Name <- NA
+
 ## Predict response and variance
-newdata <- predictValues(model = abundance_model, newdata, responseVar = "logValue", 
-                         seMultiplier = 1.96, re.form = NA)
+newdata$prediction <- predict(abundance_model, newdata, type = "response")
 
 
 #### Get rid of levels not represented by data
@@ -128,9 +136,9 @@ Cols <- abundanceCols
 # Cols <- ColourPicker(labelsESA)
 # This is not in the right order!!
 
-df <- data.frame(epigeic = newdata$logValue[grep("Epi", newdata$variable)], 
-                 endogeics = newdata$logValue[grep("Endo", newdata$variable)],
-                 anecics = newdata$logValue[grep("Ane", newdata$variable)])
+df <- data.frame(epigeic = newdata$prediction[grep("Epi", newdata$variable)], 
+                 endogeics = newdata$prediction[grep("Endo", newdata$variable)],
+                 anecics = newdata$prediction[grep("Ane", newdata$variable)])
 
 
 df$col <- paste0("#", Cols)
@@ -145,7 +153,7 @@ df[which(df[,3] < 0), 3] <- 0
 
 df$total <- rowSums(df[,1:3])
 
-jpeg(file = file.path(figures, "Biomass+Abundance_FGTriangle.jpeg"), quality = 100, res = 200, width = 2000, height = 2000)
+jpeg(file = file.path(figures, "Biomass+Abundance_FGTriangle_correction.jpeg"), quality = 100, res = 200, width = 2000, height = 2000)
 par(mfrow=c(2, 1))
 # jpeg(file = file.path(figures, "AbundanceFGTriangle.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 par(mar=c(1,1,1,1))
@@ -171,17 +179,22 @@ mtext(expression("Total Abundance (ind. per" ~ m^{2} ~ ")"), 3, -3, adj=0.07)
 biomassCols <- ColourPicker(biomass$ESA)
 
 
-newdata <- createNewdata(model = biomass_model, modelFixedEffects = c("ESA","variable", "ScaleElevation",  "scalePH", "scaleCLYPPT", "scaleSLTPPT",  "scaleORCDRC",
-                                                                "scaleCECSOL", "bio10_4_scaled" , "bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", "ScalePETSD"),
+newdata <- createNewdata(model = biomass_model, modelFixedEffects = c("ESA","variable", "ScaleElevation",  
+                                                                      "scalePH", "scaleCLYPPT", "scaleSLTPPT",  "scaleORCDRC",
+                                                                      "scaleCECSOL", "bio10_7_scaled" , "bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", 
+                                                                      "ScalePET"),
                          mainEffect = c("ESA", "variable"), data = biomass)
 
 
 ## Only reference level for snow
 newdata <- newdata[newdata$SnowMonths_cat == 0,]
 
+
+newdata$file <- NA
+newdata$Study_Name <- NA
+
 ## Predict response and variance
-newdata <- predictValues(model = biomass_model, newdata, responseVar = "logValue", 
-                         seMultiplier = 1.96, re.form = NA)
+newdata$prediction <- predict(biomass_model, newdata, type = "response")
 
 #### Get rid of levels not represented by data
 fgtokeep <- c("Epi_biomass","Endo_biomass","Ane_biomass")
@@ -201,9 +214,9 @@ Cols <- biomassCols
 # Cols <- ColourPicker(labelsESA)
 # This is not in the right order!!
 
- df <- data.frame(epigeic = newdata$logValue[grep("Epi", newdata$variable)], 
-                  endogeics = newdata$logValue[grep("Endo", newdata$variable)],
-                  anecics = newdata$logValue[grep("Ane", newdata$variable)])
+df <- data.frame(epigeic = newdata$prediction[grep("Epi", newdata$variable)], 
+                  endogeics = newdata$prediction[grep("Endo", newdata$variable)],
+                  anecics = newdata$prediction[grep("Ane", newdata$variable)])
 
 
 df$col <- paste0("#", Cols)

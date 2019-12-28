@@ -100,12 +100,14 @@ levels(spp$Revised_fg)[levels(spp$Revised_fg) == "epi-anecic"] <- "Anecic"
 keep <- c("SpeciesBinomial","Revised", "Revised_fg")      
 
 spp <- spp[,names(spp) %in% keep]
+## revised species names to append to the original
 
 #################################################
 # 7. Merge with species level dataset
 #################################################
 
-spp_dat <- merge(spp_dat, spp, by.x = "SpeciesBinomial", by.y = "SpeciesBinomial", all.x = TRUE)
+spp_dat <- merge(spp_dat, spp, by.x = "SpeciesBinomial", by.y = "SpeciesBinomial", all.x = TRUE) # 21210
+## Merge using the old names
 
 #################################################
 # 8. Use FG given if no other (especially as some non-species will have them)
@@ -219,17 +221,23 @@ library(plyr)
 t <- ddply(spR, c("newID", "Revised_fg"), summarise, nrows = length(Revised_fg))
 t2 <- dcast(t, newID ~ Revised_fg, value.var = "nrows")
 names(t2)[2:6] <- c("Ane_richness", "Endo_richness", "EpiEndo_richness", "Epi_richness", "Unknown_richness")
+t2$total <- rowSums(t2[,2:ncol(t2)], na.rm = TRUE)
+min(t2$total) 
 
+## so The NAs should be 0s
+
+t2[is.na(t2)] <- 0
+t2$total <- NULL
 ###################
 ## Calculate the functional group richness as well
 ###################
 
 t3 <- t2
 t3$Unknown_richness <- NULL
-t3$Ane_richness <- ifelse(is.na(t2$Ane_richness), 0, 1)
-t3$Endo_richness <- ifelse(is.na(t2$Endo_richness), 0, 1)
-t3$EpiEndo_richness <- ifelse(is.na(t2$EpiEndo_richness), 0, 1)
-t3$Epi_richness <- ifelse(is.na(t2$Epi_richness), 0, 1)
+t3$Ane_richness <- ifelse(t2$Ane_richness == 0, 0, 1)
+t3$Endo_richness <- ifelse(t2$Endo_richness == 0, 0, 1)
+t3$EpiEndo_richness <- ifelse(t2$EpiEndo_richness == 0, 0, 1)
+t3$Epi_richness <- ifelse(t2$Epi_richness == 0, 0, 1)
 
 t3$FGRichness <- rowSums(t3[,2:5])
 t3 <- t3[,c('newID', 'FGRichness')]
@@ -241,10 +249,61 @@ t2 <- merge(t2, t3, by = "newID")
 
 sites_fg <- merge(sites, summary.div, by.x = "newID", by.y = "newID", all.x = TRUE)
 sites_fg <- merge(sites_fg, t2, by.x = "newID", by.y = "newID", all.x = TRUE)
+
+
+##########################################################
+## Fill in missing data
+##########################################################
+# There may be studies where some functional groups were present
+# but not others (or sites nothing at all was found, within a study)
+# Need to ensure that they are marked as zeros, not NAs
+
+# I am tired, so let's do it a safe way
+
+
+sites_fg2 <- c()
+
+all_studies <- unique(sites_fg$studyID)
+
+for(s in 1:length(all_studies)){
+  
+  print(all_studies[s])
+  
+  temp <- sites_fg[sites_fg$studyID == all_studies[s],]
+  
+  vars <- c("biomass", "abundance", "_richness")
+  
+  for(v in 1:length(vars)){
+    print(vars[v])
+    bio <- grep(vars[v], names(temp))
+    
+    if(any(!(is.na(temp[,bio])))){ # If any of them are not NA
+      # Then make no sure no NAs
+      print("There are some values")
+      if(any(is.na(temp[,bio]))){ # If there are NAs
+        print("There are some NAs")
+        for( col in 1:length(bio)){
+          print("removing NAs")
+          temp[,bio[col]] <- ifelse(is.na(temp[,bio[col]]), 0, temp[,bio[col]])
+        }
+        
+        
+      }
+      
+    }
+  }
+  
+  sites_fg2 <- rbind(sites_fg2, temp)
+  
+}
+
+
+
+
 ##########################################################
 ## Save the data
 ##########################################################
 
 
-write.csv(sites_fg, file = file.path(data_out, paste("SiteswithFunctionalGroups_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
+write.csv(sites_fg2, file = file.path(data_out, paste("SiteswithFunctionalGroups_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
 
