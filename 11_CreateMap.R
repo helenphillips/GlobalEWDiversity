@@ -4,6 +4,8 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 
 if(Sys.info()["nodename"] == "TSGIS02"){
   setwd("C:/sWorm/EarthwormAnalysis")
+  rasterOptions(tmpdir = "D:\\sWorm\\trash", chunksize = 524288, maxmemory = 134217728)
+  
 }
 
 
@@ -78,7 +80,7 @@ allValues <- c()
 for(r in 1:length(regions)){
     
   print(r)
-  tempR <- read.csv(file.path(results, regions[r], "predictedValues.csv"))
+  tempR <- read.csv(file.path(results, regions[r], "predictedValues.csv"), header = FALSE)
   
   if( !(all(is.na(tempR)))){
     
@@ -92,6 +94,9 @@ for(r in 1:length(regions)){
   
 
 }
+quantile(allValues, probs = seq(0.98, 1, by = 0.001))
+# 99% of the data is below 4 (species)
+# 98% of the data is below 3 species
 
 min(allValues, na.rm = TRUE) # 0.007290587
 max(allValues, na.rm = TRUE) #  249.52
@@ -102,20 +107,17 @@ sd(allValues, na.rm = TRUE) # 0.96
 hist(allValues)
 hist(allValues, xlim = c(0, 20), breaks = seq(0,  round(max(allValues, na.rm = TRUE)), by = 1))
 
-# 
-# hist(africa)
-# hist(asia)
-# hist(europe)
-# hist(latin_america)
-# hist(north_america)
-# hist(west_asia)
 
 minV <- min(minValues, na.rm = TRUE)
 maxV <- max(maxValues, na.rm = TRUE)
 
+minV <- log(minV)
+maxV <- log(maxV)
 
+# Changing the breaks
+ r.cols <- magma(199)
 
-
+# r.cols <- plasma(199)
 
 colbrks <-  c(minV, seq(0.5, 4, length.out = 198), maxV)
 # Changing the breaks
@@ -129,6 +131,7 @@ colbrks <-  c(minV, seq(0.5, 4, length.out = 198), maxV)
 # pdf(file.path(figures, "Richness_noLabel.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
 png(file.path(figures, "Richness_corrected_05.png"),width=17.5,height=8.75,units="cm",res=resdpi)
 
+
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
 par(mar=c(0.1,0.1,0.1,0.1))
@@ -138,6 +141,7 @@ image(bkg, ylim = c(-90, 90), xlim = c(-180, 180), col = "gray90", xaxt="n", yax
 
 for(r in 1:length(regions)){
   tempR <- raster(file.path(results, regions[r], resultRaster))
+  tempR <- log(tempR)
   image(tempR, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
   
 }
@@ -153,6 +157,7 @@ b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 # abline(v = b[418], col = "black")
 
 mtext(0.5, at = b[20], cex = legendcex)
+
 mtext(4, at = b[418],cex = legendcex)
 mtext("Number of species", side = 1, at = 250, cex = legendcex - 0.2)
 dev.off()
@@ -183,15 +188,19 @@ allValues <- c()
 for(r in 1:length(regions)){
  
   print(r)
-  tempR <- read.csv(file.path(results, regions[r], "predictedValues.csv"))
+  tempR <- read.csv(file.path(results, regions[r], "predictedValues.csv"), header = FALSE)
   
+
+
   if( !(all(is.na(tempR)))){
+
     
     minValues[r] <- min(tempR, na.rm = TRUE)
     maxValues[r] <- max(tempR, na.rm = TRUE)
     
     tempR <- na.omit(tempR)
     
+
     tempR[,1] <- exp(tempR[,1]) -1
     
     allValues <- c(allValues, as.vector(tempR[,1]))
@@ -199,6 +208,7 @@ for(r in 1:length(regions)){
   
   
 }
+
 
 
 min(allValues, na.rm = TRUE)
@@ -211,36 +221,46 @@ sd(allValues, na.rm = TRUE)
 quantile(allValues, probs = seq(0.8, 1, by = 0.01))
 quantile(allValues, probs = seq(0.9, 1, by = 0.001))
 
+
 hist(allValues)
-hist(allValues, xlim = c(0, 20), breaks = seq(0,  round(max(allValues, na.rm = TRUE)), by = 1))
+hist(allValues, xlim = c(0, 100),  breaks = seq( floor(min(minValues, na.rm = TRUE)),  round(max(allValues, na.rm = TRUE) + 1), by = 1))
 
+quantile(allValues, probs = seq(0.96, 1, by = 0.001))
+quantile(allValues, probs = seq(0.99, 1, by = 0.0001))
 
-#   
-# hist(africa, ylim =c(1, 1000))
-# hist(asia, ylim =c(1, 1000))
-# hist(europe, xlim = c(0, 50), breaks = seq(minValue(europe),  maxValue(europe), by = 1))
-# hist(latin_america, ylim =c(1, 1000))
-# hist(north_america, ylim =c(1, 1000))
-# hist(west_asia, ylim =c(1, 1000))
- minV <- min(minValues, na.rm = TRUE)
+## For BIOMASS
+
+unrealistic <-2000 # i.e. an unrealistic sample of earthworms is 2kg
+## In Lavelle's book (soil Ecology), he said abundance could be 2000ind m-2
+## Assuming 1g per individual 
+## His biomass estimates are max 160g m-2
+
+(length(which(allValues > unrealistic ))) / length(allValues) * 100
+# 0.1232064
+ 
+
+minV <- min(minValues, na.rm = TRUE)
  maxV <- max(maxValues, na.rm = TRUE)
  
-#colbrks <-  c(minV, seq(1, 150, length.out = 198), maxV)
-colbrks <-  c(minV, seq(-3, 15, length.out = 198), maxV)
+colbrks <-  c(minV, seq(1, 150, length.out = 198), maxV)
 
 r.cols <- magma(199)
-nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
-# layout.show(nf)
-par(mar=c(0.1,0.1,0.1,0.1))
+
 
 
 #png(file.path(figures, "Biomass.png"),width=17.5,height=8.75,units="cm",res=resdpi)
-pdf(file.path(figures, "Biomass.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+#pdf(file.path(figures, "Biomass.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+png(file.path(figures, "Biomass_correction.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+
+nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
+# layout.show(nf)
+par(mar=c(0.1,0.1,0.1,0.1))
 
 image(bkg, ylim = c(-90, 90), xlim = c(-180, 180), col = "gray90", xaxt="n", yaxt="n", ylab="", xlab="", bty="n")
 
 for(r in 1:length(regions)){
   tempR <- raster(file.path(results, regions[r], resultRaster))
+  tempR <- exp(tempR) - 1
   image(tempR, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
   
 }
@@ -280,19 +300,29 @@ allValues <- c()
 
 
 for(r in 1:length(regions)){
-  
+#  for(r in 1:2){
   print(r)
-  tempR <- read.csv(file.path(results, regions[r], "predictedValues.csv"))
+  tempR <- read.csv(file.path(results, regions[r], "predictedValues.csv"), header = FALSE)
   
-  #back transform!
-  minValues[r] <- min(tempR, na.rm = TRUE)
-  maxValues[r] <- max(tempR, na.rm = TRUE)
   
-  tempR <- na.omit(tempR)
-  
-  allValues <- c(allValues, as.vector(tempR))
+  if( !(all(is.na(tempR)))){
+    tempR[,1] <- exp(tempR[,1]) - 1
+    
+    minValues[r] <- min(tempR, na.rm = TRUE)
+    maxValues[r] <- max(tempR, na.rm = TRUE)
+    
+    tempR <- na.omit(tempR)
+    
+    allValues <- c(allValues, as.vector(tempR[,1]))
+  }else{print("All values are NAs")}
   
 }
+
+
+quantile(allValues, probs = seq(0.80, 1, by = 0.01))
+quantile(allValues, probs = seq(0.99, 1, by = 0.0001))
+
+
 
 
 min(allValues, na.rm = TRUE)
@@ -310,13 +340,6 @@ hist(allValues, xlim = c(0, 500), breaks = seq(floor(min(allValues, na.rm = TRUE
 
 minV <- min(minValues, na.rm = TRUE)
 maxV <- max(maxValues, na.rm = TRUE)
-# hist(asia)
-# hist(africa)
-# hist(europe)
-# hist(north_america)
-# hist(latin_america)
-# hist(west_asia)
-
 
 
 ###########################################
@@ -325,8 +348,8 @@ colbrks <-  c(minV, seq(5, 100, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
-#png(file.path(figures, "Abundance.png"),width=17.5,height=8.75,units="cm",res=resdpi)
-pdf(file.path(figures, "Abundance.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+png(file.path(figures, "Abundance_corrected.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+#pdf(file.path(figures, "Abundance.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
 
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
@@ -348,7 +371,7 @@ par(mar=c(1,10,1,10))
 scale <- c(rep(magma(199)[1], times = 20), rep(magma(199), each = 2), rep(magma(199)[199], times = 20))
 b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 mtext("5", at = b[20], cex = legendcex)
-mtext("150", at = b[418], cex = legendcex)
+mtext("100", at = b[418], cex = legendcex)
 mtext(expression("Abundance (individuals per" ~ m^{2} ~ ")"), side = 1, at = 250, cex = legendcex - 0.2)
 
 dev.off()
