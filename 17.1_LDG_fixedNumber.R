@@ -15,6 +15,11 @@ if(Sys.info()["nodename"] == "TSGIS02"){
   setwd("C:/sWorm/EarthwormAnalysis")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:/Users/hp39wasi/WORK/sWorm/EarthwormAnalysis")
+}
+
+
 #######################################
 # variables
 ######################################
@@ -100,7 +105,7 @@ sitesbylat <- unique(sitesbylat[c("Study_site", "Latitude__decimal_degrees")])
 ### How many sites should each band contain? We had 23 bands before...so keep the same?
 nrow(sitesbylat) / 23
 # 232.8696
-
+# cORRECTION: 223.4783
 ## Put in order by latitude
 sitesbylat <- sitesbylat[order(sitesbylat$Latitude__decimal_degrees),]
 
@@ -240,16 +245,19 @@ mean(bandDat[,'Number of Morphospecies'])
 
 
 bandDat[nrow(bandDat) + 1, 1] <- "w"
-  
 bandDat[nrow(bandDat), 2:ncol(bandDat)]<- c(0, 0, 0, 0, 0, -37.000000, -35.381500, 0, 0) # Theres a big gap with no sites
 
-bandDat$latDiff <- bandDat$maxLat - bandDat$minLat
+bandDat[nrow(bandDat) + 1, 1] <- "x"
+bandDat[nrow(bandDat), 2:ncol(bandDat)]<- c(0, 0, 0, 0, 0, 12.266660, 17.649754, 0, 0) # Theres a big gap with no sites
 
+
+bandDat$latDiff <- bandDat$maxLat - bandDat$minLat
 bandDat <- bandDat[order(bandDat$minLat),]
 
-
 # jpeg(file = file.path(figures, "LDG_regional_fixedSites.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-pdf(file.path(figures, "LDG_regional_fixedSites.pdf"),width= wide_inch_small, height= wide_inch_small*0.75, pointsize = point_size)
+png(file.path(figures, "LDG_regional_fixedSites_correction.png"),width=wide_inch_small,height=wide_inch_small*0.75,units="in",res=resdpi)
+
+# pdf(file.path(figures, "LDG_regional_fixedSites.pdf"),width= wide_inch_small, height= wide_inch_small*0.75, pointsize = point_size)
 par(mar=c(4, 4, 1, 1))
 b <- barplot(bandDat$total, width = bandDat$latDiff, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 
@@ -258,10 +266,10 @@ max(bandDat$maxLat)
 
 ## Where would -40 be??
 # 0 =  -40.21667
-# 107 = 68.4525
+# 108 = 68.4525
 # so x spans 108.64 degrees
-# each 1  unit on the x = 1.015 degree
-oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 107
+# each 1  unit on the x = 1.005 degree
+oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 108
 #axis(1, at = c(0), labels = c(1))
 # axis(1, at = c(107), labels = c(2))
 
@@ -285,9 +293,9 @@ axis(1, at = minus40, labels = "-40")
 
 
 labs <- as.character(seq(-40, 60, by = 10))
-labs <- c(labs, "68.4")
+# labs <- c(labs, "68.4")
 
-axis(1, at = c(seq(minus40, 107, by = ( 10.05974 - minus40) ), 107), labels = labs)
+axis(1, at = c(seq(minus40, 108, by = ( 10.05974 - minus40) )), labels = labs)
 
 
 # axis(1, at = (99.22910 + 9.90151), labels = "70")
@@ -297,7 +305,7 @@ dev.off()
 # And with no morphospecies
 #########################
 
-jpeg(file = file.path(figures, "LDG_regional_fixedSites_nomorphs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+jpeg(file = file.path(figures, "LDG_regional_fixedSites_nomorphs_correction.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 
 b <- barplot(bandDat$total_no_morphs, width = bandDat$latDiff, space = 0, xaxs = "i", ylab = "Number of Species (excluding morphospecies)", xlab = "Latitude")
 min(bandDat$minLat)
@@ -308,11 +316,11 @@ minus40 <- 1 / (oneunit/0.21667)
 axis(1, at = minus40, labels = "-40")
 
 labs <- as.character(seq(-40, 60, by = 10))
-labs <- c(labs, "68.4")
+# labs <- c(labs, "68.4")
 
-axis(1, at = c(seq(minus40, 107, by = ( 10.05974 - minus40) ), 107), labels = labs)
+axis(1, at = c(seq(minus40, 107, by = ( 10.05974 - minus40) )), labels = labs)
 
 dev.off()
 
 
-bandDat
+
