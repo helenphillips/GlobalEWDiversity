@@ -10,6 +10,9 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 }
 
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:/Users/hp39wasi/WORK/sWorm/EarthwormAnalysis\\")
+}
 
 #################################################
 # 1. Loading libraries
@@ -20,6 +23,7 @@ library(lme4)
 library(car)
 library(DHARMa)
 library(MuMIn)
+library("glmmTMB")
 
 source("Functions/FormatData.R")
 source("Functions/lme4_ModellingFunctions.R")
@@ -66,6 +70,7 @@ models <- "Models"
 #################################################
 
 sites <- read.csv(file.path(data_in, loadin))
+# This is now the updated correction verion
 # sites <- read.csv("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\3_Data\\Sites_2017-11-09.csv")
 rm(loadin)
 
@@ -79,15 +84,15 @@ sites <- SiteLevels(sites) ## relevels all land use/habitat variables
 #################################################
 # 5. Biomass
 #################################################
-biomass <- sites[complete.cases(sites$logBiomass),] # 3689
-biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 3368
+biomass <- sites[complete.cases(sites$logBiomass),] # 3689 #  4354
+biomass <- droplevels(biomass[biomass$ESA != "Unknown",]) # 3368 # 4207
 
 # biomass <- droplevels(biomass[!(is.na(biomass$PHIHOX)),])
 biomass <- droplevels(biomass[!(is.na(biomass$bio10_15)),]) ## 3365
 biomass <- droplevels(biomass[!(is.na(biomass$OCFinal)),]) ## 3364
 biomass <- droplevels(biomass[!(is.na(biomass$phFinal)),]) ## 3364
 biomass <- droplevels(biomass[!(is.na(biomass$SnowMonths_cat)),]) ##  3361
-biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  3357
+biomass <- droplevels(biomass[!(is.na(biomass$Aridity)),]) ##  3357 # 4200
 
 
 table(biomass$ESA)
@@ -128,20 +133,32 @@ cor <- findVariables(dat, VIFThreshold = 3)
 # With only soilgrids data:
 # bio10_12 bio10_15  PHIHOX    CLYPPT   SLTPPT    CECSOL
 # ORCDRC   elevation PET_SD   
+# Same in correction
+
+# b1 <- lmer(logBiomass ~  ESA + ScaleElevation + 
+#              (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+#              (bio10_12_scaled  + bio10_15_scaled + ScalePETSD + SnowMonths_cat)^2 + 
+#              scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+#              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+#              ScalePETSD:bio10_12_scaled + ScalePETSD:bio10_15_scaled +
+#              (1|file/Study_Name), data = biomass,
+#            control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+
+b1 <- glmmTMB(logBiomass ~  ESA + ScaleElevation + 
+                (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
+                (bio10_12_scaled  + bio10_15_scaled + ScalePETSD + SnowMonths_cat)^2 + 
+                scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+                scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                ScalePETSD:bio10_12_scaled + ScalePETSD:bio10_15_scaled +
+                (1|file/Study_Name), data = biomass, 
+              ziformula = ~ESA + ScaleElevation + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL +
+                bio10_12_scaled  + bio10_15_scaled + ScalePETSD + SnowMonths_cat,
+              control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5))) #, optimizer ="bobyqa"))
 
 
-b1 <- lmer(logBiomass ~  ESA + ScaleElevation + 
-             (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleORCDRC + scaleCECSOL)^2 +
-             (bio10_12_scaled  + bio10_15_scaled + ScalePETSD + SnowMonths_cat)^2 + 
-             scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
-             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-             ScalePETSD:bio10_12_scaled + ScalePETSD:bio10_15_scaled +
-             (1|file/Study_Name), data = biomass,
-           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
-
-biomass_model_SG <- modelSimplificationAIC(model = b1, data = biomass, optimizer = "bobyqa", Iters = 2e5)
-save(biomass_model_SG, file = file.path(models, "biomassmodel_SoilGrids_revision.rds"))
+biomass_model_SG <- modelSimplificationAIC_glmmTMB(model = b1, itermax = 2e5, evalmax=2e5, dat = biomass)
+save(biomass_model_SG, file = file.path(models, "biomassmodel_SoilGrids_correction.rds"))
 
 
 
@@ -149,7 +166,7 @@ save(biomass_model_SG, file = file.path(models, "biomassmodel_SoilGrids_revision
 #################################################
 # 6. Abundance
 #################################################
-abundance <- sites[complete.cases(sites$logAbundance),] # 7211
+abundance <- sites[complete.cases(sites$logAbundance),] # 7211 # 9089
 abundance <- droplevels(abundance[abundance$ESA != "Unknown",]) #6759
 
 # abundance <- droplevels(abundance[!(is.na(abundance$PHIHOX)),])
@@ -157,7 +174,7 @@ abundance <- droplevels(abundance[!(is.na(abundance$bio10_15)),]) ##
 abundance <- droplevels(abundance[!(is.na(abundance$OCFinal)),]) ##  
 abundance <- droplevels(abundance[!(is.na(abundance$phFinal)),]) ##  6731
 abundance <- droplevels(abundance[!(is.na(abundance$SnowMonths_cat)),]) ##  6657
-abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6576
+abundance <- droplevels(abundance[!(is.na(abundance$Aridity)),]) ##  6576 # 8724
 
 
 table(abundance$ESA)
@@ -165,7 +182,7 @@ abundance_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Sparse ve
                           "Bare area (consolidated", "Bare area (unconsolidated",  "Paddy field", "Wetland/Herbaceous",
                           "Water bodies")
 
-abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  6709
+abundance <- droplevels(abundance[!(abundance$ESA %in% abundance_notinclude),]) #  6709 # 8677
 
 
 abundance$scalePH <- as.vector(scale(abundance$PHIHOX))
@@ -196,18 +213,31 @@ cor <- findVariables(dat, VIFThreshold = 3)
 
 ## With only soil grids
 # bio10_7   bio10_15  PHIHOX    CLYPPT  SLTPPT   CECSOL   ORCDRC   elevation Aridity   PETyr 
+# Same in correction
 
-a1 <- lmer(logAbundance ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
-             (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
-                ScalePET)^2 +
-             scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
-             scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET + 
-             scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity + 
-             (1|file/Study_Name), data = abundance,
-           control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
+# a1 <- lmer(logAbundance ~  ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+#              (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+#                 ScalePET)^2 +
+#              scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+#              scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET + 
+#              scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity + 
+#              (1|file/Study_Name), data = abundance,
+#            control = lmerControl(optCtrl = list(maxfun = 2e5), optimizer ="bobyqa"))
 
-abundance_model_SG <- modelSimplificationAIC(model = a1, data = abundance, optimizer = "bobyqa", Iters = 2e5)
-save(abundance_model_SG, file = file.path(models, "abundancemodel_SoilGrids_revision.rds"))
+
+a1 <- glmmTMB(logAbundance ~ ESA + ScaleElevation + (scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+                (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + ScalePET)^2 +
+                scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET + 
+                scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity + 
+                (1|file/Study_Name), data = abundance, 
+              zi = ~ESA + ScaleElevation + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC +
+                bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + ScalePET,
+              control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5)))
+
+
+abundance_model_SG <- modelSimplificationAIC_glmmTMB(model = a1, itermax = 2e5, evalmax=2e5, dat = abundance)
+save(abundance_model_SG, file = file.path(models, "abundancemodel_SoilGrids_correction.rds"))
 
 
 # load(file.path(models, "abundancemodel_full.rds"))
@@ -216,7 +246,7 @@ save(abundance_model_SG, file = file.path(models, "abundancemodel_SoilGrids_revi
 ## For Species Richness model - on cluster
 ##############################################
 
-richness <- sites[complete.cases(sites$SpeciesRichness),] #6089
+richness <- sites[complete.cases(sites$SpeciesRichness),] #6089 # 7789
 richness <- droplevels(richness[richness$ESA != "Unknown",]) # 5660
 richness <- droplevels(richness[-which(richness$SpeciesRichness != round(richness$SpeciesRichness)),]) # 5642
 
@@ -227,7 +257,7 @@ richness <- droplevels(richness[!(is.na(richness$bio10_15)),]) ## 5629
 richness <- droplevels(richness[!(is.na(richness$OCFinal)),]) ## 5622
 richness <- droplevels(richness[!(is.na(richness$phFinal)),]) ## 5618
 richness <- droplevels(richness[!(is.na(richness$scaleAridity)),]) ## 5509
-richness <- droplevels(richness[!(is.na(richness$SnowMonths_cat)),]) ## 5466
+richness <- droplevels(richness[!(is.na(richness$SnowMonths_cat)),]) ## 5466 #  7419
 
 
 table(richness$ESA)
@@ -252,7 +282,7 @@ richness$bio10_15_scaled <- scale(richness$bio10_15)
 richness$scaleAridity <- scale(richness$Aridity)
 richness$ScalePET <- scale(richness$PETyr)
 richness$ScalePETSD <- scale(richness$PET_SD)
-richness$scaleElevation <- scale(richness$elevation)
+richness$scaleElevation <- scale(richness$elevation) # 7386
 
 ## Save the data
 write.csv(richness, file = file.path(data_out, paste("sitesRichness_soilGrids_", Sys.Date(), ".csv", sep = "")), row.names = FALSE)
@@ -264,6 +294,21 @@ dat <- richness[,c(ind)]
 cor <- findVariables(dat, VIFThreshold = 3)
 
 # bio10_7   bio10_15  PHIHOX SLTPPT CECSOL ORCDRC elevation Aridity PETyr
+# Changed in correction to;
+# bio10_7   bio10_12  bio10_15  PHIHOX    CLYPPT    SLTPPT    CECSOL    ORCDRC    elevation 
+
+
+r1_hurdle <- glmmTMB(SpeciesRichness ~  ESA + scaleElevation + 
+                       (scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+                       (bio10_7_scaled + bio10_12_scaled + bio10_15_scaled + SnowMonths_cat)^2 + 
+                       scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                       scaleCLYPPT:bio10_12_scaled + scaleSLTPPT:bio10_12_scaled +
+                       (1|file/Study_Name), data = richness,  family = truncated_poisson,# verbose= TRUE,
+                     zi = ~ ESA + scaleElevation + scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC +
+                       bio10_7_scaled + bio10_12_scaled + bio10_15_scaled + SnowMonths_cat,
+                     control = glmmTMBControl(optCtrl = list(iter.max = 2e5, eval.max=2e5)))
+save(r1_hurdle, file = file.path(models, "richnessmodel_SoilGrids_correction.rds"))
+
 
 
 ##############################################################
