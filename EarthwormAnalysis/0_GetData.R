@@ -299,7 +299,58 @@ for(file in all_files){
   
     
 ## Now to make a species level dataframe with all the variables in
-  if(nrow(species) > 0){site_species <- merge(species, sites, by.x = "Study_site", by.y = "Study_site", all.x = TRUE)
+  if(nrow(species) > 0){
+
+    # Some files only have species data for some studies
+    
+    actual_studies <- unique(species$Study_ID)
+    sites_temp <- sites[which(sites$Study_Name %in% actual_studies) ,]
+
+    
+    
+    site_species <- merge(sites_temp, species, by.x = "Study_site", by.y = "Study_site", all.x = TRUE) # Still want sites with zero
+    
+  
+  
+    # Make sure blanks are filled in where nessecary
+    site_species$Study_ID <- site_species$Study_Name # Maybe multiple studies
+    
+    # If any of the two diversity metrics have some value, the blanks need zero
+
+    for(s in 1:length(unique(site_species$Study_Name))){
+      
+      # Abundance
+      if(any(!(is.na(site_species$Abundance[site_species$Study_Name == unique(site_species$Study_Name)[s]])))){
+        # If any are not NA in the abundance col for the study, then
+        
+        the_nas <- which(is.na(site_species$Abundance) & site_species$Study_Name == unique(site_species$Study_Name)[s] )
+        
+        site_species$Abundance[the_nas] <- 0
+        
+        # site_species$Abundance_Unit <-  as.character(site_species$Abundance_Unit)
+        units <- unique(site_species$Abundance_Unit[site_species$Study_Name == unique(site_species$Study_Name)[s]])
+        units <- units[!(is.na(units))]
+        site_species$Abundance_Unit[the_nas] <- units
+              }
+      
+      # Biomass
+      if(any(!(is.na(site_species$WetBiomass[site_species$Study_Name == unique(site_species$Study_Name)[s]])))){
+        # If any are not NA in the biomass col for the study, then
+        
+        the_nas <- which(is.na(site_species$WetBiomass) & site_species$Study_Name == unique(site_species$Study_Name)[s] )
+        
+        site_species$WetBiomass[the_nas] <- 0
+        
+        units <- unique(site_species$WetBiomassUnits[site_species$Study_Name == unique(site_species$Study_Name)[s]])
+        units <- units[!(is.na(units))]
+        site_species$WetBiomassUnits[the_nas] <- units
+      }
+      
+      
+      
+    }
+  
+  
     all_species[[count]] <- site_species
   }
 
@@ -317,7 +368,11 @@ for(file in all_files){
 sites <- do.call("rbind", all_sites)
 species <- do.call("rbind", all_species)
 
+species$file.y <- NULL
+species$Site_Name.y <- NULL
 
+names(species)[which(names(species) == "file.x")] <- "file"
+names(species)[which(names(species) == "Site_Name.x")] <- "Site_Name"
 ########################################################
 # 9. Amalgamte site level values of species richness, biomass and abundance
 ########################################################
@@ -355,7 +410,7 @@ sites[,names(sites) %in% colsToRemove] <- NULL
 
 ## Another check
 
-if(length(unique(sites$file)) != length(all_files_alt)){stop ("Files are missing!!")}
+if(length(unique(sites$file)) != length(unique(all_files_alt))){stop ("Files are missing!!")}
 
 ########################################################
 # 10. Save the data
