@@ -288,16 +288,16 @@ beep()
 
 ############## Richness
 richness <- m_sites[grep("richness", m_sites$variable),]
-#richness <- droplevels(richness[which(!(is.na(richness$value))),])
-norichness <- tapply(richness$value, richness$Study_Name, FUN = mean) # often no variation, so use mean
-norichness <- names(norichness[which(is.na(norichness))])
-richness <- droplevels(richness[!(richness$Study_Name %in% norichness),]) # 37980
+richness <- droplevels(richness[which(!(is.na(richness$value))),])
+# norichness <- tapply(richness$value, richness$Study_Name, FUN = mean) # often no variation, so use mean
+# norichness <- names(norichness[which(is.na(norichness))])
+# richness <- droplevels(richness[!(richness$Study_Name %in% norichness),]) # 37980
 
 
 richness <- droplevels(richness[richness$ESA != "Unknown",]) # 36955
 
 
-richness <- droplevels(richness[!(is.na(richness$bio10_15)),]) ## 
+richness <- droplevels(richness[!(is.na(richness$bio10_15)),]) ##  36885
 richness <- droplevels(richness[!(is.na(richness$OCFinal)),]) ## 
 richness <- droplevels(richness[!(is.na(richness$phFinal)),]) ## 
 richness <- droplevels(richness[!(is.na(richness$SnowMonths_cat)),]) ##  
@@ -307,7 +307,7 @@ richness <- droplevels(richness[!(is.na(richness$Aridity)),]) ##  36355
 
 table(richness$ESA, richness$variable)
 
-richness_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Sparse vegetation",
+richness_notinclude <- c("Needleleaf deciduous forest", "Tree open", "Sparse vegetation", "Shrub", 
                         "Cropland/Other vegetation mosaic", "Bare area (consolidated", "Wetland/Herbaceous", "Water bodies")
 richness <- droplevels(richness[!(richness$ESA %in% richness_notinclude),]) ##   8426 # 36230
 
@@ -351,6 +351,25 @@ cor <- findVariables(dat, VIFThreshold = 3)
 # richness_model <- modelSimplificationAIC(model = r1, data = richness, optimizer = "bobyqa", Iters = 2e5)
 # save(richness_model, file = file.path(models, "richnessmodel_functionalgroups.rds"))
 
+esaBYfg <- richness %>% # Start by defining the original dataframe, AND THEN...
+  group_by(ESA) %>% # Define the grouping variable, AND THEN...
+  summarize( # Now you define your summary variables with a name and a function...
+    Epi_biomass = sum(value[which(variable == "Epigeic")], na.rm = TRUE),
+    Endo_biomass = sum(value[which(variable == "Endogeic")], na.rm = TRUE),
+    Ane_biomass = sum(value[which(variable == "Anecic")], na.rm = TRUE),
+    EpiEndo_biomass = sum(value[which(variable == "Epi-Endogeic")], na.rm = TRUE),
+    Unknown_biomass = sum(value[which(variable == "Unknown")], na.rm = TRUE)
+    
+  )
+
+
+as.data.frame(richness %>% group_by( ESA, variable ) %>% summarise( total = sum(value) ))
+
+
+as.data.frame(esaBYfg)
+
+
+
 r1_hurdle <- glmmTMB(value ~  (ESA * variable) + ScaleElevation + 
                        (scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
                        (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
@@ -364,13 +383,50 @@ r1_hurdle <- glmmTMB(value ~  (ESA * variable) + ScaleElevation +
                        ScalePET,
                      control = glmmTMBControl(optCtrl = list(iter.max = 2e5, eval.max=2e5)))
 
+
+richness_test <- richness[richness$variable != "Unknown_richness",]
+r1_nounknowns <- glmmTMB(value ~  (ESA * variable) + ScaleElevation + 
+                           (scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+                           (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                              ScalePET)^2 + 
+                           scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                           scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+                           scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
+                           (1|file/Study_Name), data = richness_test,  family = truncated_poisson,# verbose= TRUE,
+                         zi = ~ESA + ScaleElevation + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC +
+                           bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                           ScalePET,
+                         control = glmmTMBControl(optCtrl = list(iter.max = 2e5, eval.max=2e5)))
+
+## This works....
+
+richness$variable_diff <- as.character(richness$variable)
+richness$variable_diff[richness$variable_diff %in% c("Unknown_richness", "EpiEndo_richness")] <- "Other/Unknown"
+
+r1_other <- glmmTMB(value ~  (ESA * variable_diff) + ScaleElevation + 
+                           (scalePH + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC)^2 +
+                           (bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                              ScalePET)^2 + 
+                           scaleCLYPPT:bio10_15_scaled + scaleSLTPPT:bio10_15_scaled +
+                           scaleCLYPPT:ScalePET + scaleSLTPPT:ScalePET +
+                           scaleCLYPPT:scaleAridity + scaleSLTPPT:scaleAridity +
+                           (1|file/Study_Name), data = richness,  family = truncated_poisson,# verbose= TRUE,
+                         zi = ~ESA + ScaleElevation + scalePH  + scaleCLYPPT + scaleSLTPPT + scaleCECSOL + scaleORCDRC +
+                           bio10_7_scaled + bio10_15_scaled + SnowMonths_cat + scaleAridity + 
+                           ScalePET,
+                         control = glmmTMBControl(optCtrl = list(iter.max = 2e5, eval.max=2e5)))
+
+## This works....
+
+
 print("First model done. Now for the simplification process...")
 ff <- fixef(r1_hurdle)$zi
 round(exp(c(intercept=unname(ff[1]),ff[-1]+ff[1])),3)
 
 
-richness_model <- modelSimplificationAIC_glmmTMB(model = r1_hurdle, itermax = 2e5, evalmax=2e5, dat = richness)
+# richness_model <- modelSimplificationAIC_glmmTMB(model = r1_hurdle, itermax = 2e5, evalmax=2e5, dat = richness)
+richness_model <- modelSimplificationAIC_glmmTMB(model = r1_other, itermax = 2e5, evalmax=2e5, dat = richness)
 
-save(richness_model, file = file.path(data_out, "richnessmodel_functionalgroups_correction.rds"))
+save(richness_model, file = file.path(data_out, "richnessmodel_functionalgroups_other_correction.rds"))
 
 
