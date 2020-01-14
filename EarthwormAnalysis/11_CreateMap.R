@@ -64,7 +64,7 @@ regions <- c("r12", "r13", "r14", "r15", "r16", "r17", "r18", "r19",
 
 # results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Richness"
 # results <- "D:\\sWorm\\Results\\Richness"
-results <- "I:\\sWorm\\Results\\Results-Dec2019\\Richness"
+results <- "I:\\sWorm\\Results\\Results-Jan2020\\Richness"
 
 
 # regions <- c("africa", "asia", "europe", "latin_america", "north_america", "west_asia")
@@ -111,15 +111,12 @@ hist(allValues, xlim = c(0, 20), breaks = seq(0,  round(max(allValues, na.rm = T
 minV <- min(minValues, na.rm = TRUE)
 maxV <- max(maxValues, na.rm = TRUE)
 
-minV <- log(minV)
-maxV <- log(maxV)
-
 # Changing the breaks
  r.cols <- magma(199)
 
 # r.cols <- plasma(199)
 
-colbrks <-  c(minV, seq(0.5, 4, length.out = 198), maxV)
+colbrks <-  c(minV, seq(1, 4, length.out = 198), maxV)
 # Changing the breaks
 # r.cols <- magma(199)
 
@@ -129,7 +126,8 @@ colbrks <-  c(minV, seq(0.5, 4, length.out = 198), maxV)
 # png(file.path(figures, "Richness.png"),width=17.5,height=8.75,units="cm",res=resdpi)
 # pdf(file.path(figures, "Richness.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
 # pdf(file.path(figures, "Richness_noLabel.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
-png(file.path(figures, "Richness_corrected_05.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+# png(file.path(figures, "Richness_correction.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+pdf(file.path(figures, "Richness_correction.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
 
 
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
@@ -141,12 +139,12 @@ image(bkg, ylim = c(-90, 90), xlim = c(-180, 180), col = "gray90", xaxt="n", yax
 
 for(r in 1:length(regions)){
   tempR <- raster(file.path(results, regions[r], resultRaster))
-  tempR <- log(tempR)
+
   image(tempR, col=r.cols, add = TRUE, breaks=colbrks, xaxt="n", yaxt="n", ylab="", xlab="")
   
 }
 
-# corner.label2(label = "B", x = -1, y = 1, cex=plotlabcex, font = 2)
+corner.label2(label = "B", x = -1, y = 1, cex=plotlabcex, font = 2)
 
 ## Legend
 par(mar=c(1,10,1,10))
@@ -156,7 +154,7 @@ b <- barplot(rep(1, 438), col = scale, border =scale, axes = FALSE )
 # abline(v = 20, col = "white")
 # abline(v = b[418], col = "black")
 
-mtext(0.5, at = b[20], cex = legendcex)
+mtext(1, at = b[20], cex = legendcex)
 
 mtext(4, at = b[418],cex = legendcex)
 mtext("Number of species", side = 1, at = 250, cex = legendcex - 0.2)
@@ -174,7 +172,7 @@ dev.off()
 # results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Biomass"
 # results <- "D:\\sWorm\\Results\\Biomass"
 
-results <- "I:\\sWorm\\Results\\Results-Dec2019\\Biomass"
+results <- "I:\\sWorm\\Results\\Results-Jan2020\\Biomass"
 
 
 resultRaster <- "BiomassFinalRaster.tif"
@@ -239,8 +237,8 @@ unrealistic <-2000 # i.e. an unrealistic sample of earthworms is 2kg
 # 0.1232064
  
 
-minV <- min(minValues, na.rm = TRUE)
- maxV <- max(maxValues, na.rm = TRUE)
+minV <- exp(min(minValues, na.rm = TRUE)) - 1
+maxV <- exp(max(maxValues, na.rm = TRUE)) - 1
  
 colbrks <-  c(minV, seq(1, 150, length.out = 198), maxV)
 
@@ -288,7 +286,7 @@ dev.off()
 
 # results <- "I:\\sDiv-PostDocs-Work\\Phillips\\sWorm\\SpatialAnalysis\\Results\\Revised\\Abundance"
 # results <- "D:\\sWorm\\Results\\Abundance"
-results <- "I:\\sWorm\\Results\\Results-Dec2019\\Abundance"
+results <- "I:\\sWorm\\Results\\Results-Jan2020\\Abundance"
 
 resultRaster <- "AbundanceFinalRaster.tif"
 
@@ -325,14 +323,13 @@ quantile(allValues, probs = seq(0.99, 1, by = 0.0001))
 
 
 
-min(allValues, na.rm = TRUE)
-max(allValues, na.rm = TRUE)
-mean(allValues, na.rm = TRUE)
-median(allValues, na.rm = TRUE)
-sd(allValues, na.rm = TRUE)
+min(allValues, na.rm = TRUE) # -0.741040
+max(allValues, na.rm = TRUE) # 5650.352
+mean(allValues, na.rm = TRUE) # 20.586
+median(allValues, na.rm = TRUE) # 13.20
+sd(allValues, na.rm = TRUE) # 24.83589
 
 
-allValues <- exp(allValues ) - 1
 hist(allValues)
 hist(allValues, xlim = c(0, 500), breaks = seq(floor(min(allValues, na.rm = TRUE)),  ceiling(max(allValues, na.rm = TRUE)), by = 1))
 
@@ -348,7 +345,7 @@ colbrks <-  c(minV, seq(5, 100, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
-png(file.path(figures, "Abundance_corrected.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+png(file.path(figures, "Abundance_correction.png"),width=17.5,height=8.75,units="cm",res=resdpi)
 #pdf(file.path(figures, "Abundance.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
 
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
