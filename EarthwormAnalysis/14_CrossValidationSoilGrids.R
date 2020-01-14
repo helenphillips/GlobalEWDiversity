@@ -325,10 +325,14 @@ k_fold <- 10
 
 
 ####### BIOMASS
-load(file.path(models, "biomassmodel_SoilGrids.rds"))
-r.squaredGLMM(biomass_model_SG)
+# load(file.path(models, "biomassmodel_SoilGrids.rds"))
+load(file.path(models, "biomassmodel_SoilGrids_correction.rds"))
+# r.squaredGLMM(biomass_model_SG)
 
 BiomassData <- biomass_model_SG@frame
+
+
+
 
 ########
 # K-Fold Cross validation
@@ -358,8 +362,15 @@ abline(0, 1)
 
 biomass <- df
 
+
+
+
 biomass$observed <- exp(biomass$observed) - 1
 biomass$predicted <- exp(biomass$predicted) - 1 
+
+
+# biomass <- read.csv(file.path(data_out, "BiomassSoilGridsCrossValidation_correction.csv"))
+
 
 calculateMSE(biomass)
 calculateMSEofQuantiles(biomass)
@@ -402,6 +413,9 @@ abundance <- df
 
 abundance$observed <- exp(abundance$observed) - 1
 abundance$predicted <- exp(abundance$predicted) - 1 
+
+#abundance <- read.csv(file.path(data_out, "AbundanceSoilGridsCrossValidation_correction.csv"))
+
 
 calculateMSE(abundance)
 calculateMSEofQuantiles(abundance)
@@ -453,6 +467,8 @@ abline(0, 1)
 richness <- df
 
 richness$predicted <- exp(richness$predicted) 
+
+richness <- read.csv(file.path(data_out, "RichnessSoilGridsCrossValidation_correction.csv"))
 
 calculateMSE(richness)
 calculateMSEofQuantiles(richness)
