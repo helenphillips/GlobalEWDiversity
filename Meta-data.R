@@ -75,10 +75,6 @@ names(richness)[names(richness) == "scaleElevation"] <- "ScaleElevation"
 
 alldat <- rbind(richness, biomass, abundance)
 
-alldat$Study_Name <- as.character(alldat$Study_Name)
-alldat$Study_Name[alldat$file == "4836_Hurisso2011"] <- "hurisso"
-alldat$Study_Name <- as.factor(alldat$Study_Name)
-
 
 ## unique sites
 length(unique(alldat$ID))
@@ -156,9 +152,9 @@ nrow(uniqueDat)
 
 
 summary(uniqueDat$PH)
-nrow(uniqueDat) - 2504
+nrow(uniqueDat) -  3723 # the NAs
 summary(uniqueDat$CEC)
-nrow(uniqueDat) -  6426
+nrow(uniqueDat) -   8669
 
 
 summary(uniqueDat$Base_Saturation_percent)
