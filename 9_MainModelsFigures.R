@@ -307,9 +307,9 @@ date <- max(file_dates, na.rm = TRUE)
 all_data <- read.csv(file.path(all_data, paste("sites_",date,".csv", sep = "")))
 
 
-studies1 <- as.vector(unique(richness_model@frame$Study_Name))
-studies2 <- as.vector(unique(abundance_model@frame$Study_Name))
-studies3 <- as.vector(unique(biomass_model@frame$Study_Name))
+studies1 <- as.vector(unique(richness_model$frame$Study_Name))
+studies2 <- as.vector(unique(abundance_model$frame$Study_Name))
+studies3 <- as.vector(unique(biomass_model$frame$Study_Name))
 
 all_studies <- c(studies1, studies2, studies3)
 all_studies <- unique(all_studies)
@@ -322,7 +322,7 @@ all_studies <- all_data[all_data$Study_Name %in% all_studies,]
 
 ## Save for future use
 write.csv(all_studies, file = file.path(data_out, "sWorm_CompleteDataSet.csv"), row.names = FALSE)
-## 
+## whoops, accidently wrote over the older verion
 
 coord<-aggregate(cbind(all_studies$Longitude__Decimal_Degrees, all_studies$Latitude__decimal_degrees), list(all_studies$Study_Name), mean)
 coord$X<-coord$Group.1
@@ -335,7 +335,7 @@ proj4string(dsSPDF)<-CRS("+init=ESRI:54030")
 
 
 #pdf(file = file.path(figures, "Map_alldata.pdf"), height = 4)
-jpeg(filename = file.path(figures, "Map_modelledData.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
+jpeg(filename = file.path(figures, "Map_modelledData_correction.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
 mar=c(0,0,0,0)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
 points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
@@ -370,7 +370,8 @@ proj4string(dsSPDF)<-CRS("+proj=longlat")
 transpBlack <- rgb(0, 0, 0, alpha = 0.4, names = NULL, maxColorValue = 1)
 
 # jpeg(filename = file.path(figures, "Map_modelledData_nsites.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
-pdf(file.path(figures, "Map_modelledData_nsites.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+# pdf(file.path(figures, "Map_modelledData_nsites.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+png(filename = file.path(figures, "Map_modelledData_nsites_correction.png"),  res = 300, width = 2000, height = 2000)
 
 mar=c(0,0,0,0)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
@@ -378,11 +379,11 @@ points(dsSPDF, col=transpBlack, bg = transpBlack, cex= coord$size, pch=19)
 corner.label2(label = "A", x = -1, y = 1, cex = plotlabcex, font = 2)
 
 
-sizes <- c(1, 50, 100, 150, 200, 250)
+sizes <- c(1, 100, 200, 300,400,500, 600)
 cexsizes <- ((sizes-min(coord$nSites))/(max(coord$nSites)-min(coord$nSites)) * 2) + 0.5
 
 legend(x = -170, y = 2, legend = sizes, pch = 19, pt.cex =cexsizes, bty="n", cex = 0.7, 
-       y.intersp = c(1, 1, 1, 1.05, 1.1, 1.18),
+       y.intersp = c(1, 1, 1.025, 1.05, 1.1, 1.18,1.23),
        x.intersp = c(1.19),
        title = "Number Of Sites")
 dev.off()

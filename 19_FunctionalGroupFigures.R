@@ -7,7 +7,7 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 }
 
 if(Sys.info()["nodename"] == "IDIVNB179"){
-  setwd("C:/USers/hp39wasi/WORK/sWorm/EarthwormAnalysis")
+  setwd("C:/Users/hp39wasi/WORK/sWorm/EarthwormAnalysis")
 }
 
 
@@ -105,7 +105,7 @@ abundanceCols <- ColourPicker(abundance$ESA)
 newdata <- createNewdata(model = abundance_model, 
                          modelFixedEffects = c("ESA", "variable", "scalePH", "scaleCLYPPT" ,
                                                "scaleSLTPPT",  "scaleORCDRC", "scaleCECSOL", "bio10_7_scaled", 
-                                               "bio10_15_scaled", "SnowMonths_cat","scaleAridity", "ScalePET"),
+                                               "bio10_15_scaled", "bio10_12_scaled", "SnowMonths_cat","ScaleElevation", "ScalePET"),
                          mainEffect = c("ESA", "variable"), data = abundance)
 
 
@@ -182,7 +182,7 @@ biomassCols <- ColourPicker(biomass$ESA)
 newdata <- createNewdata(model = biomass_model, modelFixedEffects = c("ESA","variable", "ScaleElevation",  
                                                                       "scalePH", "scaleCLYPPT", "scaleSLTPPT",  "scaleORCDRC",
                                                                       "scaleCECSOL", "bio10_7_scaled" , "bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat", 
-                                                                      "ScalePET"),
+                                                                      "ScalePETSD"),
                          mainEffect = c("ESA", "variable"), data = biomass)
 
 

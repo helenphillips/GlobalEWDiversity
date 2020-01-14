@@ -62,7 +62,7 @@ models <- "Models"
 # 3. Load in data
 #################################################
 
- sites2 <- read.csv(file.path(data_in, loadin))
+ sites <- read.csv(file.path(data_in, loadin))
 # sites <- read.csv("C:\\Users\\hp39wasi\\sWorm\\EarthwormAnalysis\\3_Data\\Sites_2017-11-09.csv")
 rm(loadin)
 
