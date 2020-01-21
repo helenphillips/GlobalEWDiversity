@@ -15,45 +15,30 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## The issue
-```{r zeroData, include=TRUE, fig.align="left", fig.cap=c("The studies with the total number of zeros added to the dataset"), echo=FALSE, out.width = "200%"}
+
+Following publication, it was established that a bug in the code removed all the zeros from certain datasets (70 datasets, 88 studies in the richness model; 74 datasets, 90 studies in the abundance model; and 42 datasets, 51 studies in the biomass model). NOTE: The affected datasets were often present in multiple models, and most datasets only lost a relatively small amount of zeros. However, 27 studies used in the richness model, 20 studies used in the abundance model, and 9 studies in the biomass model doubled in size when the zeros were replaced. 
+
+The maps in Figure 1 show the extent of the issue. On the right hand side, the maps show only the studies that had zeros removed, with the size of the circle representing the number of zeros that were removed from the original analysis.
+
+On the whole, the results of the re-analysis are similar to the original paper. The following three points summarize the key consistencies/changes for the main results of the paper:
+
+1. The general biodiversity patterns in the three maps have stayed relatively consistent. Of the three global maps, the species richness patterns change the most. The bias, with northern American studies having the largest number of zeros removed, is mostly why the species richness results change. The model now fits better in the northern USA/Canada, and the predictions in certain parts of Europe are also likely based on the North American data. The same also applies for the global map of abundance.
+
+2. The global estimates are, overall, lower than previously. This can be seen with the changes in the scale of the maps, and the mean estimates (in the text). 
+
+3. The message that climate is the most important driver of earthworm diversity stays the same. However, there are some changes to the importance of the different themes. 
+
+This document goes through all the conclusions/results from the paper, and highlights if/how they have changed. Previous figures as well as updated (but non-finalised, in terms of format, resolutions etc.) figures are included.
+
+
+```{r zeroData, include=TRUE, fig.align="left", fig.cap=c("The underlying data. Panels on the left hand side show the data that was used in the original models. The size of the circles corresponds to the number of sites in each study. The panels on the right show the number of zeros (indicated by circle size) that have been added to the affected studies. Not all studies were affected, and so will not appear on the right hand side."), echo=FALSE, out.width = "100%"}
 knitr::include_graphics("./Figures/Maps+newZeroData_correction.png")
 label="tab:tab1"
 ```
 
-Following publication, it was established that a bug in the code removed all the zeros from some/alot (~130 out of 180) of the dataseys. However, most datasets only lost a relatively small amont of zeros. However, 27 studies (~20 datasets) used in the richness model (I haven't looked at the same figures for abundance and biomass models, yet. TODO) doubled in size when the zeros were replaced.
 
-The maps in Figure 1 shows the extent of the issue. Only studies that had zeros removed are shown, and the size of the circle represents the number of zeros that were removed from the original analysis.
-
-The bias, with northern American studies having the largest number of zeros removed, is mostly why the results change. The model is fitting better in the northern USA/Canada, and the predictions in certain parts of Europe are also likely based on the north American data.
 
 ## Main Text - Species Richness
-
-```{r, include=TRUE, fig.align="left", fig.cap=c("Original figure 1B - Richness"), echo=FALSE}
-knitr::include_graphics("./Figures/Richness.png")
-```
-
-```{r, include=TRUE, fig.align="left", fig.cap=c("Corrected figure 1B - Richness"), echo=FALSE}
-knitr::include_graphics("./Figures/Richness_correction.png")
-```
-
-
-Because of the increase in the number of zeros in the dataset, the previous (standard) mixed effects model with poisson errors was no longer suitable. Instead, I am now using a hurdle model (with random effects). A hurdle model first models the data as presence/absence. Secondly, models the presence-only data (with truncated poisson error structure). For predictions, the coeffecients from the truncated poisson model are multiplied by the probability of presence.
-
-On top of the increase in zeros altering the modelled relationships, the multiplication also "reduces" the species richness overall. 
-
-In order to show where the global map has changed, whilst taking into account the lower overall richness, I have normalised (0-1) the old and new global maps of species richness. Then, subtracted the new predictions from the old. Figures 4 and 5 show which areas no longer match in terms of "hotspots" or "lowspots". I have chosen to colour using only two colours, with the yellow showing regions where there is "no change" in the scaled values. However, the threshold of "no change" is changed, with it being between -0.001 and 0.001 in figure 4 and -0.01 and 0.01 in figure 5. 
-
-```{r, include=TRUE, fig.align="left", fig.cap=c("Difference between the original (old) map and the corrected map (\"no change\" = -0.001 to 0.001)"), echo=FALSE}
-knitr::include_graphics("./Figures/Richness_scaledDiff_001.png")
-```
-
-```{r, include=TRUE, fig.align="left", fig.cap=c("Difference between the original (old) map and the corrected map (\"no change\" = -0.01 to 0.01)"), echo=FALSE}
-knitr::include_graphics("./Figures/Richness_scaledDiff_01.png")
-```
-
-
-
-The following is excerpts from the text which describe results:
 
 "..one to four species per site across most of the terrestrial surface (mean, 2.42 species, SD, 2.19)"
 
@@ -63,13 +48,15 @@ The following is excerpts from the text which describe results:
 
 * min 0.007290587, max = 249.52, median = 0.79
 
-"Most of the boral and subarctic regions were predicted to have low values of species richness..."
+* 99% of the pixels are below 4 (species), and 99.9% below 10 (species). 
 
-* Still true...but much more so than previously
+"Most of the boreal and subarctic regions were predicted to have low values of species richness..."
+
+* Still true, but because of the overall decrease in richness, much more so than previously
 
 "...low local diversity also occured in subtropical and tropical areas, such as Brazil, India and Indonesia..."
 
-* Technically still true, but much more so than previously
+* Still true, but because of the overall decrease in richness, much more so than previously
 
 "...earthworm diversity tended to decrease with increasing PET (table S3)."
 
@@ -81,21 +68,26 @@ The following is excerpts from the text which describe results:
 
 "High species richness was found at mid-latitudes, such as the southern tip of South America, the southern regions of Australia and New Zealand, Europe (particularly north of the Black Sea), and the northeastern United States."
 
-* Except most of Europe (and north of the Black sea) and the north Eastern United States, these places still haev the highest species richness
+* These places still have the highest species richness, except parts of Europe (particularly north of the Black sea) and the northeastern United States. 
 
 "Thus, temperate communities could have high local diversity, as seen here, but those species would be widely distributed, resulting in lower regional diversity relative to local diversity."
 
-* Still true
+* Still true as temperature communities have high local diversity, and analysis of the "regional species diversity" (i.e., the number of unique species across latitudinal bands) was unaffected by the bug.
+
+
+
+```{r, include=TRUE,  fig.show = "hold", out.width = "200%", fig.align="center", fig.cap=c("Global patterns of earthworm species richness. Top panel shows the original figure, the bottom panel shows the corrected verion. Most patterns remain, however, the overall species richness has been shifted lower."), echo=FALSE}
+
+knitr::include_graphics(c("./Figures/Richness.png", "./Figures/Richness_correction.png"))
+# knitr::include_graphics("./Figures/Richness_correction.png")
+```
+
+
+Because of the increase in the number of zeros in the dataset, the previous (standard) mixed effects model with poisson errors was no longer suitable. Instead, I am now using a hurdle model (with random effects). A hurdle model first models the data as presence/absence. Secondly, models the presence-only data (with truncated poisson error structure). For predictions, the coeffecients from the truncated poisson model are multiplied by the probability of presence.
 
 
 ## Main Text - Abundance
-```{r, include=TRUE, fig.align="left", fig.cap=c("Original figure 1C - Abundance"), echo=FALSE}
-knitr::include_graphics("./Figures/Abundance.png")
-```
 
-```{r, include=TRUE, fig.align="left", fig.cap=c("Corrected figure 1C - Abundance"), echo=FALSE}
-knitr::include_graphics("./Figures/Abundance_corrected.png")
-```
 
 "The predicted total abundance of the local community of earthworms typically ranges between 5 and 150 individuals per m2.... (Fig 1C; mean 77.89 individuals per m2; SD 98.94)."
 
@@ -107,18 +99,24 @@ knitr::include_graphics("./Figures/Abundance_corrected.png")
 
 * 80% of the pixels are below 35ind per m2, 90% are below 50ind per m2, and 99.8 are below 150 ind per m2.
 
-"...a slight tendency for areas of higher total abundance to be in termpaerate areas, such as Europe (particularly the UK, France, and Italy), New Zealand, and part of the Pampas and surrounding region (south America), rather than the tropics." 
+"...a slight tendency for areas of higher total abundance to be in temperate areas, such as Europe (particularly the UK, France, and Italy), New Zealand, and part of the Pampas and surrounding region (south America), rather than the tropics." 
 
-* This is still true. Although, maybe not Italy so much.
+* This is still true, despite the overall decrease in abundance.
 
 "Lower total abundance occured in many of the tropical and subtropical regions, such as Brazil, central Africa and parts of India."
 
-* Still true
+* Still true, and lower predicted abundances than previously.
+
+```{r, include=TRUE,  fig.show = "hold", out.width = "350px", fig.align="center", fig.cap=c("Global patterns of earthworm abundance. Top panel shows the original figure, the bottom panel shows the corrected verion. The patterns remain, however, the overall abundance has been shifted lower."), echo=FALSE}
+
+knitr::include_graphics(c("./Figures/Abundance.png", "./Figures/Abundance_corrected.png"))
+# knitr::include_graphics("./Figures/Richness_correction.png")
+```
+
+
 
 ## Main Text - Biomass
-```{r, include=TRUE, fig.align="left", fig.cap=c("Original figure 1D - Biomass"), echo=FALSE}
-knitr::include_graphics("./Figures/Biomass.png")
-```
+
 
 "The predicted total biomass of the local earthworm community (adults and juveniles) across the globe showed extreme values (>2 kg) in 0.3% of pixels..."
 
@@ -134,25 +132,31 @@ knitr::include_graphics("./Figures/Biomass.png")
 
 * SD = 4881.2
 
+* Overall the biomass model has improved (less extrapolation across the global layers) with the additional data.
+
 "The areas of high total biomass were concentrated in the Eurasian Steppe and some regions of North America. The majority of the globe showed low total biomass. In northern North America, where there are no native earthworms(13), high density and, in some regions, higher biomass of earthworms likely reflect the earthworm invasion of these regions."
 
-* Very much still true
+* Still true - the predictions have hardly changed.
 
 "...we expected high biomass but low abundance. However, these patterns were not found."
 
 * Still true
 
-```{r, include=TRUE, fig.align="left", fig.cap=c("Corrected figure 1D - Biomass"), echo=FALSE}
-knitr::include_graphics("./Figures/Biomass_correction.png")
+
+```{r, include=TRUE,  fig.show = "hold", out.width = "350px", fig.align="center", fig.cap=c("Global patterns of earthworm biomass Top panel shows the original figure, the bottom panel shows the corrected verion. The patterns are almost identical"), echo=FALSE}
+
+knitr::include_graphics(c("./Figures/Biomass.png", "./Figures/Biomass_correction.png"))
+
 ```
+
 
 ## Main Text - General
 
-Nsite = 9212 (originally 6931)
+* Total number of sites in entire database = 9212 (originally 6931)
 
-Studies = 224 (originally 228)
+* Total number of Studies in entire database = 224 (originally 228 - four included in original count incorrectly)
 
-Datasets = 176 (originally 180)
+* Total number of datasets = 176 (originally 180 - four included in original count incorrectly)
 
 "biomass model (n = 3296) compared to the diversity (n = 5416) and total abundance models (n = 6358)"
 
@@ -164,39 +168,29 @@ Datasets = 176 (originally 180)
 
 "Overall, the three community metric models performed well in cross-validation (figs. S3 and S4) with relatively high R2 values"
 
-* Can no longer (reliably) calculate R2
+* Cross-validation results have no visible changes (not presented here)
 
-* MSE values are similar
+* Because of the zero-inflation models, we can no longer (reliably) calculate R2.
+
+* MSE values are similar, see Table 1. Previously, all three models were not as good at predicting the higher observed values. However, with the new models, the MSE values/predictions are lower at the 'high' teriles, and are therefore better overall. 
 
 "For all three community metric models, climatic variables were the most important drivers (the “precipitation” theme being the most important for both species richness and total biomass models, and “temperature” for the total abundance model; Fig. 3)."
 
 * Precipitation is still the most important for richness and biomass. 
 
-* For abundance, temperature is no longer important. Precipitation is more important than it was, and habitat cover is now very important.
+* For abundance, temperature is no longer as important. Precipitation is more important than it was, and habitat cover is now the most important, although only slightly so.
 
-```{r, include=TRUE, fig.align="left", fig.cap=c("Original figure 3"), echo=FALSE}
-knitr::include_graphics("./Figures/variableImportance_splitGroups_circles.jpg")
-```
-```{r, include=TRUE, fig.align="left", fig.cap=c("Corrected figure 3"), echo=FALSE}
-knitr::include_graphics("./Figures/variableImportance_splitGroups_circles_correction.png")
-```
+* Habitat cover has now increased in importance in the biomass model.
 
+* Stronger effects of habitat cover may partly be attributable to climatic conditions driving habitat type, providing additional support for the importance of climate. We stated this indirect effect of climate in the conclusions of the paper.
 
 "We expected that soil properties would be the most important driver of earthworm communities, but this was not the case"
 
-* Still true
+* Still true, soil is still one of the least important drivers across all three models.
 
 "Habitat cover influenced the earthworm community (fig. S5, A and B), especially the composition of the three ecological groups (epigeics, endogeics, and anecics) (fig. S6) (14)."
 
-(TODO)
-
-## Supplementary
-```{r, include=TRUE, fig.align="left", fig.cap=c("Original Table S3"), echo=FALSE}
-knitr::include_graphics("./Figures/Table_Figure.png")
-```
-
-
-(TODO new table)
+* We are still in the process of re-running the supplementary analysis. However, it is more than likely that habitat cover will continue to affect the composition.
 
 ```{r, echo=FALSE}
 library(kableExtra)
@@ -205,15 +199,41 @@ df <- data.frame(models = c("Richness", "Abundance", "Biomass"),
                  low = c(0.917, 1720.75, 264.56),
                  medium = c(0.812, 2524.25, 441.25), 
                  high = c(3.561, 48751.51, 8783.77))
-kable(df, col.names = c("", "Total", "Low", "Mid", "High"), escape = F, caption = "Original Table 1 - Mean Squared Errors of models") 
-```
+# kable(df, col.names = c("", "Total", "Low", "Mid", "High"), escape = F, caption = "Original Table 1 - Mean Squared Errors of models") 
 
-```{r, echo=FALSE}
-library(kableExtra)
-df <- data.frame(models = c("Richness", "Abundance", "Biomass"),
+df2 <- data.frame(models = c("Richness", "Abundance", "Biomass"),
                  totals = c(1.47 ,14986.74 , 2432.87),
                  low = c(1.37 ,2846.239, 306.07),
                  medium = c(0.72 ,2338.096, 439.04), 
                  high = c(2.78 ,39037.431 , 6433.49))
-kable(df, col.names = c("", "Total", "Low", "Mid", "High"), escape = F, caption = "Corrected Table 1 - Mean Squared Errors of models") 
+# kable(df, col.names = c("", "Total", "Low", "Mid", "High"), escape = F, caption = "Corrected Table 1 - Mean Squared Errors of models") 
+
+
+library(pander)
+
+pander::pander(df,big.mark=',', caption = "Mean Squared Errors of models. Top table shows the original values for the three models, the bottom table shows the new results. The MSE values are for the 'total' data, and then for the tertiles of the data.")
+pander::pander(df2,big.mark=',')
+
+
+# kable(df3, col.names = c("", "Total", "Low", "Mid", "High"), escape = F, )
 ```
+
+```{r, include=TRUE,  fig.show = "hold", out.width = "200%", fig.align="center", fig.cap=c("Important drivers of earthworm communities. Top panel shows the original figure, the bottom panel shows the corrected version. The general conclusions still remain, climate variables are the most important drivers of three community metrics. However, importance of some of the other drivers have shifted, most noticeably, habitat cover has become more important in the abundance and biomass models, and precipitation and water retention is less important in the abundance model."), echo=FALSE}
+
+knitr::include_graphics(c("./Figures/variableImportance_splitGroups_circles.jpg", "./Figures/variableImportance_splitGroups_circles_correction.png"))
+# knitr::include_graphics("./Figures/Richness_correction.png")
+```
+
+
+
+
+<!-- ## Supplementary
+# ```{r, include=TRUE, fig.align="left", fig.cap=c("Original Table S3"), echo=FALSE}
+# knitr::include_graphics("./Figures/Table_Figure.png")
+# ```
+
+
+# (TODO new table)
+-->
+
+
