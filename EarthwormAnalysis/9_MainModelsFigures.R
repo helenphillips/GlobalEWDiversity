@@ -321,7 +321,7 @@ all_studies <- all_data[all_data$Study_Name %in% all_studies,]
 
 
 ## Save for future use
-write.csv(all_studies, file = file.path(data_out, "sWorm_CompleteDataSet.csv"), row.names = FALSE)
+write.csv(all_studies, file = file.path(data_out, "sWorm_CompleteDataSet_correction.csv"), row.names = FALSE)
 ## whoops, accidently wrote over the older verion
 
 coord<-aggregate(cbind(all_studies$Longitude__Decimal_Degrees, all_studies$Latitude__decimal_degrees), list(all_studies$Study_Name), mean)
@@ -376,7 +376,7 @@ png(filename = file.path(figures, "Map_modelledData_nsites_correction.png"),  re
 mar=c(0,0,0,0)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
 points(dsSPDF, col=transpBlack, bg = transpBlack, cex= coord$size, pch=19)
-corner.label2(label = "A", x = -1, y = 1, cex = plotlabcex, font = 2)
+corner.label2(label = "A", x = -1, y = 1, cex = 1, font = 2)
 
 
 sizes <- c(1, 100, 200, 300,400,500, 600)
