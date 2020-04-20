@@ -8,7 +8,7 @@ createNewdata <- function(model, modelFixedEffects, mainEffect, data){
       if(modelFixedEffects[e] %in% mainEffect){
         vars[[e]] <- seq(min(data[,which(names(data) == modelFixedEffects[e])], na.rm = TRUE), max(data[,which(names(data) == modelFixedEffects[e])], na.rm = TRUE), length.out = 100)
       }else{vars[[e]] <- 0 } ## This only works because all continuous variables have been scaled
-    } else { vars[[e]] <- levels(model@frame[,which(names(model@frame) == modelFixedEffects[e])])}
+    } else { vars[[e]] <- levels(model$frame[,which(names(model$frame) == modelFixedEffects[e])])}
     
   }
 

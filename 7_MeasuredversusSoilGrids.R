@@ -7,6 +7,11 @@ if(Sys.info()["nodename"] == "IDIVNB179"){
 }
 
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
+
+
 
 #################################################
 # 1. Loading libraries
@@ -53,7 +58,7 @@ sites <- SiteLevels(sites)
 ph1 <- lm(ph_new ~ PHIHOX, data = sites)
 plot(ph1)
 plot(ph_new ~ PHIHOX, data = sites)
-# r2 = 0.27
+# r2 = 0.28
 
 ## Just sites where coordinates varied within a study 
 ## (we know that if coordiantes don't vary the fit won't be good!)
@@ -81,7 +86,7 @@ vardat <- sites[sites$Study_Name %in% varStudyes,]
 ph2 <- lm(ph_new ~ PHIHOX, data = vardat)
 plot(ph2)
 plot(ph_new ~ PHIHOX, data = vardat)
-## r2 = 0.53
+## r2 = 0.41
 
 
 ###### What about the mean of each study
@@ -103,7 +108,7 @@ mean.df <- as.data.frame(mean.df)
 ph3 <- lm(ph ~ sgph, data = mean.df)
 plot(ph3)
 plot(ph ~ sgph, data = mean.df)
-# r2 = 0.57
+# r2 = 0.46
 
 ### Regardless, stick with the approach of filling in
 

@@ -15,6 +15,11 @@ if(Sys.info()["nodename"] == "TSGIS02"){
   setwd("C:/sWorm/EarthwormAnalysis")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:/Users/hp39wasi/WORK/sWorm/EarthwormAnalysis")
+}
+
+
 #######################################
 # variables
 ######################################
@@ -100,7 +105,7 @@ sitesbylat <- unique(sitesbylat[c("Study_site", "Latitude__decimal_degrees")])
 ### How many sites should each band contain? We had 23 bands before...so keep the same?
 nrow(sitesbylat) / 23
 # 232.8696
-
+# cORRECTION: 318.5217
 ## Put in order by latitude
 sitesbylat <- sitesbylat[order(sitesbylat$Latitude__decimal_degrees),]
 
@@ -109,10 +114,23 @@ sitesbylat <- sitesbylat[order(sitesbylat$Latitude__decimal_degrees),]
 ## What we are not fine with, is splitting up sites 
 ## that have the same coordinates
 
+letterwrap <- function(n, depth = 1) {
+  args <- lapply(1:depth, FUN = function(x) return(LETTERS))
+  x <- do.call(expand.grid, args = list(args, stringsAsFactors = F))
+  x <- x[, rev(names(x)), drop = F]
+  x <- do.call(paste0, x)
+  if (n <= length(x)) return(x[1:n])
+  return(c(x, letterwrap(n - length(x), depth = depth + 1)))
+}
+
+moreLetters <- letterwrap(40, depth = 3)
+# More unique bands than we would need
+
+
 let <- 1
 
 sitesbylat$band <- NA
-sitesbylat$band[1] <- letters[let]
+sitesbylat$band[1] <- moreLetters[let]
 
 epsilon <- 20 ## This has worked the best so far!
 
@@ -120,16 +138,16 @@ equalband <- 250 + 25 ## This will mean that we will be closer to the actual val
 
 for(r in 2:nrow(sitesbylat)){
   ## If there's not many in the band, then we can assign the same letter
-  if(nrow(sitesbylat[which(sitesbylat$band == letters[let]),]) < ( equalband- epsilon )){
-    sitesbylat$band[r] <- letters[let]
+  if(nrow(sitesbylat[which(sitesbylat$band == moreLetters[let]),]) < ( equalband- epsilon )){
+    sitesbylat$band[r] <- moreLetters[let]
     next
   }else{
     if(sitesbylat$Latitude__decimal_degrees[r] == sitesbylat$Latitude__decimal_degrees[r-1]){
-      sitesbylat$band[r] <- letters[let]
+      sitesbylat$band[r] <- moreLetters[let]
       next
     }
     else{let <- let + 1
-    sitesbylat$band[r] <- letters[let]
+    sitesbylat$band[r] <- moreLetters[let]
     next} # if they are not the same, then advance the letter
     
   }
@@ -152,7 +170,7 @@ names(bandDat) <- colNames
 spp$band <- as.factor(spp$band)
 
 for(i in 1:length(levels(spp$band))){
-  bnd <- spp[spp$band == levels(spp$band)[i],] 
+  bnd <- spp[which(spp$band == levels(spp$band)[i]),] 
   print(levels(spp$band)[i])
   
   # Which band
@@ -239,17 +257,24 @@ mean(bandDat[,'Number of Morphospecies'])
 
 
 
-bandDat[nrow(bandDat) + 1, 1] <- "w"
-  
+bandDat[nrow(bandDat) + 1, 1] <- "ww"
 bandDat[nrow(bandDat), 2:ncol(bandDat)]<- c(0, 0, 0, 0, 0, -37.000000, -35.381500, 0, 0) # Theres a big gap with no sites
 
-bandDat$latDiff <- bandDat$maxLat - bandDat$minLat
+bandDat[nrow(bandDat) + 1, 1] <- "xx"
+bandDat[nrow(bandDat), 2:ncol(bandDat)]<- c(0, 0, 0, 0, 0, 9.41660, 11.100000, 0, 0) # Theres a big gap with no sites
 
+bandDat[nrow(bandDat) + 1, 1] <- "yy"
+bandDat[nrow(bandDat), 2:ncol(bandDat)]<- c(0, 0, 0, 0, 0, 34.58330, 36.051310, 0, 0) # Theres a big gap with no sites
+
+
+
+bandDat$latDiff <- bandDat$maxLat - bandDat$minLat
 bandDat <- bandDat[order(bandDat$minLat),]
 
-
 # jpeg(file = file.path(figures, "LDG_regional_fixedSites.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-pdf(file.path(figures, "LDG_regional_fixedSites.pdf"),width= wide_inch_small, height= wide_inch_small*0.75, pointsize = point_size)
+#png(file.path(figures, "LDG_regional_fixedSites_correction.png"), res = 200, width = 2000, height = 1000)
+
+pdf(file.path(figures, "LDG_regional_fixedSites_correction.pdf"),width= wide_inch_small, height= wide_inch_small*0.75, pointsize = point_size)
 par(mar=c(4, 4, 1, 1))
 b <- barplot(bandDat$total, width = bandDat$latDiff, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 
@@ -258,10 +283,10 @@ max(bandDat$maxLat)
 
 ## Where would -40 be??
 # 0 =  -40.21667
-# 107 = 68.4525
+# 108 = 68.4525
 # so x spans 108.64 degrees
-# each 1  unit on the x = 1.015 degree
-oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 107
+# each 1  unit on the x = 1.005 degree
+oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 108
 #axis(1, at = c(0), labels = c(1))
 # axis(1, at = c(107), labels = c(2))
 
@@ -284,10 +309,10 @@ axis(1, at = minus40, labels = "-40")
 
 
 
-labs <- as.character(seq(-40, 60, by = 10))
-labs <- c(labs, "68.4")
+labs <- as.character(seq(-40, 70, by = 10))
+# labs <- c(labs, "68.4")
 
-axis(1, at = c(seq(minus40, 107, by = ( 10.05974 - minus40) ), 107), labels = labs)
+axis(1, at = c(seq(minus40, 115, by = ( 10.05974 - minus40) )), labels = labs)
 
 
 # axis(1, at = (99.22910 + 9.90151), labels = "70")
@@ -297,22 +322,24 @@ dev.off()
 # And with no morphospecies
 #########################
 
-jpeg(file = file.path(figures, "LDG_regional_fixedSites_nomorphs.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
+jpeg(file = file.path(figures, "LDG_regional_fixedSites_nomorphs_correction.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
 
 b <- barplot(bandDat$total_no_morphs, width = bandDat$latDiff, space = 0, xaxs = "i", ylab = "Number of Species (excluding morphospecies)", xlab = "Latitude")
 min(bandDat$minLat)
 max(bandDat$maxLat)
-oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 107
+
+oneunit <- (max(bandDat$maxLat) - min(bandDat$minLat)) / 108
+
 minus40 <- 1 / (oneunit/0.21667)
 
 axis(1, at = minus40, labels = "-40")
 
-labs <- as.character(seq(-40, 60, by = 10))
-labs <- c(labs, "68.4")
 
-axis(1, at = c(seq(minus40, 107, by = ( 10.05974 - minus40) ), 107), labels = labs)
+labs <- as.character(seq(-40, 70, by = 10))
+
+axis(1, at = c(seq(minus40, 115, by = ( 10.05974 - minus40) )), labels = labs)
 
 dev.off()
 
 
-bandDat
+

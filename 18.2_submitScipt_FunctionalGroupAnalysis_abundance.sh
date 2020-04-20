@@ -1,7 +1,7 @@
 #!/bin/bash
  
 #$ -S /bin/bash
-#$ -N RichnessModel
+#$ -N AbundanceFG
 
 #$ -o /work/$USER/$JOB_NAME-$JOB_ID.log
 #$ -j y
@@ -17,11 +17,11 @@ export LANG=en_US.UTF8
 
 output_dir=/work/$USER/$JOB_NAME/$JOB_ID
 mkdir -p $output_dir
-data_in=/data/idiv_sdiv/sworm
-date="2019-11-27"
+data_in=/data/idiv_sdiv/sworm/FG_Data
+date="2019-12-19"
 functions=/work/$USER/Functions
 
 
 module load R
  
-Rscript /home/phillips/8.1_ModellingRichness.R $output_dir $data_in $date $functions
+Rscript /home/phillips/18.2_FunctionalGroupAnalysis_abundance.R $output_dir $data_in $date $functions
