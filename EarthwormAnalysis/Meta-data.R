@@ -1,6 +1,12 @@
 if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
+
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+  
+}
+
 #################################################
 # 1. Libraries
 #################################################
@@ -18,10 +24,12 @@ library(lme4)
 models <- "Models"
 
 
-load(file.path(models, "richnessmodel_revised.rds"))
-load(file.path(models, "biomassmodel_full_revised.rds"))
-load(file.path(models, "abundancemodel_full_revised.rds"))
+load(file.path(models, "richnessmodel_correction.rds"))
+load(file.path(models, "biomassmodel_full_correction.rds"))
+load(file.path(models, "abundancemodel_full_correction.rds"))
 # load(file.path(models, "fgrichnessmodel.rds"))
+
+
 
 data_in <- "8_Data"
 
@@ -67,20 +75,16 @@ names(richness)[names(richness) == "scaleElevation"] <- "ScaleElevation"
 
 alldat <- rbind(richness, biomass, abundance)
 
-alldat$Study_Name <- as.character(alldat$Study_Name)
-alldat$Study_Name[alldat$file == "4836_Hurisso2011"] <- "hurisso"
-alldat$Study_Name <- as.factor(alldat$Study_Name)
-
 
 ## unique sites
 length(unique(alldat$ID))
-## 6931
+## 6931 # 9212
 length(unique(alldat$Study_site))
-## 6928
+## 6928 # 9207
 
 
-length(unique(alldat$Study_Name)) # 228
-length(unique(alldat$file)) # 180
+length(unique(alldat$studyID)) # 228 # 224
+length(unique(alldat$file)) # 180 # 176
 
 
 countries <- unique(alldat$Country)
@@ -136,7 +140,7 @@ t <- rbind(one, two, three)
 
 length(unique(t$file))
 
-
+# 16
 ######################################################
 ## A UNIQUE DATASET
 ########################################################
@@ -148,9 +152,9 @@ nrow(uniqueDat)
 
 
 summary(uniqueDat$PH)
-nrow(uniqueDat) - 2504
+nrow(uniqueDat) -  3723 # the NAs
 summary(uniqueDat$CEC)
-nrow(uniqueDat) -  6426
+nrow(uniqueDat) -   8669
 
 
 summary(uniqueDat$Base_Saturation_percent)
@@ -225,7 +229,7 @@ unique(highAbundance$Study_Name)
 highBiomass <- droplevels(biomass[biomass$Site_WetBiomass > 300,])
 unique(highBiomass$Study_Name)
 
-
+# Looked through all the datasets, and all seem fine. Just high biodiversity plots           
 ##########################################
 # Number of sites with high number of months with snow
 #########################################

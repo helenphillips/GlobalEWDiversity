@@ -6,6 +6,10 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
+
 #################################################
 # 1. Loading libraries
 #################################################
@@ -52,7 +56,7 @@ sites <- read.csv(file.path(data_in, loadinsites))
 #################################################
 
 
-soil <- "I:\\sDiv-postdocs-work\\Phillips\\sWorm\\SpatialAnalysis\\SoilGrids\\1km"
+soil <- "I:\\sDiv\\Phillips\\sWorm\\SpatialAnalysis\\SoilGrids\\1km"
 
 tifs <- c("PHIHOX", "CLYPPT", "SLTPPT", "SNDPPT", "CECSOL", "ORCDRC", "TAXNWRB_1")
 layers <- c("sl1","sl2", "sl3", "sl4")

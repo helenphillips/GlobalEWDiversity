@@ -10,6 +10,12 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:/Users/hp39wasi/WORK/sWorm/EarthwormAnalysis")
+}
+
+
+
 
 if(!dir.exists("DataForJohan")){
   dir.create("DataForJohan")
@@ -101,12 +107,16 @@ biomass$ESA <-renameESA(biomass)
 neededCols <- c("ID", "Latitude__decimal_degrees", "Longitude__Decimal_Degrees", 
                 "ph_new", "Clay__percent", "Silt__percent", "Organic_Carbon__percent", "ESA", "SnowMonths_cat",              
                 "phFinal","ClayFinal","SiltFinal", "OCFinal","bio10_1_scaled", "bio10_4_scaled","bio10_7_scaled",
-                "bio10_12_scaled","bio10_15_scaled","scaleElevation" )
+                "bio10_12_scaled","bio10_15_scaled","scaleElevation")
 
 
 richness <- richness[,names(richness) %in% c(neededCols, "SpeciesRichness")]
 richness <- richness[c(neededCols, "SpeciesRichness")]
 
+neededCols <- c("ID", "Latitude__decimal_degrees", "Longitude__Decimal_Degrees", 
+                "ph_new", "Clay__percent", "Silt__percent", "Organic_Carbon__percent", "ESA", "SnowMonths_cat",              
+                "phFinal","ClayFinal","SiltFinal", "OCFinal","bio10_1_scaled", "bio10_4_scaled","bio10_7_scaled",
+                "bio10_12_scaled","bio10_15_scaled","ScaleElevation")
 
 biomass <- biomass[,names(biomass) %in% c(neededCols, "Site_Biomassm2")]
 biomass <- biomass[c(neededCols, "Site_Biomassm2")]
@@ -120,6 +130,6 @@ abundance <- abundance[c(neededCols, "Sites_Abundancem2")]
 #################################################
 
 
-write.csv(richness, file = file.path(data_out, "sWormData_richness.csv"), row.names = FALSE)
-write.csv(abundance, file = file.path(data_out, "sWormData_abundance.csv"), row.names = FALSE)
-write.csv(biomass, file = file.path(data_out, "sWormData_biomass.csv"), row.names = FALSE)
+write.csv(richness, file = file.path(data_out, "sWormData_richness_correction.csv"), row.names = FALSE)
+write.csv(abundance, file = file.path(data_out, "sWormData_abundance_correction.csv"), row.names = FALSE)
+write.csv(biomass, file = file.path(data_out, "sWormData_biomass_correction.csv"), row.names = FALSE)

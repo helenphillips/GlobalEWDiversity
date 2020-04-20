@@ -4,15 +4,18 @@ library(raster)
 rasterOptions(tmpdir = "/work/phillips", chunksize = 524288, maxmemory = 134217728)
 
 scaleGL <- function(layername, data, load = ".", save = "."){
-  # if(!(layername %in% names(data))) stop("Layername must be in data")
+  if(!(layername %in% names(data))) stop("Layername must be in data")
   
   print(layername)
   
-  #dat <- data[,which(names(data) == layername)]
+  dat <- data[,which(names(data) == layername)]
   
   # min <- min(dat, na.rm = TRUE)
   # max <- max(dat, na.rm = TRUE)
   
+  mean_val <- mean(dat, na.rm = TRUE)
+  sd_val <- sd(dat, na.rm = TRUE)
+
   tif <- raster(load)
   
   dividby10 <- c("bio10_1","bio10_5", 
@@ -30,14 +33,21 @@ scaleGL <- function(layername, data, load = ".", save = "."){
   print("Capping maximum value")
   tif[tif>max] <- max
   
-  print(mean(tif))
-  print(sd(tif))
+
+
+  print("Scaling tif")
+  fun <- function(x, mean_val) { x - mean_val }
+  tif <- calc(tif, fun)
+
+  fun <- function(x, sd_val) { x / sd_val }
+  tif <- calc(tif, fun)
   
-  # print("Scaling tif")
-  # tif <- scale(tif)
+
   
-  # print("Saving tif")
-  # writeRaster(tif, save, format = "GTiff")
+  
+  
+  print("Saving tif")
+  writeRaster(tif, save, format = "GTiff")
   # do.call(file.remove, list(list.files(dirname(rasterTmpFile()), full.names = TRUE)))
   
 

@@ -11,6 +11,7 @@ if(Sys.info()["nodename"] == "IDIVNB179"){
 #################################################
 library(lme4)
 library(MuMIn)
+library("glmmTMB")
 
 source(file.path("Functions", "CrossValidationAndMSE.R"))
 
@@ -37,17 +38,21 @@ data_out <- "13_Data"
 models <- "Models"
 
 
-load(file.path(models, "richnessmodel_revised.rds"))
-load(file.path(models, "biomassmodel_full_revised.rds"))
-load(file.path(models, "abundancemodel_full_revised.rds"))
+#load(file.path(models, "richnessmodel_revised.rds"))
+#load(file.path(models, "biomassmodel_full_revised.rds"))
+#load(file.path(models, "abundancemodel_full_revised.rds"))
+
+load(file.path(models, "richnessmodel_correction.rds"))
+load(file.path(models, "biomassmodel_full_correction.rds"))
+load(file.path(models, "abundancemodel_full_correction.rds"))
 
 
 k_fold <- 10
 
 
-abundanceData <- abundance_model@frame
-biomassData <- biomass_model@frame
-richnessData <- richness_model@frame
+abundanceData <- abundance_model$frame
+biomassData <- biomass_model$frame
+richnessData <- richness_model$frame
 
 #################################################
 # NOT ACCOUNTING STUDIES
@@ -58,7 +63,12 @@ richnessData <- richness_model@frame
 ################################################
 
 
-r.squaredGLMM(abundance_model)
+# r.squaredGLMM(abundance_model)
+performance::r2(abundance_model)
+## But these do not account for the zero inflation - which is incredibly difficult to do
+## unclear how reliable they are
+# Conditional R2: 0.640
+# Marginal R2: 0.133
 
 
 ########
@@ -74,10 +84,14 @@ for(k in 1:k_fold){
   testData <- abundanceData[rows,]
   bankData <- abundanceData[-rows,]
   
-  mod <-  lmer(formula = abundance_model@call$formula, data = bankData, 
-               control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  mod <-  glmmTMB(formula = abundance_model$call$formula, 
+               ziformula = abundance_model$call$ziformula,
+               family = abundance_model$modelInfo$family,
+               data = bankData, 
+               control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5)))
   
-  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
+  
+  testData$Predicted <- (predict(mod, testData, allow.new.levels = TRUE))
   
   predictedData[[k]] <- data.frame(observed = testData$logAbundance, predicted = testData$Predicted)
   
@@ -92,20 +106,25 @@ abline(0, 1)
 
 abundance <- df
 
+## Check this is still the correct back transformation
 abundance$predicted <- exp(abundance$predicted) - 1
 abundance$observed <- exp(abundance$observed) - 1
 
 calculateMSE(abundance)
 calculateMSEofQuantiles(abundance)
 
-write.csv(abundance, file = file.path(data_out, "AbundanceCrossValidation.csv"), row.names = FALSE)
+write.csv(abundance, file = file.path(data_out, "AbundanceCrossValidation_corrected.csv"), row.names = FALSE)
 
 #################################
 ## BIOMASS
 ##################################
 r.squaredGLMM(biomass_model)
+performance::r2(biomass_model)
+## But these do not account for the zero inflation - which is incredibly difficult to do
+## unclear how reliable they are
 
-
+# Conditional R2: 0.658
+# Marginal R2: 0.200
 ########
 # K-Fold Cross validation
 ########
@@ -119,11 +138,14 @@ for(k in 1:k_fold){
   testData <- biomassData[rows,]
   bankData <- biomassData[-rows,]
   
-  mod <-  lmer(formula = biomass_model@call$formula, data = bankData, 
-               control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  mod <-  glmmTMB(formula = biomass_model$call$formula, 
+                  ziformula = biomass_model$call$ziformula,
+                  family = biomass_model$modelInfo$family,
+                  data = bankData, 
+                  control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5)))
   
-           
-  testData$Predicted <- (predict(mod, testData, re.form = NULL, allow.new.levels = TRUE))
+  
+  testData$Predicted <- (predict(mod, testData, allow.new.levels = TRUE))
   
   predictedData[[k]] <- data.frame(observed = testData$logBiomass, predicted = testData$Predicted)
   
@@ -142,7 +164,7 @@ biomass$predicted <- exp(biomass$predicted) - 1
 calculateMSE(biomass)
 calculateMSEofQuantiles(biomass)
 
-write.csv(biomass, file = file.path(data_out, "BiomassCrossValidation.csv"), row.names = FALSE)
+write.csv(biomass, file = file.path(data_out, "BiomassCrossValidation_correction.csv"), row.names = FALSE)
 
 ####
 ##
@@ -152,12 +174,8 @@ write.csv(biomass, file = file.path(data_out, "BiomassCrossValidation.csv"), row
 #################################################
 # 5. Species Richness
 ################################################
-optimizer = "bobyqa"
-Iters = 2e5
-data <- read.csv(file.path("8_Data", "sitesRichness_2019-06-20.csv", sep = ""))
-fam = "poisson"
-r.squaredGLMM(richness_model)
-
+# r.squaredGLMM(richness_model)
+# Not possible to do an R2 for a hurdel model
 
 
 
@@ -174,10 +192,14 @@ for(k in 1:k_fold){
   testData <- richnessData[rows,]
   bankData <- richnessData[-rows,]
   
-  mod <-  glmer(formula = richness_model@call$formula, data = bankData, family = "poisson",
-                control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  mod <-  glmmTMB(formula = richness_model$call$formula, 
+                  ziformula = richness_model$call$ziformula,
+                  family = richness_model$modelInfo$family,
+                  data = bankData, 
+                  control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5)))
   
-  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
+  
+  testData$Predicted <- (predict(mod, testData, allow.new.levels = TRUE))
   
   predictedData[[k]] <- data.frame(observed = testData$SpeciesRichness, predicted = testData$Predicted)
   
@@ -194,20 +216,20 @@ richness$predicted <- exp(richness$predicted)
 calculateMSE(richness)
 calculateMSEofQuantiles(richness)
 
-write.csv(richness, file = file.path(data_out, "RichnessCrossValidation.csv"), row.names = FALSE)
-
+write.csv(richness, file = file.path(data_out, "RichnessCrossValidation_correction.csv"), row.names = FALSE)
+## Accidently overwrote the previous version
 
 
 ####################################
 ## PLOT
 ####################################
-richness <- read.csv(file.path(data_out, "RichnessCrossValidation.csv"))
-abundance <- read.csv(file = file.path(data_out, "AbundanceCrossValidation.csv"))
-biomass <- read.csv(file = file.path(data_out, "BiomassCrossValidation.csv"))
+richness <- read.csv(file.path(data_out, "RichnessCrossValidation_correction.csv"))
+abundance <- read.csv(file = file.path(data_out, "AbundanceCrossValidation_corrected.csv"))
+biomass <- read.csv(file = file.path(data_out, "BiomassCrossValidation_correction.csv"))
 
 
 
-jpeg(file = file.path(figures, "AllModels_Crossvalidation.jpg"), quality = 100, res = 200, width = 3000, height = 1000)
+jpeg(file = file.path(figures, "AllModels_Crossvalidation_correction.jpg"), quality = 100, res = 200, width = 3000, height = 1000)
 par(oma = c(2, 2, 1, 0))
 
 par(mar = c(3.5, 3.5, 2, 1))
@@ -256,11 +278,14 @@ for(k in 1:k_fold){
   testData <- abundanceData[abundanceData$Study_Name %in% studies,]
   bankData <- abundanceData[!(abundanceData$Study_Name %in% studies),]
   
-  mod <-  lmer(formula = abundance_model@call$formula, data = bankData, 
-               control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  mod <-  glmmTMB(formula = abundance_model$call$formula, 
+                  ziformula = abundance_model$call$ziformula,
+                  family = abundance_model$modelInfo$family,
+                  data = bankData, 
+                  control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5)))
   
   
-  testData$Predicted <- (predict(mod, testData, re.form = NULL, allow.new.levels = TRUE))
+  testData$Predicted <- (predict(mod, testData, allow.new.levels = TRUE))
   
   predictedData[[k]] <- data.frame(observed = testData$logAbundance, predicted = testData$Predicted)
   
@@ -281,7 +306,7 @@ abundance$observed <- exp(abundance$observed) - 1
 calculateMSE(abundance)
 calculateMSEofQuantiles(abundance)
 
-write.csv(abundance, file = file.path(data_out, "AbundanceStudyCrossValidation.csv"), row.names = FALSE)
+write.csv(abundance, file = file.path(data_out, "AbundanceStudyCrossValidation_correction.csv"), row.names = FALSE)
 
 #################################################
 # biomass
@@ -298,11 +323,14 @@ for(k in 1:k_fold){
   testData <- biomassData[biomassData$Study_Name %in% studies,]
   bankData <- biomassData[!(biomassData$Study_Name %in% studies),]
   
-  mod <-  lmer(formula = biomass_model@call$formula, data = bankData, 
-               control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
+  mod <-  glmmTMB(formula = biomass_model$call$formula, 
+                  ziformula = biomass_model$call$ziformula,
+                  family = biomass_model$modelInfo$family,
+                  data = bankData, 
+                  control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5)))
   
   
-  testData$Predicted <- (predict(mod, testData, re.form = NULL, allow.new.levels = TRUE))
+  testData$Predicted <- (predict(mod, testData, allow.new.levels = TRUE))
   
   predictedData[[k]] <- data.frame(observed = testData$logBiomass, predicted = testData$Predicted)
   
@@ -323,7 +351,7 @@ biomass$observed <- exp(biomass$observed) - 1
 calculateMSE(biomass)
 calculateMSEofQuantiles(biomass)
 
-write.csv(biomass, file = file.path(data_out, "BiomassStudyCrossValidation.csv"), row.names = FALSE)
+write.csv(biomass, file = file.path(data_out, "BiomassStudyCrossValidation_correction.csv"), row.names = FALSE)
 
 #############################################
 # richness
@@ -339,11 +367,14 @@ for(k in 1:k_fold){
   studies <- as.vector(unlist(splits[k]))
   testData <- richnessData[richnessData$Study_Name %in% studies,]
   bankData <- richnessData[!(richnessData$Study_Name %in% studies),]
+  mod <-  glmmTMB(formula = richness_model$call$formula, 
+                  ziformula = richness_model$call$ziformula,
+                  family = richness_model$modelInfo$family,
+                  data = bankData, 
+                  control = glmmTMBControl(optCtrl = list(iter.max = 2e5,eval.max=2e5)))
   
-  mod <-  glmer(formula = richness_model@call$formula, data = bankData, family = "poisson",
-                control = glmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
   
-  testData$Predicted <- (predict(mod, testData,  re.form = NULL, allow.new.levels = TRUE))
+  testData$Predicted <- (predict(mod, testData, allow.new.levels = TRUE))
   
   predictedData[[k]] <- data.frame(observed = testData$SpeciesRichness, predicted = testData$Predicted)
   
@@ -360,17 +391,17 @@ richness$predicted <- exp(richness$predicted)
 calculateMSE(richness)
 calculateMSEofQuantiles(richness)
 
-write.csv(richness, file = file.path(data_out, "RichnessStudyCrossValidation.csv"), row.names = FALSE)
+write.csv(richness, file = file.path(data_out, "RichnessStudyCrossValidation_correction.csv"), row.names = FALSE)
 
 
 
-richness <- read.csv(file.path(data_out, "RichnessStudyCrossValidation.csv"))
-abundance <- read.csv(file = file.path(data_out, "AbundanceStudyCrossValidation.csv"))
-biomass <- read.csv(file = file.path(data_out, "BiomassStudyCrossValidation.csv"))
+richness <- read.csv(file.path(data_out, "RichnessStudyCrossValidation_correction.csv"))
+abundance <- read.csv(file = file.path(data_out, "AbundanceStudyCrossValidation_correction.csv"))
+biomass <- read.csv(file = file.path(data_out, "BiomassStudyCrossValidation_correction.csv"))
 
 
 
-jpeg(file = file.path(figures, "AllModels_StudyCrossvalidation.jpg"), quality = 100, res = 200, width = 3000, height = 1000)
+jpeg(file = file.path(figures, "AllModels_StudyCrossvalidation_correction.jpg"), quality = 100, res = 200, width = 3000, height = 1000)
 par(oma = c(2, 2, 1, 0))
 
 par(mar = c(3.5, 3.5, 2, 1))
@@ -444,10 +475,10 @@ europe <- c("Austria", "Belgium", "Croatia", "Czech Republic", "Denmark", "Eston
             "Norway", "Poland", "Portugal", "Romania", "Russia", "Slovakia", "Slovenia", "Spain",
             "Sweden", "Switzerland", "United Kingdom")
 abundance$region[abundance$region %in% europe] <- "Europe"
-africa <- c("Benin", "Burkina Faso", "Cameroon", "Cote d'Ivoire", "Ghana", "Kenya", "Madagascar", 
+africa <- c("Benin", "Burkina Faso", "Cameroon", "Cote d'Ivoire", "Ghana", "Kenya", "Madagascar", "Libyan Arab Jamahiriya",
             "Malawi", "Nigeria")
 abundance$region[abundance$region %in% africa] <- "Africa"
-asia <- c("China", "India", "Iran (Islamic Republic of)", "Japan", "Libyan Arab Jamahiriya", "Malaysia", 
+asia <- c("China", "India", "Iran (Islamic Republic of)", "Japan", "Malaysia", 
           "Philippines")
 abundance$region[abundance$region %in% asia] <- "Asia"
 
@@ -584,8 +615,8 @@ write.csv(richness, file = file.path(data_out, "RichnessStudyCrossValidation.csv
 # CHECKING A CHANGE IN CLIMATE WITHIN EACH STUDY
 ##################################################
 
-allStudies <- c(as.vector(abundance_model@frame$Study_Name), as.vector(biomass_model@frame$Study_Name), 
-                as.vector(richness_model@frame$Study_Name), as.vector(fgrichness_model@frame$Study_Name))
+allStudies <- c(as.vector(abundance_model$frame$Study_Name), as.vector(biomass_model$frame$Study_Name), 
+                as.vector(richness_model$frame$Study_Name)) #, as.vector(fgrichness_model@frame$Study_Name))
 allStudies <- unique(allStudies)
 
 
