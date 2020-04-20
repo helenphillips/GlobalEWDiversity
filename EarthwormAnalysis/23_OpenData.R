@@ -23,7 +23,7 @@ if(Sys.info()["nodename"] == "TSGIS02"){
 }
 
 ## LOAD DATA ------------
-dat <- read.csv(file.path(data_in, "sWorm_CompleteDataSet.csv"))
+dat <- read.csv(file.path(data_in, "sWorm_CompleteDataSet_correction.csv"))
 
 
 ## REMOVE COLUMNS -------
@@ -97,7 +97,7 @@ toOrder <- c("file","Study_Name",
 
 dat <- dat[,match(toOrder, names(dat))]
 
-write.csv(dat, file = file.path(data_out, "sWormModelData.csv"))
+write.csv(dat, file = file.path(data_out, "sWormModelData_correction.csv"))
 
 
 ## CREATE META-DATA ------------
@@ -105,5 +105,5 @@ write.csv(dat, file = file.path(data_out, "sWormModelData.csv"))
 
 df1 <- data.frame(colName = names(dat))
 
-write.csv(df1, file = file.path(data_out, "sWormModelData_meta-data.csv"), row.names = FALSE)
+write.csv(df1, file = file.path(data_out, "sWormModelData_meta-data_correction.csv"), row.names = FALSE)
 

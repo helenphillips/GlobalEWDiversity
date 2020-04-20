@@ -167,7 +167,8 @@ new_biomass <- new_biomass[!(is.na(new_biomass$Latitude__decimal_degrees)),]
 
 
 #png(file = file.path(figures, "Maps+newZeroData_correction.png"), res = 300, width = 1000, height = 3000)
-png(file.path(figures, "Maps+newZeroData_correction.png"),width=(3 * 17.5),height=(3*8.75),units="cm",res=300)
+# png(file.path(figures, "Maps+newZeroData_correction.png"),width=(3 * 17.5),height=(3*8.75),units="cm",res=300)
+# See other script for saving this
 par(oma = c(0, 0, 1, 0))
 
 par(mar = c(1, 1, 1, 1))
@@ -185,7 +186,7 @@ mtext("Biomass", side = 3, line = -1)
 createSizedMap(new_biomass)
 mtext("Biomass", side = 3, line = -1)
 
-dev.off()
+# dev.off()
 
 
 

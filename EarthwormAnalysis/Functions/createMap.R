@@ -39,13 +39,19 @@ createSizedMap <- function(dat)
   Upper <- round_any(max(coord$nSites), 50, f = ceiling) 
   
   sizes <- seq(0, Upper, by =50)
-  sizes[1] <- 1
 
+  
+  if(length(sizes) > 6) { # Which means they go off the edge of the plot
+    Upper <- round_any(max(coord$nSites), 50, f = ceiling) 
+    sizes <- seq(0, Upper, by =100)}
+  
+  sizes[1] <- 1
+  
   cexsizes <- ((sizes-min(coord$nSites))/(max(coord$nSites)-min(coord$nSites)) * 2) + 0.5
   
   legend(x = -170, y = 20, legend = sizes, pch = 19, pt.cex =cexsizes, bty="n", cex = 0.7, 
-         y.intersp = seq(from =0.8, to = 1.2, length.out = length(sizes)),
-         x.intersp = c(1.19),
-         title = "Number Of Sites")
+         y.intersp = seq(from =0.8, to = 1.3, length.out = length(sizes)),
+         x.intersp = c(1.19)) #,
+       #   title = "Number Of Sites")
   
 }
