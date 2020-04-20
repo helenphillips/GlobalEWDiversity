@@ -48,7 +48,7 @@ resdpi <- 300
 # bkg <- raster("I:\\sWorm\\ProcessedGLs_revised\\CHELSA_bio10_1_BiomassCutScaled.tif")
 
 #bkg <- raster("D:\\sWorm\\ProcessedGL\\Datasets\\bio10_1.tif")
-bkg <- raster("I:\\sWorm\\ProcessedGLs-Dec2019\\Abundance\\CHELSA_bio10_1_AbundanceCutScaled.tif")
+bkg <- raster("I:\\sWorm\\same_resolution_dec2019\\Abundance\\CHELSA_bio10_1_AbundanceCutScaled.tif")
 
 ## The percentage that map is cut off at top and bottom
 
@@ -247,8 +247,8 @@ r.cols <- magma(199)
 
 
 #png(file.path(figures, "Biomass.png"),width=17.5,height=8.75,units="cm",res=resdpi)
-#pdf(file.path(figures, "Biomass.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
-png(file.path(figures, "Biomass_correction.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+pdf(file.path(figures, "Biomass_correction.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+#png(file.path(figures, "Biomass_correction.png"),width=17.5,height=8.75,units="cm",res=resdpi)
 
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)
@@ -345,8 +345,8 @@ colbrks <-  c(minV, seq(5, 100, length.out = 198), maxV)
 
 r.cols <- magma(199)
 
-png(file.path(figures, "Abundance_correction.png"),width=17.5,height=8.75,units="cm",res=resdpi)
-#pdf(file.path(figures, "Abundance.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+#png(file.path(figures, "Abundance_correction.png"),width=17.5,height=8.75,units="cm",res=resdpi)
+pdf(file.path(figures, "Abundance_correction.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
 
 nf <- layout(matrix(c(1,2), 2,1, byrow = TRUE), c(5, 1), c(5, 1))
 # layout.show(nf)

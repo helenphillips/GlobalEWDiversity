@@ -272,9 +272,9 @@ bandDat$latDiff <- bandDat$maxLat - bandDat$minLat
 bandDat <- bandDat[order(bandDat$minLat),]
 
 # jpeg(file = file.path(figures, "LDG_regional_fixedSites.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-png(file.path(figures, "LDG_regional_fixedSites_correction.png"),width=wide_inch_small,height=wide_inch_small*0.75,units="in",res=resdpi)
+#png(file.path(figures, "LDG_regional_fixedSites_correction.png"), res = 200, width = 2000, height = 1000)
 
-# pdf(file.path(figures, "LDG_regional_fixedSites.pdf"),width= wide_inch_small, height= wide_inch_small*0.75, pointsize = point_size)
+pdf(file.path(figures, "LDG_regional_fixedSites_correction.pdf"),width= wide_inch_small, height= wide_inch_small*0.75, pointsize = point_size)
 par(mar=c(4, 4, 1, 1))
 b <- barplot(bandDat$total, width = bandDat$latDiff, space = 0, xaxs = "i", ylab = "Number of Species", xlab = "Latitude")
 

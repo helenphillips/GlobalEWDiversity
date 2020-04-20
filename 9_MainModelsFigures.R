@@ -370,8 +370,8 @@ proj4string(dsSPDF)<-CRS("+proj=longlat")
 transpBlack <- rgb(0, 0, 0, alpha = 0.4, names = NULL, maxColorValue = 1)
 
 # jpeg(filename = file.path(figures, "Map_modelledData_nsites.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
-# pdf(file.path(figures, "Map_modelledData_nsites.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
-png(filename = file.path(figures, "Map_modelledData_nsites_correction.png"),  res = 300, width = 2000, height = 2000)
+pdf(file.path(figures, "Map_modelledData_nsites_correction.pdf"),width= wide_inch, height= wide_inch/2, pointsize = point_size)
+#png(filename = file.path(figures, "Map_modelledData_nsites_correction.png"),  res = 300, width = 2000, height = 2000)
 
 mar=c(0,0,0,0)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
