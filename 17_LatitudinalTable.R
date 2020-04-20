@@ -6,6 +6,9 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
 
 
 #################################################
@@ -71,8 +74,10 @@ rm(loadin)
 #################################################
 # summary(spp$Latitude__decimal_degrees)
 
+
+
 # Want the sites that we used in the modelling
-spp <- spp[spp$Study_site %in% unique(sites$Study_site),]
+spp <- spp[spp$Study_site %in% unique(sites$Study_site),] # 18832
 
 
 brks <- seq(-45, 70, by = 5)
@@ -174,4 +179,4 @@ bandDat[,'percent native'] <- round(bandDat[,'percent native'], 2)
 bandDat$'percent non-native' <- round(bandDat$'percent non-native', 2)
 bandDat$'percent unknown' <- round(bandDat$'percent unknown', 2)
 
-write.csv(bandDat, file = file.path(data_out, "LatitudinalTable.csv"), row.names = FALSE)
+write.csv(bandDat, file = file.path(data_out, "LatitudinalTable_correction.csv"), row.names = FALSE)

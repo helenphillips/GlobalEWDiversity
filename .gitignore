@@ -1,3 +1,23 @@
+
+SpatialGaps/accessibility-$JOB-ID.log SpatialGaps/accessibility.log SpatialGaps/accessibility-4585353.log SpatialGaps/accessibility-4585354.log
+SpatialGaps/accessibility-$JOB-ID.log SpatialGaps/accessibility.log SpatialGaps/accessibility-4585353.log SpatialGaps/accessibility-4585354.log
+SpatialGaps/SpeciesRichness_Gaps.png
+SpatialGaps/AccClimateMask.tif
+CountrylevelAnalysis/
+EarthwormDatabase/
+Phylogeny/
+Theory/AllSoilSearchResults.csv
+temp/
+Theory/Manuscripts/
+BES Research Grant/
+SpatialGaps/ClimateChange_gaps.pdf
+SpatialGaps/ClimteChangeGapsJPEG.PNG
+UrbanforErin/Data/
+UrbanforErin/Data/
+UrbanforErin/Figures/
+UrbanforErin/Models/
+SpatialGaps/ClimateChange_gaps.jpg
+
 2_Data/
 2_Data/
 3_Data/
@@ -50,3 +70,5 @@ DataForJohan/
 ESALayer-5282318.log GlobalDataLayers_abundance-5282339.log GlobalDataLayers_biomass-5282340.log GlobalDataLayers-4685635.log GlobalDataLayers-5282317.log RichnessModel-5282315.log
 logs/
 MahalaDistance.prj
+0.1_DataCheck.R
+

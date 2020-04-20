@@ -9,7 +9,8 @@ library(dplyr)
 
 ## LOAD THE MANUALLY CORRECTED ALLAUTHORS CSV
 
-allAuthors <- read.csv("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\Authorship\\AllAuthors_manualEdit.csv", encoding = "latin1")
+# allAuthors <- read.csv("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\Authorship\\AllAuthors_manualEdit.csv", encoding = "latin1")
+allAuthors <- read.csv("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\Authorship\\AllAuthors_manualEdit_correction.csv", encoding = "latin1")
 
 sworm <- read.csv("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\Authorship\\sWormPeople.csv",encoding = "latin1")
 justNames <- sworm[!(duplicated(sworm[,1])),]
@@ -171,4 +172,4 @@ df = allAuthors %>%
   as.data.frame()
 
 
-list.author.fun(dataframe = df,first.author = as.character(fAuthor),last.author = as.character(lAuthor) ,file.name = "authors_list.txt")
+list.author.fun(dataframe = df,first.author = as.character(fAuthor),last.author = as.character(lAuthor) ,file.name = "authors_list_correction.txt")

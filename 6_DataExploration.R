@@ -6,7 +6,9 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
-
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
 
 #################################################
 # 1. Loading libraries
@@ -56,20 +58,24 @@ sites <- SiteLevels(sites)
 # took a new cut of the database, then subset
 # by the studies in the old
 
-old_sites <- read.csv(file.path(data_in, "sites_2018-09-24.csv"))
-old_studies <- unique(old_sites$file)
+# old_sites <- read.csv(file.path(data_in, "sites_2018-09-24.csv"))
+# old_studies <- unique(old_sites$file)
 
 
-sites <- sites[sites$file %in% old_studies,]
+# sites <- sites[sites$file %in% old_studies,]
+
+## No need to do this, as I used data from the final stage of the analysis
+## to do the subset at the last script
+
 #################################################
 # 4. Basic stats
 #################################################
 
-length(unique(sites$file)) ## 196 papers
-length(unique(sites$Study_Name)) ##  250 studies
+length(unique(sites$file)) ## 196 papers # now  176 # This is ok - by the end of the analysis I had 180, and I have removed 4
+length(unique(sites$Study_Name)) ##  250 studies # now 224
 
-length(unique(sites$Country))## 65 Countries
-nrow(sites) # 7805
+length(unique(sites$Country))## 65 Countries # 66
+nrow(sites) # 7805 #  9722
 #################################################
 # 5. Create Map
 #################################################
@@ -88,7 +94,7 @@ proj4string(dsSPDF)<-CRS("+proj=longlat")
 
 
 # pdf(file = file.path(figures, "Map_alldata.pdf"), height = 4)
-jpeg(filename = file.path(figures, "Map_alldata.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
+jpeg(filename = file.path(figures, "Map_alldata_correction.jpg"), quality = 100, res = 300, width = 2000, height = 2000)
 mar=c(0,0,0,0)
 map("world",border="gray87",fill=TRUE, col="gray87",mar=rep(0,4))
 points(dsSPDF, col="black", bg="black", cex= 1, pch=19)
@@ -97,7 +103,7 @@ dev.off()
 ######################################################
 ## Remove Sites with no coordinates
 ######################################################
-sites <- sites[complete.cases(sites$Latitude__decimal_degrees),]
+sites <- sites[complete.cases(sites$Latitude__decimal_degrees),] # now 9716
 
 ######################################################
 ## Coordinates sanity check
@@ -116,7 +122,7 @@ plot(sites$Site_Biomassm2 ~ sites$SnowMonths)
 ## Meta-data says they are from germany
 ## But original coordinates are different
 
-sites <- sites[-(which(sites$Study_Name == "birkhofer2012" & sites$country != "Germany")),] #  7699
+sites <- sites[-(which(sites$Study_Name == "birkhofer2012" & sites$country != "Germany")),] #  7699 # now 9616
 ######################################################
 ## 
 ######################################################
@@ -256,7 +262,7 @@ hist(sites$Organic_Carbon__percent)
 ## One study is obviously not the right units
 sites$Organic_Carbon__percent[which(sites$file == "4327_Wu2012")] <- NA
 hist(sites$Organic_Carbon__percent)
-hist(sites$C.N_ratio)
+hist(sites$C.N_ratio) # This looks WRONG. but don;t use this variable
 
 
 tapply(sites$ph_new, sites$LandUse, summary)

@@ -1,7 +1,7 @@
 #!/bin/bash
  
 #$ -S /bin/bash
-#$ -N GlobalDataLayers_abundance_11
+#$ -N GlobalDataLayers
 
 #$ -o /work/$USER/$JOB_NAME-$JOB_ID.log
 #$ -j y
@@ -18,8 +18,8 @@ export LANG=en_US.UTF8
 output_dir=/work/$USER/$JOB_NAME/$JOB_ID
 mkdir -p $output_dir
 data_dir=/data/idiv_sdiv/sworm/GlobalLayers
-date="2019-06-18"
+date="2019-11-24"
 site_dir=/data/idiv_sdiv/sworm
 module load R
  
-Rscript /home/phillips/PrepareGlobalLayers_abundance_11.R $data_dir $output_dir $date $site_dir
+Rscript /home/phillips/PrepareGlobalLayers_richness.R $data_dir $output_dir $date $site_dir

@@ -7,7 +7,14 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
+
 source("Functions/FormatData.R")
+source("Functions/createMap.R")
+
 ########################################################
 # 2. Create folder if it doesn't exist to save data into
 ########################################################
@@ -16,6 +23,11 @@ if(!dir.exists("5_Data")){
   dir.create("5_Data")
 }
 data_out <- "5_Data"
+
+if(!dir.exists("Figures")){
+  dir.create("Figures")
+}
+figures <- "Figures"
 
 #################################################
 # 3. Loading in variables
@@ -52,6 +64,148 @@ loadinbib <- loadin[grep("Metadata_", loadin)]
 
 sites <- read.csv(file.path(data_in, loadinsites))
 bib <- read.csv(file.path(bib_in, loadinbib))
+
+
+#################################################
+# 4.5 Load in older/missing-zero data
+#################################################
+
+# just the data that was used in (one) of the three models
+data_folder <- "8_Data"
+
+richness <- read.csv(file.path(data_folder, "sitesRichness_2019-06-20.csv"))
+abundance <- read.csv(file.path(data_folder, "sitesAbundance_2019-06-20.csv"))
+biomass <- read.csv(file.path(data_folder, "sitesBiomass_2019-06-20.csv"))
+
+
+sites$studyID <- paste(sites$file, sites$Study_Name, sep = "_")
+richness$studyID <- paste(richness$file, richness$Study_Name, sep = "_")
+abundance$studyID <- paste(abundance$file, abundance$Study_Name, sep = "_")
+biomass$studyID <- paste(biomass$file, biomass$Study_Name, sep = "_")
+
+all(richness$studyID %in% sites$studyID) # FALSE
+richness$studyID[which(!(richness$studyID %in% sites$studyID))]
+# [1] "000_Matveeva1983_Moscow_1983"    "000_Pokarzhevskii2007_Satino_1" 
+# [3] "000_Shcheglov2006_Kamenn_Step_1" "7399_Coors2016_coors2016a"   
+# That's fine
+all(abundance$studyID %in% sites$studyID) # FALSE
+abundance$studyID[which(!(abundance$studyID %in% sites$studyID))]
+## All fine. the four above, plus one study missing a study name
+
+
+all(biomass$studyID %in% sites$studyID) # FALSE
+biomass$studyID[which(!(biomass$studyID %in% sites$studyID))]
+# Missing study name issue again
+
+#################################################3
+## COMPARISON MAP 
+###################################################3
+
+new_richness <- sites[sites$studyID %in% richness$studyID,]
+new_abundance <- sites[sites$studyID %in% abundance$studyID,]
+new_biomass <- sites[sites$studyID %in% biomass$studyID,]
+
+
+## Doubling of sites - Richness
+oldD <- data.frame(table(richness$studyID))
+newD <- data.frame(table(new_richness$studyID))
+compareRichness <- merge(oldD, newD, by = "Var1", all = TRUE)
+names(compareRichness) <- c("studyID", "oldN", "newN")
+compareRichness$diff <- compareRichness$newN - compareRichness$oldN
+compareRichness$percentChange <- (compareRichness$diff / compareRichness$oldN) * 100
+
+doubled <- compareRichness[compareRichness$percentChange > 100,]
+
+## Doubling of sites - Abundance
+oldD <- data.frame(table(abundance$studyID))
+newD <- data.frame(table(new_abundance$studyID))
+compareAbundance <- merge(oldD, newD, by = "Var1", all = TRUE)
+names(compareAbundance) <- c("studyID", "oldN", "newN")
+compareAbundance$diff <- compareAbundance$newN - compareAbundance$oldN
+compareAbundance$percentChange <- (compareAbundance$diff / compareAbundance$oldN) * 100
+
+doubled <- compareAbundance[compareAbundance$percentChange > 100,]
+
+## Doubling of sites - Biomass
+oldD <- data.frame(table(biomass$studyID))
+newD <- data.frame(table(new_biomass$studyID))
+compareBiomass <- merge(oldD, newD, by = "Var1", all = TRUE)
+names(compareBiomass) <- c("studyID", "oldN", "newN")
+compareBiomass$diff <- compareBiomass$newN - compareBiomass$oldN
+compareBiomass$percentChange <- (compareBiomass$diff / compareBiomass$oldN) * 100
+
+doubled <- compareBiomass[compareBiomass$percentChange > 100,]
+
+
+
+
+
+
+## Remove sites that were previously used - leaving just the zeros 
+new_richness <- new_richness[!(new_richness$Study_site %in% unique(richness$Study_site)),]
+new_abundance <- new_abundance[!(new_abundance$Study_site %in% unique(abundance$Study_site)),]
+new_biomass <- new_biomass[!(new_biomass$Study_site %in% unique(biomass$Study_site)),]
+
+length(unique(new_richness$file))
+length(unique(new_richness$studyID))
+
+length(unique(new_abundance$file))
+length(unique(new_abundance$studyID))
+
+length(unique(new_biomass$file))
+length(unique(new_biomass$studyID))
+
+
+
+library(maps)
+library(maptools)
+
+## remove NAs from the two studies that have a couple of coordinates missing
+new_richness <- new_richness[!(is.na(new_richness$Latitude__decimal_degrees)),]
+new_abundance <- new_abundance[!(is.na(new_abundance$Latitude__decimal_degrees)),]
+new_biomass <- new_biomass[!(is.na(new_biomass$Latitude__decimal_degrees)),]
+
+
+#png(file = file.path(figures, "Maps+newZeroData_correction.png"), res = 300, width = 1000, height = 3000)
+# png(file.path(figures, "Maps+newZeroData_correction.png"),width=(3 * 17.5),height=(3*8.75),units="cm",res=300)
+# See other script for saving this
+par(oma = c(0, 0, 1, 0))
+
+par(mar = c(1, 1, 1, 1))
+par(mfrow = c(3,2))
+createSizedMap(richness)
+mtext("Richness", side = 3, line = -1)
+createSizedMap(new_richness)
+mtext("Richness", side = 3, line = -1)
+createSizedMap(abundance)
+mtext("Abundance", side = 3, line = -1)
+createSizedMap(new_abundance)
+mtext("Abundance", side = 3, line = -1)
+createSizedMap(biomass)
+mtext("Biomass", side = 3, line = -1)
+createSizedMap(new_biomass)
+mtext("Biomass", side = 3, line = -1)
+
+# dev.off()
+
+
+
+
+######################################################3
+## Unique list of studies
+
+
+
+studies1 <- as.vector(unique(richness$studyID))
+studies2 <- as.vector(unique(abundance$studyID))
+studies3 <- as.vector(unique(biomass$studyID))
+
+all_studies <- c(studies1, studies2, studies3, "4836_Hurisso2011_hurisso")
+all_studies <- unique(all_studies)
+
+sites <- sites[sites$studyID %in% all_studies,]
+
+sites <- droplevels(sites)
 
 #################################################
 # 5. Get rid of studies with selected species 
@@ -127,7 +281,8 @@ summary(sites$Site_Abundance)
 
 sites$file[which(sites$Sites_Abundancem2 > 3000)]
 
-sites <- droplevels(sites[sites$file != "949_Johnson-Maynard2002",]) # 7805
+sites <- droplevels(sites[sites$file != "949_Johnson-Maynard2002",]) # 7805 #This no longer in the analysis
+## But a different study now has this many
 hist(sites$Site_Biomassm2)
 hist(sites$Sites_Abundancem2)
 summary(sites$Site_Biomassm2)

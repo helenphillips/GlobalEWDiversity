@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # Global distribution of earthworm diversity
 
@@ -119,3 +120,9 @@ For all the funding and acknowledgements that were given by the co-authors, this
 ### Meta-data.R
 This script calcualtes all the numbers in the manuscript (i.e., how many sites, how many countries)
 
+=======
+# sWorm
+All work relating to sWorm project
+
+Contains lots of code.
+>>>>>>> correction

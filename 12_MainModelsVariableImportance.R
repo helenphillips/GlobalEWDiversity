@@ -10,6 +10,9 @@ if(Sys.info()["nodename"] == "TSGIS02"){
   setwd("C:/sWorm/EarthwormAnalysis")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
 
 #################################################
 # 1. Loading libraries
@@ -65,7 +68,7 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 richness <- read.csv(file.path(data_in, loadin))
 
-load(file.path(models, "richnessmodel_revised.rds"))
+# load(file.path(models, "richnessmodel_revised.rds"))
 
 ## Biomass
 files <- list.files(file.path(data_in))
@@ -77,7 +80,7 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 biomass <- read.csv(file.path(data_in, loadin))
 
-load(file.path(models, "biomassmodel_full_revised.rds"))
+# load(file.path(models, "biomassmodel_full_revised.rds"))
 
 ## Abundance
 files <- list.files(file.path(data_in))
@@ -89,7 +92,7 @@ date <- max(file_dates, na.rm = TRUE)
 loadin <- files[grep(date, files)]
 abundance <- read.csv(file.path(data_in, loadin))
 
-load(file.path(models, "abundancemodel_full_revised.rds"))
+# load(file.path(models, "abundancemodel_full_revised.rds"))
 
 
 
@@ -159,13 +162,14 @@ richness_import_split <- group.importance(spR_rf, groups)
 
 # BIOMASS
 biomass_mainEffects <- c("scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleORCDRC", "scaleCECSOL", 
-                         "bio10_7_scaled",  "bio10_12_scaled", 
+                         "bio10_7_scaled",  "bio10_12_scaled", "ScaleElevation",
                          "bio10_15_scaled", "ScalePET", "SnowMonths_cat", "ESA")
 # 11
 bioM_rf <- randomForest(y = biomass$logBiomass, x = biomass[,names(biomass) %in% biomass_mainEffects], 
                         ntree=501, importance=TRUE, proximity = TRUE)
 
 ESA <- "ESA"
+Elevation <- "ScaleElevation"
 Temperature <- c("bio10_7_scaled", "ScalePET")
 Precip <- c("bio10_12_scaled", "bio10_15_scaled", "SnowMonths_cat")
 Soil <- c("scalePH","scaleORCDRC", "scaleCECSOL","scaleCLYPPT", "scaleSLTPPT")
@@ -173,6 +177,7 @@ WaterRetention <- c("scaleCLYPPT", "scaleSLTPPT", "bio10_12_scaled", "bio10_15_s
 
 groups <- list(
   ESA = ESA,
+  Elevation = Elevation,
   Temperature = Temperature,
   Precip = Precip,
   Soil = Soil,
@@ -185,16 +190,16 @@ biomass_import_split <- group.importance(bioM_rf, groups)
 # Ordering
 #######################
 abundance_import_split
-abundance_order <- c(1, 3, 4, 6, 2, 5)
+abundance_order <- c(5,1,6,2,3,4)
 richness_import_split
-richness_order <- c(4, 5, 6, 1, 2, 3)
+richness_order <- c(3,5,6,2,1,4)
 biomass_import_split
-biomass_order <- c(5,NA, 6,4,3, 2)
+biomass_order <- c(6,1,5,4,3,2)
 
 abundance_import_delta <- c(abundance_import_split - max(abundance_import_split, na.rm = TRUE))
 richness_import_delta <- c(richness_import_split - max(richness_import_split, na.rm = TRUE))
 biomass_import_delta <- c(biomass_import_split - max(biomass_import_split, na.rm = TRUE))
-biomass_import_delta <- c(biomass_import_delta[1], NA, biomass_import_delta[2:5])
+# biomass_import_delta <- c(biomass_import_delta[1], NA, biomass_import_delta[2:5])
 
 
 d <- a <- matrix(rep(NA, length = 6*3), nrow = 3, ncol = 6)
@@ -251,7 +256,8 @@ all_dat <- rbind(spR, abund, bmass)
 labs <- c("Habitat \nCover","Elevation","Soil","Precipitation","Temperature","Water\nRetention")
 
 # jpeg(file = file.path(figures, "variableImportance_splitGroups_circles.jpg"), quality = 100, res = 200, width = 2000, height = 1000)
-pdf(file.path(figures, "variableImportance_splitGroups_circles.pdf"),width= wide_inch, height= wide_inch*0.55, pointsize = point_size)
+pdf(file.path(figures, "variableImportance_splitGroups_circles_correction.pdf"),width= wide_inch, height= wide_inch*0.55, pointsize = point_size)
+#png(file.path(figures, "variableImportance_splitGroups_circles_correction.png"), res = 200, width = 1000, height = 500, pointsize = point_size)
 
 par(mar = c(5, 8, 0.1, 0.1))
 plot(-1e+05, -1e+05, ylim = c(0, 4), xlim = c(0.5, 6.5),  

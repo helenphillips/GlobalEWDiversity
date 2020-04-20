@@ -3,18 +3,20 @@
 # 1. Load Libraries and Data
 ########################################################
 
-
+library(glmmTMB)
 library(raster)
 library(lme4)
 ########################################################
 # 2. Set Working Directory or Cluster Info
 ########################################################
 
-if(Sys.info()["nodename"] == "IDIVNB193"){
-  setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\Users\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
   
-  GLs_folder <- "I:\\sWorm\\ProcessedGLs_revised\\..\\regions"
+  GLs_folder <- "I:\\sWorm\\Same_resolution_dec2019\\Abundance\\regions"
   models <- "Models"
+  reg <- "r20" # the smallest region
+  savefolder <- "C:\\Users\\hp39wasi\\WORK\\sWorm\\temp\\"
 }else{ ## i.e. cluster
   args <- commandArgs(trailingOnly = TRUE)
   
@@ -37,19 +39,19 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
 # 3. Load in models
 #################################################
 print("Loading in the biodiversity models")
-load(file.path(models, "abundancemodel_full_revised.rds"))
-
+# load(file.path(models, "abundancemodel_full_revised.rds"))
+load(file.path(models, "abundancemodel_full_correction.rds"))
 
 #################################################
 # 4. Rerun model with different factor levels for ESA
 #################################################
-if(file.exists(file.path(models, "abundancemodel_full_revised_ESA.rds"))){
+if(file.exists(file.path(models, "abundancemodel_full_correction_ESA.rds"))){
   print("Model already exists")
-  load(file.path(models, "abundancemodel_full_revised_ESA.rds"))
+  load(file.path(models, "abundancemodel_full_correction_ESA.rds"))
   
 }else{
 print("Re-running model with new ESA values....")
-data <- abundance_model@frame
+data <- abundance_model$frame
 levels(data$ESA)[levels(data$ESA) == 'Broadleaf deciduous forest'] <- "60"
 levels(data$ESA)[levels(data$ESA) == 'Broadleaf evergreen forest'] <- "50"
 levels(data$ESA)[levels(data$ESA) == 'Needleleaf evergreen forest'] <- "70"
@@ -61,11 +63,15 @@ levels(data$ESA)[levels(data$ESA) == 'Production - Herbaceous'] <- "10"
 levels(data$ESA)[levels(data$ESA) == 'Production - Plantation'] <- "12"
 levels(data$ESA)[levels(data$ESA) == 'Cropland/Other vegetation mosaic'] <- "30"
 
+mod <-  glmmTMB(formula = formula(abundance_model$call$formula), 
+                ziformula = abundance_model$call$ziformula,
+                data = data, 
+                family = abundance_model$modelInfo$family,
+                control = glmmTMBControl(optCtrl = list(iter.max = 2e5, eval.max=2e5)))
+ 
 
-mod <-  lmer(formula = abundance_model@call$formula, data = data, 
-             control = lmerControl(optimizer = "bobyqa",optCtrl=list(maxfun=2e5)))
 
-save(mod, file = file.path(models, "abundancemodel_full_revised_ESA.rds"))
+save(mod, file = file.path(models, "abundancemodel_full_correction_ESA.rds"))
 
 
 }
@@ -82,7 +88,7 @@ print("Creating abundance raster")
 print("Loading all rasters")
 
 
-bio10_7_scaled <- raster(file.path(GLs_folder, reg, "scaled_Abundance_bio10_7_.tif"))
+bio10_7_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_7_AbundanceCutScaled.tif"))
 
 dimensions <- dim(bio10_7_scaled)
 resol <-res(bio10_7_scaled)
@@ -90,7 +96,7 @@ coordred <- crs(bio10_7_scaled)
 exten <- extent(bio10_7_scaled)
 bio10_7_scaled <- as.vector(bio10_7_scaled)
 
-bio10_15_scaled <- raster(file.path(GLs_folder, reg, "scaled_Abundance_bio10_15_.tif"))
+bio10_15_scaled <- raster(file.path(GLs_folder, reg, "CHELSA_bio10_15_AbundanceCutScaled.tif"))
 bio10_15_scaled <- as.vector(bio10_15_scaled)
 
 SnowMonths_cat <- raster(file.path(GLs_folder, reg, "Snow_newValues_WGS84.tif"))
@@ -98,28 +104,28 @@ SnowMonths_cat <- as.vector(SnowMonths_cat)
 SnowMonths_cat <- as.factor(SnowMonths_cat)
 levels(SnowMonths_cat)[levels(SnowMonths_cat) == "4"] <- "4plus"
 
-scaleAridity <- raster(file.path(GLs_folder, reg, "scaled_Abundance_ai_.tif"))
+scaleAridity <- raster(file.path(GLs_folder, reg, "Aridity_AbundanceScaled.tif"))
 scaleAridity <- as.vector(scaleAridity)
 
-ScalePET <- raster(file.path(GLs_folder, reg, "scaled_Abundance_pet_.tif"))
+ScalePET <- raster(file.path(GLs_folder, reg, "PETyr_AbundanceScaled.tif"))
 ScalePET <- as.vector(ScalePET)
 
-ScaleElevation <- raster(file.path(GLs_folder, reg, "scaled_Abundance_elevation_.tif"))
+ScaleElevation <- raster(file.path(GLs_folder, reg, "elevation_AbundanceScaled.tif"))
 ScaleElevation <- as.vector(ScaleElevation)
 
-scalePH <- raster(file.path(GLs_folder, reg,"scaled_Abundance_ph_.tif"))
+scalePH <- raster(file.path(GLs_folder, reg,"PHIHOX_AbundanceCutScaled.tif"))
 scalePH <- as.vector(scalePH)
 
-scaleCLYPPT <- raster(file.path(GLs_folder, reg, "scaled_Abundance_clay_.tif"))
+scaleCLYPPT <- raster(file.path(GLs_folder, reg, "CLYPPT_AbundanceCutScaled.tif"))
 scaleCLYPPT <- as.vector(scaleCLYPPT)
 
-scaleSLTPPT <- raster(file.path(GLs_folder, reg, "scaled_Abundance_silt_.tif"))
+scaleSLTPPT <- raster(file.path(GLs_folder, reg, "SLTPPT_AbundanceCutScaled.tif"))
 scaleSLTPPT <- as.vector(scaleSLTPPT)
 
-scaleCECSOL <- raster(file.path(GLs_folder, reg, "scaled_Abundance_cation_.tif"))
+scaleCECSOL <- raster(file.path(GLs_folder, reg, "CECSOL_AbundanceCutScaled.tif"))
 scaleCECSOL <- as.vector(scaleCECSOL)
 
-scaleORCDRC <- raster(file.path(GLs_folder, reg, "scaled_Abundance_carbon_.tif"))
+scaleORCDRC <- raster(file.path(GLs_folder, reg, "ORCDRC_AbundanceCutScaled.tif"))
 scaleORCDRC <- as.vector(scaleORCDRC)
 
 ESA <- raster(file.path(GLs_folder, reg, "ESA_newValuesCropped.tif"))
@@ -139,7 +145,9 @@ newdat <- data.frame(ESA = ESA,
                      SnowMonths_cat = SnowMonths_cat,
                      bio10_15_scaled = bio10_15_scaled,
                      bio10_7_scaled = bio10_7_scaled,
-                     ScaleElevation = ScaleElevation)
+                     ScaleElevation = ScaleElevation,
+                     file = NA,
+                     Study_Name = NA)
 
 rm(list=c("bio10_7_scaled", "bio10_15_scaled", "SnowMonths_cat", "scaleAridity", "ScalePET",
           "scalePH", "scaleCLYPPT", "scaleSLTPPT", "scaleCECSOL", "scaleORCDRC", "ESA", "ScaleElevation"))
@@ -200,7 +208,7 @@ for(l in 1:length(x)){
   
   print(paste(l, "in", length(x), "iterations.."))
   
-  res <- predict(mod, x[[l]], re.form = NA)
+  res <- predict(mod, x[[l]], type = "response")
   write.table(res, file= file.path(savefolder, reg, "predictedValues.csv"),
               append=TRUE, row.names = FALSE,
               col.names = FALSE,

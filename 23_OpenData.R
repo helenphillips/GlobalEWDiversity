@@ -23,7 +23,7 @@ if(Sys.info()["nodename"] == "TSGIS02"){
 }
 
 ## LOAD DATA ------------
-dat <- read.csv(file.path(data_in, "sWorm_CompleteDataSet.csv"))
+dat <- read.csv(file.path(data_in, "sWorm_CompleteDataSet_correction.csv"))
 
 
 ## REMOVE COLUMNS -------
@@ -33,7 +33,8 @@ notNeeded <- c("ID",
 "Longitude__Decimal_Degrees","Altitude__m",               
 "Country","Sample_StartDate_Month",   
 "Sample_StartDate_Year","Sample_EndDate_Month",     
-"Sample_EndDate_Year","ExtractionMethod", "CEC","CEC_unit", "CEC_mean",      
+"Sample_EndDate_Year","ExtractionMethod", "CEC","CEC_unit", "CEC_mean",      "Soil_Organic_Matter__percent",
+"SOM_mean",
 "Sampled_Area","Sampled_Area_Unit",       
 "Sample_Effort","Base_Saturation_percent",    
 "BaseSaturation_mean","WRB_FAO_SoilType",         
@@ -54,7 +55,7 @@ notNeeded <- c("ID",
 "bio10_14",      "Study_site", 
 "bio10_16","bio10_17",                  
 "bio10_18","bio10_19",                 
-"TAXNWRB_1",    "ScalePET","ScalePETSD",              
+"TAXNWRB_1",    "ScalePET","ScalePETSD",     "scaleAridity",             
 "country","LU_Mgmt",                  
 "scalePH")
 
@@ -69,8 +70,7 @@ toOrder <- c("file","Study_Name",
 "PH",                          
 "PH_Collection_Method","PH_mean",                     
 "Organic_Carbon__percent",     
-"OC_mean","Soil_Organic_Matter__percent",
-"SOM_mean","C.N_ratio",                   
+"OC_mean","C.N_ratio",                   
 "CN_mean","Sand__percent",               
 "Silt__percent","Clay__percent",               
 "sand_silt_clay_mean" ,                    
@@ -86,7 +86,7 @@ toOrder <- c("file","Study_Name",
 "bio10_4","bio10_7",                     
 "bio10_12","bio10_15",                    
 "elevation","SnowMonths",  "SnowMonths_cat",                
-"Aridity","scaleAridity",                
+"Aridity",            
 "PETyr",                    
 "PET_SD",                
 "SpeciesRichness","SpeciesRichnessUnit",         
@@ -97,4 +97,13 @@ toOrder <- c("file","Study_Name",
 
 dat <- dat[,match(toOrder, names(dat))]
 
-write.csv(dat, file = file.path(data_out, "sWormModelData.csv"))
+write.csv(dat, file = file.path(data_out, "sWormModelData_correction.csv"))
+
+
+## CREATE META-DATA ------------
+
+
+df1 <- data.frame(colName = names(dat))
+
+write.csv(df1, file = file.path(data_out, "sWormModelData_meta-data_correction.csv"), row.names = FALSE)
+

@@ -6,6 +6,11 @@ if(Sys.info()["nodename"] == "IDIVNB193"){
   setwd("C:\\restore2\\hp39wasi\\sWorm\\EarthwormAnalysis\\")
 }
 
+if(Sys.info()["nodename"] == "IDIVNB179"){
+  setwd("C:\\USers\\hp39wasi\\WORK\\sWorm\\EarthwormAnalysis\\")
+}
+
+
 #################################################
 # 1. Loading libraries
 #################################################
@@ -62,7 +67,7 @@ tifs <- c("bio10_1","bio10_2","bio10_3","bio10_4", "bio10_5",
           "bio10_16","bio10_17","bio10_18","bio10_19")
 divide <- tifs[c(1, 5:11)]
 for(t in tifs){
-  tif <- raster(file.path("I:\\sDiv-postdocs-work\\Phillips\\sWorm\\SpatialAnalysis\\CHELSAData\\BioClim", 
+  tif <- raster(file.path("I:\\sDiv\\Phillips\\sWorm\\SpatialAnalysis\\CHELSAData\\BioClim", 
                   paste("CHELSA_", t, ".tif", sep="")))
   sites$V1 <- extract(tif, data.frame(sites$Longitude__Decimal_Degrees , sites$Latitude__decimal_degrees))
     if(t %in% divide){
