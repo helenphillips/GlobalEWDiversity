@@ -83,8 +83,8 @@ length(unique(alldat$Study_site))
 ## 6928 # 9207
 
 
-length(unique(alldat$Study_Name)) # 228
-length(unique(alldat$file)) # 180
+length(unique(alldat$studyID)) # 228 # 224
+length(unique(alldat$file)) # 180 # 176
 
 
 countries <- unique(alldat$Country)
@@ -229,7 +229,7 @@ unique(highAbundance$Study_Name)
 highBiomass <- droplevels(biomass[biomass$Site_WetBiomass > 300,])
 unique(highBiomass$Study_Name)
 
-
+# Looked through all the datasets, and all seem fine. Just high biodiversity plots           
 ##########################################
 # Number of sites with high number of months with snow
 #########################################
