@@ -10,7 +10,8 @@ I have tried to write this code so that it works on anyone's machine....but at v
 
 In theory, the input for one script is the output from the previous (or a previous) script. All scripts create an output folder, for data, and place all figures into a separate folder.
 
-Please feel free to raise any issues.
+Please feel free to raise any issues. 
+
 
 ## Erratum
 The Phillips et a., 2019 Science paper has now had a Erratum issued. Unfortunately in the original data preparation a bug in the code was introduced. Please see this [Erratum README](../master/erratum_README.md) which provides additional detail.
@@ -30,7 +31,9 @@ This script firstly calculates the number of datasets that were affected by the 
 
 ## Files
 
+
 ### `0_GetData.R`
+
 This script accesses my personal Google Drive to download all the files that contain the data. This will not work for anyone.
 
 *(To replicate this analysis, the data needs to be downloaded from the iDiv Data portal (see published erratum for DOI), and steps 1-5 are no longer necessary.)*
@@ -40,7 +43,6 @@ Once all the data has been downloaded, the first stage of cleaning is undertaken
 For the site-level dataframe, the site-level metrics (species richness, abundance and biomass) are calculated. 
 
 
-=======
 ### `1_AddCHELSA.R`
 Based on the coordinates of each site in the site-level metrics, the relevant CHELSA data ([http://chelsa-climate.org/bioclim/](http://chelsa-climate.org/bioclim/)) are appended. The CHELSA data had been downloaded previously.
 
@@ -139,3 +141,24 @@ For all the funding and acknowledgements that were given by the co-authors, this
 
 ### `Meta-data.R`
 This script calculates all the numbers in the manuscript (i.e., how many sites, how many countries)
+
+
+## Folders
+
+#### Functions
+Contains all the functions needed for the analysis
+#### PreparingGlobalLayers
+This contains a whole laod of submit scripts, because I ran out of time one weekend and needed a whole load of jobs and didn't know how to write a nicer submit script.
+
+
+## Credits
+Thanks to Carlos who also wrote some python code for some of the analysis (not currently in this git repo).
+
+Also, thanks to Johan van der Hoogen, Devin Roth and Thomas Crowther, who used their own pipeline to create some maps for our data.
+
+## License
+
+Apache License.
+
+If you use this code, it would be great if you could link back to my account. 
+
